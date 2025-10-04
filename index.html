@@ -5,9 +5,96 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Harsen Schmidt — Portfolio</title>
   <meta name="description" content="Portfolio de Harsen Schmidt — Étudiant en 2e année DNMADE Graphisme, à la recherche d’un stage de 3 mois du 27 avril au 27 juillet 2026." />
-  
-  <!-- Lien vers ton fichier CSS -->
-  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* CSS intégré pour l'image de fond pleine écran */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .wrap {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .nav a {
+      margin-left: 20px;
+      cursor: pointer;
+      text-decoration: none;
+      color: #000;
+    }
+
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .hero .bg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 100%;
+      height: 100%;
+      max-width: 1920px;
+      max-height: 900px;
+      transform: translate(-50%, -50%);
+      object-fit: contain;
+      z-index: -1;
+    }
+
+    .projects-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 1;
+      align-items: center;
+    }
+
+    .projects-menu a {
+      padding: 10px 20px;
+      background-color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      color: #000;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    .projects-menu a:hover {
+      background-color: rgba(255,255,255,1);
+    }
+
+    .contact-page {
+      display: none;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      margin-top: auto;
+      background-color: #f0f0f0;
+    }
+  </style>
 </head>
 <body>
   <div class="wrap">
@@ -36,7 +123,7 @@
       </section>
 
       <!-- PAGE CONTACT -->
-      <section id="contactPage" class="contact-page" style="display:none;">
+      <section id="contactPage" class="contact-page">
         <div class="cv-preview">
           <span>CV en PDF — à ajouter ici</span>
         </div>
@@ -59,7 +146,6 @@
     </footer>
   </div>
 
-  <!-- SCRIPT JS -->
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -77,7 +163,7 @@
       homeSection.style.display = 'flex';
     });
 
-    // Affiche la page hh
+    // Affiche la page contact
     contactBtn.addEventListener('click', () => {
       homeSection.style.display = 'none';
       projectsMenu.style.display = 'none';
