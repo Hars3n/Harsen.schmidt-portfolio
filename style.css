@@ -76,9 +76,15 @@ header {
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.brand-btn img:hover {
-  transform: scale(1.05);
-  opacity: 0.85;
+.brand-btn img {
+  width: 56px;       /* largeur fixe du bouton */
+  height: 56px;      /* hauteur fixe du bouton */
+  max-width: 100%;   /* ne jamais dépasser la taille définie */
+  object-fit: cover; /* garde l'image correctement à l'intérieur du carré */
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  display: block;
 }
 
 /* --- NAVIGATION --- */
