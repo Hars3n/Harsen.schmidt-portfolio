@@ -10,7 +10,6 @@ html, body {
   height: 100%;
   font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
   color: #f5f5f5;
-  background: #0b0b0b;
 }
 a {
   color: inherit;
