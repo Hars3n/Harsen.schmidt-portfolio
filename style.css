@@ -21,7 +21,7 @@ body {
   font-size: 3rem;
 
   /* Dégradé violet → noir animé */
-  background: linear-gradient(270deg, #7b2ff7, #000000, #000000);
+  background: linear-gradient(270deg, #333333, #000000, #000000);
   background-size: 600% 600%;
   animation: gradient 50s ease infinite;
 }
