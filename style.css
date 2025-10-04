@@ -24,7 +24,7 @@ html, body {
   /* Dégradé violet → noir animé */
   background: linear-gradient(270deg, #7b2ff7, #000000, #7b2ff7);
   background-size: 600% 600%;
-  animation: gradient 12s ease infinite;
+  animation: gradient 50s ease infinite;
 }
 
 @keyframes gradient {
