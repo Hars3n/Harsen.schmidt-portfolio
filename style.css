@@ -61,8 +61,10 @@ header {
   justify-content: space-between;
   align-items: center;
   z-index: 10;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(6px);
+  background: transparent; /* plus de noir */
+  backdrop-filter: none; /* supprime le flou */
+}
+
 }
 
 .brand-btn img {
