@@ -17,33 +17,23 @@ html, body {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Dégradé violet → bleu</title>
+<title>Background Dégradé Violet → Bleu</title>
 <style>
   body {
     margin: 0;
     min-height: 100vh;
-    /* dégradé linéaire du haut (violet) vers le bas (bleu) */
-    background: linear-gradient(180deg, #7b2ff7 0%, #2b7df5 100%);
-    font-family: system-ui, Arial, sans-serif;
+    /* dégradé linéaire violet -> bleu */
+    background: linear-gradient(135deg, #7b2ff7, #2b7df5);
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     color: white;
-    display: grid;
-    place-items: center;
-  }
-
-  .card {
-    padding: 2rem;
-    background: rgba(255,255,255,0.06);
-    border-radius: 12px;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.25);
-    text-align: center;
   }
 </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Fondu violet → bleu</h1>
-    <p>Exemple simple de background en dégradé.</p>
-  </div>
+  <h1>Mon site avec un fond violet → bleu</h1>
 </body>
 </html>
 a {
