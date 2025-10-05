@@ -181,7 +181,7 @@ main {
 body {
   background: linear-gradient(-45deg, #0a0a0a, #1c1c1c, #000000, #121212);
   background-size: 400% 400%;
-  animation: gradient 10s ease infinite;
+  animation: gradient 50s ease infinite;
   color: #f0f0f0;
 }
 
