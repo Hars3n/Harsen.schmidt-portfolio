@@ -176,4 +176,24 @@ main {
     font-size: 0.9rem;
   }
 }
+/* === Dégradé animé comme les autres pages === */
+
+body {
+  background: linear-gradient(-45deg, #0a0a0a, #1c1c1c, #000000, #121212);
+  background-size: 400% 400%;
+  animation: gradient 10s ease infinite;
+  color: #f0f0f0;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
 
