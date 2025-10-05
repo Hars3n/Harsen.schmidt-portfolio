@@ -101,6 +101,8 @@
 
     #pdf-canvas {
       width: 100%;
+      max-height: 600px;
+      object-fit: contain;
       border-radius: 8px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
       background: white;
@@ -249,7 +251,7 @@
     let pageNum = 1;
     let pageRendering = false;
     let pageNumPending = null;
-    const scale = 1.5;
+    const scale = 1.0;
     const canvas = document.getElementById('pdf-canvas');
     const ctx = canvas.getContext('2d');
 
