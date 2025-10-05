@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Affiche / Édition – Harsen Schmidt</title>
+
+  <!-- Styles globaux -->
+  <link rel="stylesheet" href="style.css">
+  <!-- Styles spécifiques aux pages projets -->
+  <link rel="stylesheet" href="identite.css">
+</head>
+<body>
+  <div class="wrap">
+    <!-- HEADER -->
+    <header>
+      <a href="index.html" class="brand-btn">
+        <img src="image-menu.png" alt="Retour à l'accueil" />
+      </a>
+      <nav class="nav">
+        <a href="index.html">Portfolio</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+      <section class="project-section">
+        <div class="project-content">
+          <h1 class="project-title">Affiche / Édition</h1>
+
+          <!-- Images Grid -->
+          <div class="images-grid">
+            <div class="image-column">
+              <img src="affiche-1.jpg" alt="Affiche projet 1">
+              <img src="affiche-3.jpg" alt="Affiche projet 3">
+            </div>
+            <div class="image-column">
+              <img src="affiche-2.jpg" alt="Affiche projet 2">
+              <img src="affiche-4.jpg" alt="Affiche projet 4">
+            </div>
+          </div>
+
+          <!-- Section supplémentaire -->
+          <h2 class="section-title">Détails du projet</h2>
+          
+          <div class="images-grid">
+            <img src="affiche-5.jpg" alt="Affiche projet 5">
+            <img src="affiche-6.jpg" alt="Affiche projet 6">
+          </div>
+        </div>
+
+        <!-- Sidebar Info -->
+        <aside class="project-info">
+          <h3>Type de projet</h3>
+          <p>Affiche | Édition graphique</p>
+
+          <h3>Commanditaire</h3>
+          <p>À compléter</p>
+
+          <h3>Date</h3>
+          <p>2024-2025</p>
+
+          <h3>Description</h3>
+          <p>Création d'affiches et de supports éditoriaux graphiques. Travail sur la typographie, la composition et l'identité visuelle pour différents événements et publications.</p>
+          
+          <h3>Techniques</h3>
+          <p>Design graphique, mise en page, impression</p>
+        </aside>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+      &copy; <span id="year"></span> Harsen Schmidt – Portfolio
+    </footer>
+  </div>
+
+  <script>
+    // Année footer
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
