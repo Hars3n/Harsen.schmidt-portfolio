@@ -61,7 +61,7 @@
           <p>Ayamaya édition</p>
 
           <h3>Description</h3>
-          <p>Réalisation de l'identité visuelle de la maison d'édition Ayamaya ! Comprenant un logotype, des éléments graphiques et typographiques, et une charte graphique.</p>
+          <p>Réalisation de l'identité visuelle de la maison d'édition Ayamaya !, comprenant un logotype, des éléments graphiques et typographiques, et une charte graphique.</p>
         </aside>
       </section>
     </main>
@@ -95,34 +95,37 @@
       pdfDoc = pdf;
       document.getElementById('page-count').textContent = pdf.numPages;
       
-      // Analyser toutes les pages pour trouver la hauteur la plus commune
-      const heightPromises = [];
+      // Analyser toutes les pages pour détecter le format paysage (le plus fréquent)
+      const dimensionPromises = [];
       for (let i = 1; i <= pdf.numPages; i++) {
-        heightPromises.push(
+        dimensionPromises.push(
           pdf.getPage(i).then(page => {
-            const vp = page.getViewport({ scale: 1.5 });
-            return Math.round(vp.height);
+            const vp = page.getViewport({ scale: 1 });
+            return {
+              pageNum: i,
+              width: vp.width,
+              height: vp.height,
+              isLandscape: vp.width > vp.height
+            };
           })
         );
       }
       
-      Promise.all(heightPromises).then(heights => {
-        // Compter les occurrences
-        const counts = {};
-        heights.forEach(h => {
-          counts[h] = (counts[h] || 0) + 1;
-        });
+      Promise.all(dimensionPromises).then(dimensions => {
+        // Trouver les pages paysage (la majorité)
+        const landscapePages = dimensions.filter(d => d.isLandscape);
         
-        // Trouver la hauteur la plus fréquente
-        let maxCount = 0;
-        for (const [height, count] of Object.entries(counts)) {
-          if (count > maxCount) {
-            maxCount = count;
-            targetCanvasHeight = parseInt(height);
-          }
+        if (landscapePages.length > 0) {
+          // Prendre la hauteur d'une page paysage comme référence
+          const landscapeHeight = landscapePages[0].height;
+          targetCanvasHeight = landscapeHeight * 1.5; // Scale de base
+          
+          console.log('Format détecté:');
+          console.log('- Pages paysage:', landscapePages.length);
+          console.log('- Pages portrait:', dimensions.length - landscapePages.length);
+          console.log('- Hauteur cible:', targetCanvasHeight);
         }
         
-        console.log('Hauteur cible (pages paysage):', targetCanvasHeight);
         renderPage(pageNum);
       });
     }).catch(error => console.error('Erreur de chargement du PDF:', error));
@@ -132,17 +135,22 @@
       
       pageRendering = true;
       pdfDoc.getPage(num).then(page => {
-        // Première étape : obtenir les dimensions avec scale 1.5
-        const baseViewport = page.getViewport({ scale: 1.5 });
+        const baseViewport = page.getViewport({ scale: 1 });
+        const isPortrait = baseViewport.height > baseViewport.width;
         
-        // Calculer le ratio pour atteindre la hauteur cible
-        const heightRatio = targetCanvasHeight / baseViewport.height;
+        let finalScale;
+        if (isPortrait) {
+          // Pour les pages portrait (1 et 15): réduire de moitié la hauteur
+          // Donc on veut que leur hauteur = targetCanvasHeight
+          finalScale = (targetCanvasHeight / baseViewport.height);
+        } else {
+          // Pour les pages paysage: utiliser le scale de base
+          finalScale = 1.5;
+        }
         
-        // Appliquer le scale final
-        const finalScale = 1.5 * heightRatio;
         const viewport = page.getViewport({ scale: finalScale });
 
-        // Fixer la hauteur du canvas à la hauteur cible
+        // Toujours utiliser la hauteur cible
         canvas.height = targetCanvasHeight;
         canvas.width = viewport.width;
 
