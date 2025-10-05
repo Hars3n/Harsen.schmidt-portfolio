@@ -76,16 +76,25 @@
     // Année footer
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Configuration PDF.js
+    // PDF.js
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
     let pdfDoc = null;
     let pageNum = 1;
     let pageRendering = false;
     let pageNumPending = null;
-    let scale = (window.innerWidth < 768) ? 0.8 : 1.2;
+
     const canvas = document.getElementById('pdf-canvas');
     const ctx = canvas.getContext('2d');
+
+    // Fonction pour calculer le scale du PDF en fonction du conteneur
+    function getScale() {
+      const maxWidth = 900; // largeur PDF max
+      const containerWidth = document.querySelector('.pdf-viewer').clientWidth;
+      return Math.min(1.5, containerWidth / maxWidth);
+    }
+
+    let scale = getScale();
 
     pdfjsLib.getDocument('Charte-graphique-ayamaya.pdf').promise.then(pdf => {
       pdfDoc = pdf;
@@ -102,6 +111,7 @@
 
         const renderContext = { canvasContext: ctx, viewport };
         const renderTask = page.render(renderContext);
+
         renderTask.promise.then(() => {
           pageRendering = false;
           if (pageNumPending !== null) {
@@ -135,7 +145,12 @@
       pageNum++;
       queueRenderPage(pageNum);
     });
+
+    // Adapter le PDF au redimensionnement de la fenêtre
+    window.addEventListener('resize', () => {
+      scale = getScale();
+      queueRenderPage(pageNum);
+    });
   </script>
 </body>
 </html>
-
