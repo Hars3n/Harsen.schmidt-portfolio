@@ -11,6 +11,12 @@
       padding: 120px 6vw 60px;
       max-width: 1400px;
       margin: 0 auto;
+      min-height: auto;
+    }
+    
+    body {
+      min-height: 100vh;
+      font-size: 1rem;
     }
 
     .project-section {
@@ -38,14 +44,18 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 20px;
+      max-width: 100%;
     }
 
     .images-grid img {
       width: 100%;
-      height: auto;
+      max-height: 200px;
+      object-fit: contain;
       border-radius: 8px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
       transition: transform 0.3s ease;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 10px;
     }
 
     .images-grid img:hover {
