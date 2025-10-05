@@ -15,10 +15,7 @@ html, body {
 
 body {
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 3rem;
+  font-size: 1rem;
   background: linear-gradient(270deg, #333333, #000000, #000000);
   background-size: 600% 600%;
   animation: gradient 50s ease infinite;
@@ -315,6 +312,3 @@ footer {
     max-width: 350px;
   }
 }
-
-
-
