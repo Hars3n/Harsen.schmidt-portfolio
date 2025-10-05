@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expérimentation – Harsen Schmidt</title>
+
+  <!-- Styles globaux -->
+  <link rel="stylesheet" href="style.css">
+  <!-- Styles spécifiques aux pages projets -->
+  <link rel="stylesheet" href="identite.css">
+</head>
+<body>
+  <div class="wrap">
+    <!-- HEADER -->
+    <header>
+      <a href="index.html" class="brand-btn">
+        <img src="image-menu.png" alt="Retour à l'accueil" />
+      </a>
+      <nav class="nav">
+        <a href="index.html">Portfolio</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+      <section class="project-section">
+        <div class="project-content">
+          <h1 class="project-title">Expérimentation</h1>
+
+          <!-- Images Grid - 3 colonnes pour plus de variété -->
+          <div class="images-grid images-grid-3">
+            <img src="experiment-1.jpg" alt="Expérimentation 1">
+            <img src="experiment-2.jpg" alt="Expérimentation 2">
+            <img src="experiment-3.jpg" alt="Expérimentation 3">
+          </div>
+
+          <h2 class="section-title">Recherches visuelles</h2>
+          
+          <div class="images-grid">
+            <div class="image-column">
+              <img src="experiment-4.jpg" alt="Expérimentation 4">
+              <img src="experiment-6.jpg" alt="Expérimentation 6">
+            </div>
+            <div class="image-column">
+              <img src="experiment-5.jpg" alt="Expérimentation 5">
+              <img src="experiment-7.jpg" alt="Expérimentation 7">
+            </div>
+          </div>
+
+          <h2 class="section-title">Explorations techniques</h2>
+          
+          <div class="images-grid images-grid-3">
+            <img src="experiment-8.jpg" alt="Expérimentation 8">
+            <img src="experiment-9.jpg" alt="Expérimentation 9">
+            <img src="experiment-10.jpg" alt="Expérimentation 10">
+          </div>
+        </div>
+
+        <!-- Sidebar Info -->
+        <aside class="project-info">
+          <h3>Type de projet</h3>
+          <p>Expérimentation | Recherche visuelle</p>
+
+          <h3>Contexte</h3>
+          <p>Travaux personnels et académiques</p>
+
+          <h3>Période</h3>
+          <p>2024-2025</p>
+
+          <h3>Description</h3>
+          <p>Série d'expérimentations graphiques explorant différentes techniques, médiums et approches créatives. Recherche plastique autour de la typographie, de la couleur, des formes et des matières.</p>
+          
+          <h3>Techniques</h3>
+          <p>Collage, photographie, design génératif, manipulation d'images, techniques mixtes</p>
+        </aside>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+      &copy; <span id="year"></span> Harsen Schmidt – Portfolio
+    </footer>
+  </div>
+
+  <script>
+    // Année footer
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
