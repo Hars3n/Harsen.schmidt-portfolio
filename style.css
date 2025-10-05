@@ -158,41 +158,57 @@ header {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 12vh 6vw;
-  gap: 40px;
+  align-items: center;
+  padding: 12vh 8vw;
+  gap: 80px;
+  min-height: 100vh;
 }
 
 .contact-info {
-  max-width: 420px;
-}
-
-.contact-info h2 {
-  margin-bottom: 12px;
-  font-size: 1.5rem;
-}
-
-.contact-info p {
-  color: #ccc;
-  line-height: 1.6;
-  font-size: 1rem;
+  flex: 1;
+  max-width: 500px;
+  text-align: left;
 }
 
 .cv-preview {
-  flex: 1;
-  min-width: 320px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  border: 1px dashed #555;
-  padding: 50px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.02);
+  gap: 20px;
+  flex-shrink: 0;
 }
 
-.cv-preview span {
-  color: #777;
-  font-size: 0.95rem;
+.cv-preview img {
+  width: 350px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cv-preview img:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+.download-cv-btn {
+  display: inline-block;
+  padding: 14px 32px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #0b0b0b;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
+}
+
+.download-cv-btn:hover {
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(255, 255, 255, 0.3);
 }
 
 /* --- FOOTER --- */
