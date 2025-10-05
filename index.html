@@ -125,19 +125,18 @@
       overflow: hidden;
     }
 
-    /* NOUVEAU: Fond fixe non croppé */
+    /* NOUVEAU: Fond fixe non croppé - zone centrale uniquement */
     .hero::before {
       content: '';
       position: fixed;
-      top: 0;
+      top: 100px;
       left: 0;
-      width: 100%;
-      height: 100%;
+      right: 0;
+      bottom: 80px;
       background-image: url('Fond-site.jpg');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      background-attachment: fixed;
       opacity: 0.7;
       z-index: -1;
       filter: brightness(0.7);
@@ -366,4 +365,5 @@
     });
   </script>
 </body>
+</html>
 </html>
