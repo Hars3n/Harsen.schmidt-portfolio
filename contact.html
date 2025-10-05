@@ -5,6 +5,130 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact – Harsen Schmidt</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Force l'affichage correct de la page contact */
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    main.contact-page {
+      display: flex !important;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12vh 8vw;
+      gap: 80px;
+      min-height: 100vh;
+      flex: 1;
+    }
+    
+    .cv-preview {
+      display: flex !important;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      flex-shrink: 0;
+    }
+    
+    .cv-preview img {
+      width: 350px;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: block;
+    }
+    
+    .cv-preview img:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    }
+    
+    .download-cv-btn {
+      display: inline-block !important;
+      padding: 14px 32px;
+      background: rgba(255, 255, 255, 0.95);
+      color: #0b0b0b;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
+    }
+    
+    .download-cv-btn:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(255, 255, 255, 0.3);
+    }
+    
+    .contact-info {
+      flex: 1;
+      max-width: 500px;
+      text-align: left;
+    }
+    
+    .contact-info h2 {
+      margin-bottom: 16px;
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #f5f5f5;
+    }
+    
+    .contact-info h3 {
+      margin-top: 28px;
+      margin-bottom: 12px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #f5f5f5;
+    }
+    
+    .contact-info p {
+      color: #ccc;
+      line-height: 1.8;
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+    
+    .contact-info a {
+      color: #ccc;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: all 0.3s ease;
+    }
+    
+    .contact-info a:hover {
+      color: #fff;
+      border-bottom: 1px solid #fff;
+    }
+    
+    @media (max-width: 768px) {
+      main.contact-page {
+        flex-direction: column;
+        align-items: center;
+        padding: 10vh 4vw;
+      }
+      
+      .cv-preview {
+        width: 100%;
+      }
+      
+      .cv-preview img {
+        width: 100%;
+        max-width: 350px;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="wrap">
@@ -18,17 +142,20 @@
         <a href="contact.html">Contact</a>
       </nav>
     </header>
+    
     <!-- MAIN CONTACT -->
     <main class="contact-page">
       <!-- CV à gauche -->
       <div class="cv-preview">
-        <img src="Cv-harsen.jpg" alt="CV de Harsen Schmidt">
+        <img src="Cv-harsen.jpg" alt="CV de Harsen Schmidt" loading="eager">
         <a href="Cv-harsen.jpg" download="CV_Harsen_Schmidt.jpg" class="download-cv-btn">Télécharger CV</a>
       </div>
+      
       <!-- Infos à droite -->
       <div class="contact-info">
         <h2>Recherche de stage</h2>
         <p>Je recherche un stage de 3 mois du 27 avril au 27 juillet 2026.</p>
+        
         <h3>Contact</h3>
         <p>
           Téléphone : 06 64 81 29 02<br/>
@@ -37,11 +164,13 @@
         </p>
       </div>
     </main>
+    
     <!-- FOOTER -->
     <footer>
       &copy; <span id="year"></span> Harsen Schmidt – Portfolio
     </footer>
   </div>
+  
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
