@@ -83,7 +83,7 @@
     let pageNum = 1;
     let pageRendering = false;
     let pageNumPending = null;
-    let referenceHeight = null;
+    let targetCanvasHeight = null;
 
     const canvas = document.getElementById('pdf-canvas');
     const ctx = canvas.getContext('2d');
@@ -92,64 +92,67 @@
       pdfDoc = pdf;
       document.getElementById('page-count').textContent = pdf.numPages;
       
-      // Analyser toutes les pages pour trouver la hauteur la plus commune (pages paysage)
+      // Analyser toutes les pages pour trouver la hauteur la plus commune
       const heightPromises = [];
       for (let i = 1; i <= pdf.numPages; i++) {
-        heightPromises.push(pdf.getPage(i).then(page => {
-          const viewport = page.getViewport({ scale: 1 });
-          return viewport.height;
-        }));
+        heightPromises.push(
+          pdf.getPage(i).then(page => {
+            const vp = page.getViewport({ scale: 1.5 });
+            return Math.round(vp.height);
+          })
+        );
       }
       
       Promise.all(heightPromises).then(heights => {
-        // Compter les occurrences de chaque hauteur
-        const heightCounts = {};
+        // Compter les occurrences
+        const counts = {};
         heights.forEach(h => {
-          const rounded = Math.round(h);
-          heightCounts[rounded] = (heightCounts[rounded] || 0) + 1;
+          counts[h] = (counts[h] || 0) + 1;
         });
         
-        // Trouver la hauteur la plus commune (pages paysage)
+        // Trouver la hauteur la plus fréquente
         let maxCount = 0;
-        let mostCommonHeight = heights[0];
-        for (const [height, count] of Object.entries(heightCounts)) {
+        for (const [height, count] of Object.entries(counts)) {
           if (count > maxCount) {
             maxCount = count;
-            mostCommonHeight = parseFloat(height);
+            targetCanvasHeight = parseInt(height);
           }
         }
         
-        referenceHeight = mostCommonHeight;
+        console.log('Hauteur cible (pages paysage):', targetCanvasHeight);
         renderPage(pageNum);
       });
     }).catch(error => console.error('Erreur de chargement du PDF:', error));
 
     function renderPage(num) {
-      if (!referenceHeight) return; // Attendre que la hauteur de référence soit calculée
+      if (!targetCanvasHeight) return;
       
       pageRendering = true;
       pdfDoc.getPage(num).then(page => {
-        // Calculer le scale pour correspondre à la hauteur de référence (pages paysage)
-        const viewport = page.getViewport({ scale: 1 });
-        const scale = referenceHeight / viewport.height;
-        const scaledViewport = page.getViewport({ scale });
+        // Première étape : obtenir les dimensions avec scale 1.5
+        const baseViewport = page.getViewport({ scale: 1.5 });
+        
+        // Calculer le ratio pour atteindre la hauteur cible
+        const heightRatio = targetCanvasHeight / baseViewport.height;
+        
+        // Appliquer le scale final
+        const finalScale = 1.5 * heightRatio;
+        const viewport = page.getViewport({ scale: finalScale });
 
-        // Définir les dimensions du canvas avec la hauteur de référence
-        const targetHeight = referenceHeight * scale;
-        canvas.height = targetHeight;
-        canvas.width = scaledViewport.width;
+        // Fixer la hauteur du canvas à la hauteur cible
+        canvas.height = targetCanvasHeight;
+        canvas.width = viewport.width;
 
-        // Centrer le canvas
+        // Centrer
         canvas.style.marginLeft = 'auto';
         canvas.style.marginRight = 'auto';
 
         const renderContext = { 
           canvasContext: ctx, 
-          viewport: scaledViewport 
+          viewport: viewport 
         };
-        const renderTask = page.render(renderContext);
-
-        renderTask.promise.then(() => {
+        
+        page.render(renderContext).promise.then(() => {
           pageRendering = false;
           if (pageNumPending !== null) {
             renderPage(pageNumPending);
@@ -183,7 +186,6 @@
       queueRenderPage(pageNum);
     });
 
-    // Adapter le PDF au redimensionnement de la fenêtre
     window.addEventListener('resize', () => {
       queueRenderPage(pageNum);
     });
