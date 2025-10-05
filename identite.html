@@ -83,7 +83,7 @@
     let pageNum = 1;
     let pageRendering = false;
     let pageNumPending = null;
-    const scale = 1.0;
+    let scale = (window.innerWidth < 768) ? 0.8 : 1.2;
     const canvas = document.getElementById('pdf-canvas');
     const ctx = canvas.getContext('2d');
 
