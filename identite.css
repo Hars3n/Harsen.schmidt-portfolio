@@ -1,5 +1,5 @@
 @charset "UTF-8";
-/* Styles spécifiques pour la page identité */
+/* Styles spécifiques pour les pages projets (identité, affiche-edition, expérimentation) */
 body {
   overflow-y: auto;
   min-height: 100vh;
@@ -52,12 +52,16 @@ main {
   gap: 20px;
 }
 
+/* Grille à 3 colonnes pour expérimentation */
+.images-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 .image-column {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
-
 .images-grid img,
 .image-column img {
   width: 100%;
@@ -73,7 +77,7 @@ main {
   transform: translateY(-4px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
 }
-/* PDF Viewer */
+/* PDF Viewer (seulement pour identite.html) */
 .pdf-viewer {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
@@ -153,6 +157,9 @@ main {
     width: 100%;
     position: static;
   }
+  .images-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 @media (max-width: 768px) {
   main {
@@ -161,7 +168,8 @@ main {
   .project-title {
     font-size: 2rem;
   }
-  .images-grid {
+  .images-grid,
+  .images-grid-3 {
     grid-template-columns: 1fr;
   }
   .pdf-controls {
