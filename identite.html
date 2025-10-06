@@ -4,21 +4,460 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Identité visuelle – Harsen Schmidt</title>
+  
+  <style>
+    /* RESET & BASE */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  <!-- Styles globaux -->
-  <link rel="stylesheet" href="style.css">
-  <!-- Styles spécifiques à la page Identité -->
-  <link rel="stylesheet" href="identite.css">
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #f5f5f5;
+      overflow-x: hidden;
+      background: #0a0a0a;
+      min-height: 100vh;
+    }
+
+    /* Fond animé avec dégradé moderne - même style que les autres pages */
+    .animated-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Overlay sombre pour contraste */
+    .animated-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(80px);
+    }
+
+    /* Effet de particules lumineuses */
+    .animated-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(240, 147, 251, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(79, 172, 254, 0.1) 0%, transparent 50%);
+      animation: particleFloat 20s ease-in-out infinite;
+    }
+
+    @keyframes particleFloat {
+      0%, 100% { transform: translate(0, 0); }
+      33% { transform: translate(30px, -30px); }
+      66% { transform: translate(-20px, 20px); }
+    }
+
+    .wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER unifié */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 24px 5vw;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      background: rgba(10, 10, 10, 0.5);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-btn {
+      display: block;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .brand-btn:hover::before {
+      opacity: 1;
+    }
+
+    .brand-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 24px rgba(255, 255, 255, 0.1);
+    }
+
+    .brand-btn img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .brand-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      opacity: 0.9;
+    }
+
+    /* NAVIGATION */
+    .nav {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .nav a {
+      font-size: 0.95rem;
+      font-weight: 500;
+      opacity: 0.8;
+      transition: all 0.3s ease;
+      position: relative;
+      text-decoration: none;
+      color: #f5f5f5;
+    }
+
+    .nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      transition: width 0.3s ease;
+    }
+
+    .nav a:hover {
+      opacity: 1;
+    }
+
+    .nav a:hover::after {
+      width: 100%;
+    }
+
+    /* MAIN CONTENT */
+    main {
+      padding: 140px 6vw 80px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .project-section {
+      display: flex;
+      gap: 60px;
+      margin-bottom: 120px;
+      align-items: flex-start;
+    }
+
+    .project-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .project-title {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -1px;
+    }
+
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #f5f5f5;
+      margin: 20px 0 15px;
+    }
+
+    /* Images Grid */
+    .images-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .image-column {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .images-grid img,
+    .image-column img {
+      width: 100%;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .images-grid img:hover,
+    .image-column img:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* PDF Viewer */
+    .pdf-viewer {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+    }
+
+    .pdf-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+
+    .pdf-controls button {
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      font-size: 0.95rem;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pdf-controls button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .pdf-controls button:hover:not(:disabled)::before {
+      opacity: 1;
+    }
+
+    .pdf-controls button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    }
+
+    .pdf-controls button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: none;
+    }
+
+    .pdf-controls span {
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+    }
+
+    #pdf-canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      background: white;
+      margin: 0 auto;
+      max-width: 100%;
+      max-height: 700px;
+      object-fit: contain;
+    }
+
+    /* Sidebar */
+    .project-info {
+      flex-shrink: 0;
+      width: 340px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 36px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 120px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .project-info h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #f5f5f5;
+      margin-top: 28px;
+      margin-bottom: 12px;
+    }
+
+    .project-info h3:first-child {
+      margin-top: 0;
+    }
+
+    .project-info p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    /* FOOTER */
+    footer {
+      margin-top: auto;
+      padding: 40px 5vw;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.5);
+      text-align: center;
+      font-size: 0.9rem;
+      background: rgba(10, 10, 10, 0.5);
+      backdrop-filter: blur(20px);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .project-section {
+        flex-direction: column;
+      }
+      
+      .project-info {
+        width: 100%;
+        position: static;
+      }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 20px 5vw;
+      }
+
+      .brand-btn img {
+        width: 44px;
+        height: 44px;
+      }
+
+      .brand-name {
+        font-size: 1rem;
+      }
+
+      .nav {
+        gap: 20px;
+      }
+
+      .nav a {
+        font-size: 0.85rem;
+      }
+
+      main {
+        padding: 120px 4vw 60px;
+      }
+
+      .project-section {
+        gap: 40px;
+      }
+
+      .images-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pdf-viewer {
+        padding: 24px;
+      }
+
+      .pdf-controls {
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .pdf-controls button {
+        padding: 12px 24px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="animated-bg"></div>
+  
   <div class="wrap">
     <!-- HEADER -->
     <header>
-      <a href="index.html" class="brand-btn">
-        <img src="image-menu.png" alt="Retour à l'accueil" />
-      </a>
+      <div class="header-left">
+        <a class="brand-btn" href="home.html">
+          <img src="image-menu.png" alt="Retour à l'accueil" />
+        </a>
+        <span class="brand-name">Harsen Schmidt</span>
+      </div>
       <nav class="nav">
-        <a href="index.html">Portfolio</a>
+        <a href="home.html">Accueil</a>
+        <a href="portfolio.html">Portfolio</a>
         <a href="contact.html">Contact</a>
       </nav>
     </header>
@@ -32,10 +471,10 @@
           <!-- Images côte à côte -->
           <div class="images-grid">
             <div class="image-column">
-              <img src="ayamaya-1.jpg" alt="Ayamaya projet 1">
-              <img src="ayamaya-3.jpg" alt="Ayamaya projet 3">
+              <img src="ayamaya-1.jpg" alt="Ayamaya projet 1" loading="lazy">
+              <img src="ayamaya-3.jpg" alt="Ayamaya projet 3" loading="lazy">
             </div>
-            <img src="ayamaya-2.jpg" alt="Ayamaya projet 2">
+            <img src="ayamaya-2.jpg" alt="Ayamaya projet 2" loading="lazy">
           </div>
 
           <!-- Titre Charte graphique -->
@@ -68,7 +507,7 @@
 
     <!-- FOOTER -->
     <footer>
-      &copy; <span id="year"></span> Harsen Schmidt – Portfolio
+      &copy; <span id="year"></span> Harsen Schmidt — Designer Graphique
     </footer>
   </div>
 
@@ -105,10 +544,8 @@
         // Scale différent selon le type de page
         let scale;
         if (portraitPages.includes(num)) {
-          // Pages 1 et 15 (portrait A4) : réduire à A5
           scale = 0.75;
         } else {
-          // Autres pages (paysage) : taille normale
           scale = 1.5;
         }
         
@@ -117,7 +554,6 @@
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
-        // Centrer
         canvas.style.marginLeft = 'auto';
         canvas.style.marginRight = 'auto';
 
