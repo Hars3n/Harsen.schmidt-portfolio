@@ -31,7 +31,19 @@
       overflow-x: hidden;
     }
 
-    /* Fond animé avec dégradé moderne - même style que home.html */
+    /* Barre de progression */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      width: 0%;
+      z-index: 1000;
+      transition: width 0.1s ease;
+    }
+
+    /* Fond animé avec dégradé moderne */
     .animated-bg {
       position: fixed;
       top: 0;
@@ -208,12 +220,12 @@
       padding: 120px 4vw 80px;
     }
 
-    /* --- PROJECTS GRID --- */
+    /* --- PORTFOLIO TITLE --- */
     .portfolio-title {
       font-size: clamp(2.5rem, 6vw, 4rem);
       font-weight: 800;
       text-align: center;
-      margin-bottom: 60px;
+      margin-bottom: 40px;
       background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -233,6 +245,44 @@
       }
     }
 
+    /* --- FILTRES --- */
+    .filter-container {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 60px;
+      flex-wrap: wrap;
+      animation: fadeInUp 0.8s ease-out 0.2s backwards;
+    }
+
+    .filter-btn {
+      padding: 12px 28px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 50px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      backdrop-filter: blur(10px);
+    }
+
+    .filter-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.9);
+      transform: translateY(-2px);
+    }
+
+    .filter-btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: transparent;
+      color: #ffffff;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    /* --- PROJECTS GRID --- */
     .projects-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -255,12 +305,28 @@
       backdrop-filter: blur(30px) saturate(150%);
       border: 1px solid rgba(255, 255, 255, 0.2);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      animation: fadeInUp 0.8s ease-out backwards;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .project-card.animate-in {
+      animation: projectFadeIn 0.6s ease-out forwards;
+    }
+
+    @keyframes projectFadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .project-card:nth-child(1) { animation-delay: 0.1s; }
     .project-card:nth-child(2) { animation-delay: 0.2s; }
     .project-card:nth-child(3) { animation-delay: 0.3s; }
+
+    .project-card.hidden {
+      display: none;
+    }
 
     .project-card::before {
       content: '';
@@ -373,6 +439,43 @@
       transform: translateX(4px);
     }
 
+    /* Bouton retour en haut */
+    .back-to-top {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .back-to-top.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .back-to-top:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+    }
+
+    .back-to-top::before {
+      content: '↑';
+      color: #ffffff;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
     /* --- FOOTER --- */
     footer {
       margin-top: auto;
@@ -415,7 +518,17 @@
       }
 
       .portfolio-title {
+        margin-bottom: 30px;
+      }
+
+      .filter-container {
+        gap: 12px;
         margin-bottom: 40px;
+      }
+
+      .filter-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
       }
 
       .projects-grid {
@@ -442,6 +555,13 @@
         opacity: 1;
         transform: translateY(0);
       }
+
+      .back-to-top {
+        bottom: 20px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+      }
     }
 
     @media (min-width: 769px) and (max-width: 1200px) {
@@ -452,18 +572,19 @@
   </style>
 </head>
 <body>
+  <div class="progress-bar" id="progressBar"></div>
   <div class="animated-bg"></div>
   
   <div class="wrap">
     <header>
       <div class="header-left">
-        <a class="brand-btn" href="home.html">
+        <a class="brand-btn" href="index.html">
           <img src="image-menu.png" alt="Retour à l'accueil" />
         </a>
         <span class="brand-name">Harsen Schmidt</span>
       </div>
       <nav class="nav">
-        <a href="home.html">Accueil</a>
+        <a href="index.html">Accueil</a>
         <a href="portfolio.html">Portfolio</a>
         <a href="contact.html">Contact</a>
       </nav>
@@ -472,9 +593,18 @@
     <main>
       <section class="hero">
         <h1 class="portfolio-title">Portfolio</h1>
+        
+        <!-- Filtres -->
+        <div class="filter-container">
+          <button class="filter-btn active" data-filter="all">Tous les projets</button>
+          <button class="filter-btn" data-filter="identite">Identité visuelle</button>
+          <button class="filter-btn" data-filter="edition">Affiche / Édition</button>
+          <button class="filter-btn" data-filter="experimentation">Expérimentation</button>
+        </div>
+
         <div class="projects-grid">
           
-          <a href="identite.html" class="project-card">
+          <a href="identite.html" class="project-card" data-category="identite">
             <div class="project-image" style="background: #4169E1;"></div>
             <div class="project-overlay">
               <h2 class="project-title">Identité visuelle</h2>
@@ -483,7 +613,7 @@
             </div>
           </a>
 
-          <a href="affiche-edition.html" class="project-card">
+          <a href="affiche-edition.html" class="project-card" data-category="edition">
             <div class="project-image" style="background: #FFD700;"></div>
             <div class="project-overlay">
               <h2 class="project-title">Affiche / Édition</h2>
@@ -492,7 +622,7 @@
             </div>
           </a>
 
-          <a href="experimentation.html" class="project-card">
+          <a href="experimentation.html" class="project-card" data-category="experimentation">
             <div class="project-image" style="background: #32CD32;"></div>
             <div class="project-overlay">
               <h2 class="project-title">Expérimentation</h2>
@@ -509,9 +639,91 @@
       <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
     </footer>
   </div>
+
+  <!-- Bouton retour en haut -->
+  <div class="back-to-top" id="backToTop"></div>
   
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Barre de progression
+    const progressBar = document.getElementById('progressBar');
+    
+    window.addEventListener('scroll', () => {
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollPercent = (scrollTop / (documentHeight - windowHeight)) * 100;
+      
+      progressBar.style.width = scrollPercent + '%';
+
+      // Bouton retour en haut
+      const backToTop = document.getElementById('backToTop');
+      if (scrollTop > 300) {
+        backToTop.classList.add('visible');
+      } else {
+        backToTop.classList.remove('visible');
+      }
+    });
+
+    // Bouton retour en haut
+    document.getElementById('backToTop').addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    // Système de filtrage
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const projectCards = document.querySelectorAll('.project-card');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter;
+        
+        // Mise à jour des boutons actifs
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Filtrage des projets
+        projectCards.forEach(card => {
+          const category = card.dataset.category;
+          
+          if (filter === 'all' || filter === category) {
+            card.classList.remove('hidden');
+            // Re-déclencher l'animation
+            card.style.animation = 'none';
+            setTimeout(() => {
+              card.style.animation = '';
+              card.classList.add('animate-in');
+            }, 10);
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // Animations au scroll avec Intersection Observer
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    // Observer toutes les cartes projet
+    projectCards.forEach(card => {
+      observer.observe(card);
+    });
   </script>
 </body>
 </html>
