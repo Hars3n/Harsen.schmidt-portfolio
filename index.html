@@ -164,6 +164,20 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
       letter-spacing: -2px;
+      animation: titleReveal 1.2s ease-out;
+    }
+
+    @keyframes titleReveal {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+        letter-spacing: 10px;
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+        letter-spacing: -2px;
+      }
     }
 
     .hero .subtitle {
@@ -273,6 +287,163 @@
       transform: translateY(-3px);
     }
 
+    /* Carrousel de projets */
+    .projects-showcase {
+      width: 100%;
+      max-width: 900px;
+      margin: 48px 0;
+      animation: fadeInUp 1s ease-out 0.5s backwards;
+    }
+
+    .showcase-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+    }
+
+    .carousel {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      border-radius: 16px;
+    }
+
+    .carousel-track {
+      display: flex;
+      gap: 20px;
+      transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .carousel-item {
+      min-width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .project-mini-card {
+      width: 100%;
+      max-width: 600px;
+      aspect-ratio: 16/9;
+      border-radius: 16px;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .project-mini-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, transparent 60%);
+      transition: all 0.4s ease;
+    }
+
+    .project-mini-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .project-mini-card:hover::before {
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, transparent 70%);
+    }
+
+    .project-tag {
+      position: relative;
+      z-index: 2;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .project-mini-card h4 {
+      position: relative;
+      z-index: 2;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      width: 32px;
+      border-radius: 5px;
+    }
+
+    .dot:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Bouton retour en haut */
+    .back-to-top {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .back-to-top.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .back-to-top:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+    }
+
+    .back-to-top::before {
+      content: '↑';
+      color: #ffffff;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
     /* Footer */
     footer {
       padding: 40px 5vw;
@@ -314,6 +485,25 @@
         width: 100%;
         text-align: center;
       }
+
+      .carousel-item {
+        min-width: 100%;
+      }
+
+      .project-mini-card {
+        padding: 28px;
+      }
+
+      .project-mini-card h4 {
+        font-size: 1.5rem;
+      }
+
+      .back-to-top {
+        bottom: 20px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+      }
     }
   </style>
 </head>
@@ -342,6 +532,38 @@
           Designer graphique passionné par la création d'identités visuelles fortes et de contenus éditoriaux impactants.
         </p>
 
+        <!-- Carrousel de mini-projets -->
+        <div class="projects-showcase">
+          <h3 class="showcase-title">Projets récents</h3>
+          <div class="carousel">
+            <div class="carousel-track">
+              <div class="carousel-item">
+                <div class="project-mini-card">
+                  <span class="project-tag">Identité visuelle</span>
+                  <h4>Ayamaya Édition</h4>
+                </div>
+              </div>
+              <div class="carousel-item">
+                <div class="project-mini-card">
+                  <span class="project-tag">Design éditorial</span>
+                  <h4>Affiches & Print</h4>
+                </div>
+              </div>
+              <div class="carousel-item">
+                <div class="project-mini-card">
+                  <span class="project-tag">Expérimentation</span>
+                  <h4>Projets créatifs</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-dots">
+            <span class="dot active" data-index="0"></span>
+            <span class="dot" data-index="1"></span>
+            <span class="dot" data-index="2"></span>
+          </div>
+        </div>
+
         <div class="cta-buttons">
           <a href="portfolio.html" class="btn btn-primary">
             <span>Découvrir mon portfolio</span>
@@ -358,8 +580,63 @@
     <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
   </footer>
 
+  <!-- Bouton retour en haut -->
+  <div class="back-to-top" id="backToTop"></div>
+
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Carrousel
+    let currentSlide = 0;
+    const track = document.querySelector('.carousel-track');
+    const dots = document.querySelectorAll('.dot');
+    const totalSlides = 3;
+
+    function goToSlide(index) {
+      currentSlide = index;
+      track.style.transform = `translateX(-${currentSlide * 100}%)`;
+      
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentSlide);
+      });
+    }
+
+    dots.forEach(dot => {
+      dot.addEventListener('click', () => {
+        goToSlide(parseInt(dot.dataset.index));
+      });
+    });
+
+    // Auto-rotation du carrousel
+    setInterval(() => {
+      currentSlide = (currentSlide + 1) % totalSlides;
+      goToSlide(currentSlide);
+    }, 5000);
+
+    // Bouton retour en haut
+    const backToTop = document.getElementById('backToTop');
+    
+    window.addEventListener('scroll', () => {
+      if (window.pageYOffset > 300) {
+        backToTop.classList.add('visible');
+      } else {
+        backToTop.classList.remove('visible');
+      }
+    });
+
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    // Clic sur les mini-cards pour aller au portfolio
+    document.querySelectorAll('.project-mini-card').forEach(card => {
+      card.addEventListener('click', () => {
+        window.location.href = 'portfolio.html';
+      });
+    });
   </script>
 </body>
 </html>
