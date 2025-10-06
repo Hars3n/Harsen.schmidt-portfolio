@@ -20,14 +20,31 @@ html, body {
 body {
   min-height: 100vh;
   font-size: 1rem;
-  background: linear-gradient(270deg, #1a1a1a, #000000, #0a0a0a, #1a1a1a);
-  background-size: 400% 400%;
-  animation: gradient 30s ease infinite;
+  background: #0a0a0a;
   position: relative;
   overflow-x: hidden;
 }
 
-/* Particules en arrière-plan */
+/* Fond animé avec dégradé moderne - coordination avec home.html et portfolio.html */
+.animated-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Overlay sombre pour contraste */
 body::before {
   content: '';
   position: fixed;
@@ -35,18 +52,33 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
-    radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.025) 0%, transparent 50%);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(80px);
   pointer-events: none;
   z-index: 0;
 }
 
-@keyframes gradient {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* Effet de particules lumineuses */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(240, 147, 251, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(79, 172, 254, 0.1) 0%, transparent 50%);
+  animation: particleFloat 20s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes particleFloat {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(30px, -30px); }
+  66% { transform: translate(-20px, 20px); }
 }
 
 a {
@@ -70,25 +102,25 @@ img {
   z-index: 1;
 }
 
-/* --- HEADER AMÉLIORÉ --- */
+/* --- HEADER UNIFIÉ --- */
 header {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  padding: 20px 3vw;
+  padding: 24px 5vw;
   display: flex;
   justify-content: space-between;
   align-items: center;
   z-index: 100;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(10, 10, 10, 0.5);
   backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
 }
 
 header:hover {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(10, 10, 10, 0.7);
   border-bottom-color: rgba(255, 255, 255, 0.15);
 }
 
@@ -134,59 +166,43 @@ header:hover {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-/* --- NAVIGATION AMÉLIORÉE --- */
+/* --- NAVIGATION UNIFIÉE --- */
 .nav {
   display: flex;
-  gap: 12px;
+  gap: 32px;
   align-items: center;
 }
 
 .nav a {
   position: relative;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 500;
-  opacity: 0.85;
+  opacity: 0.8;
   transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
   padding: 10px 20px;
   border-radius: 10px;
-  overflow: hidden;
-}
-
-.nav a::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.nav a:hover::before {
-  opacity: 1;
 }
 
 .nav a::after {
   content: '';
   position: absolute;
-  bottom: 0;
-  left: 50%;
+  bottom: -4px;
+  left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #ffffff, transparent);
-  transform: translateX(-50%);
-  transition: width 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transition: width 0.3s ease;
 }
 
 .nav a:hover {
   opacity: 1;
-  transform: translateY(-2px);
 }
 
 .nav a:hover::after {
-  width: 80%;
+  width: 100%;
 }
 
-/* --- HERO / PAGE D'ACCUEIL AMÉLIORÉE --- */
+/* --- HERO / PAGE D'ACCUEIL --- */
 .hero {
   position: relative;
   width: 100%;
@@ -197,43 +213,7 @@ header:hover {
   overflow: hidden;
 }
 
-/* Fond avec effet de profondeur */
-.hero::before {
-  content: '';
-  position: fixed;
-  top: 100px;
-  left: 0;
-  right: 0;
-  bottom: 80px;
-  background-image: url('Fond-site.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.6;
-  z-index: -1;
-  filter: brightness(0.6) contrast(1.1);
-  animation: breathe 8s ease-in-out infinite;
-}
-
-@keyframes breathe {
-  0%, 100% { transform: scale(1); opacity: 0.6; }
-  50% { transform: scale(1.02); opacity: 0.7; }
-}
-
-/* Overlay gradient pour plus de profondeur */
-.hero::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.4) 70%, rgba(0, 0, 0, 0.7) 100%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* --- MENU PORTFOLIO AMÉLIORÉ --- */
+/* --- MENU PORTFOLIO --- */
 .projects-menu {
   display: none;
   flex-direction: column;
@@ -249,7 +229,7 @@ header:hover {
   padding: 18px 52px;
   border: 2px solid rgba(255, 255, 255, 0.25);
   border-radius: 14px;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.5);
   color: #f5f5f5;
   font-size: 1.1rem;
   font-weight: 600;
@@ -270,43 +250,23 @@ header:hover {
   transition: opacity 0.5s ease;
 }
 
-.projects-menu a::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s ease, height 0.6s ease;
-}
-
 .projects-menu a:hover::before {
   opacity: 1;
 }
 
-.projects-menu a:hover::after {
-  width: 300px;
-  height: 300px;
-}
-
 .projects-menu a:hover {
-  background: rgba(255, 255, 255, 0.98);
-  color: #0b0b0b;
-  border-color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-6px) scale(1.02);
-  box-shadow: 
-    0 12px 40px rgba(255, 255, 255, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
 }
 
 .projects-menu a:active {
   transform: translateY(-3px) scale(1.01);
 }
 
-/* --- PAGE CONTACT AMÉLIORÉE --- */
+/* --- PAGE CONTACT --- */
 .contact-page {
   display: flex;
   flex-wrap: wrap;
@@ -361,7 +321,7 @@ header:hover {
   left: 0;
   width: 40px;
   height: 2px;
-  background: linear-gradient(90deg, #ffffff, transparent);
+  background: linear-gradient(90deg, #667eea, transparent);
 }
 
 .contact-info p {
@@ -386,7 +346,7 @@ header:hover {
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, #ffffff, #999999);
+  background: linear-gradient(90deg, #667eea, #764ba2);
   transition: width 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
@@ -416,16 +376,6 @@ header:hover {
     0 0 0 1px rgba(255, 255, 255, 0.1);
   border: 2px solid rgba(255, 255, 255, 0.15);
   transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-  position: relative;
-}
-
-.cv-preview img::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
-  pointer-events: none;
 }
 
 .cv-preview img:hover {
@@ -439,16 +389,14 @@ header:hover {
 .download-cv-btn {
   display: inline-block;
   padding: 16px 36px;
-  background: rgba(255, 255, 255, 0.98);
-  color: #0b0b0b;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
   font-size: 1rem;
   font-weight: 600;
   border-radius: 12px;
   transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   text-decoration: none;
-  box-shadow: 
-    0 6px 20px rgba(255, 255, 255, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
   position: relative;
   overflow: hidden;
 }
@@ -457,39 +405,36 @@ header:hover {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent);
-  transform: translateX(-100%);
-  transition: transform 0.6s ease;
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
 .download-cv-btn:hover::before {
-  transform: translateX(100%);
+  opacity: 1;
 }
 
 .download-cv-btn:hover {
-  background: #fff;
   transform: translateY(-3px) scale(1.05);
-  box-shadow: 
-    0 10px 30px rgba(255, 255, 255, 0.35),
-    0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
 }
 
 .download-cv-btn:active {
   transform: translateY(-1px) scale(1.02);
 }
 
-/* --- FOOTER AMÉLIORÉ --- */
+/* --- FOOTER UNIFIÉ --- */
 footer {
   margin-top: auto;
-  padding: 40px 6vw;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  color: #888;
+  padding: 40px 5vw;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
   text-align: center;
   font-size: 0.9rem;
   position: relative;
   z-index: 5;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
+  background: rgba(10, 10, 10, 0.5);
+  backdrop-filter: blur(20px);
 }
 
 footer::before {
@@ -506,7 +451,7 @@ footer::before {
 /* --- RESPONSIVE --- */
 @media (max-width: 768px) {
   header {
-    padding: 16px 4vw;
+    padding: 20px 5vw;
   }
 
   .brand-btn img {
@@ -515,11 +460,11 @@ footer::before {
   }
 
   .nav {
-    gap: 12px;
+    gap: 20px;
   }
 
   .nav a {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     padding: 8px 14px;
   }
 
@@ -550,18 +495,7 @@ footer::before {
   }
 }
 
-/* --- ANIMATIONS SUPPLÉMENTAIRES --- */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
-}
-
-/* Ajouter une animation de chargement */
+/* --- ANIMATION DE CHARGEMENT --- */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
