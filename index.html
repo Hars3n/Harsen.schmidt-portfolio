@@ -119,30 +119,26 @@
       width: 100%;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       padding: 120px 4vw 80px;
       overflow: hidden;
     }
 
-    .hero::before {
-      content: '';
-      position: fixed;
-      top: 100px;
-      left: 0;
-      right: 0;
-      bottom: 80px;
-      background-image: url('Fond-site.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      opacity: 0.3;
-      z-index: -1;
-      filter: brightness(0.5);
-      pointer-events: none;
-    }
+    /* Suppression du fond d'image */
 
     /* --- PROJECTS GRID --- */
+    .portfolio-title {
+      font-size: 3rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 60px;
+      color: #fff;
+      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      letter-spacing: -0.5px;
+    }
+
     .projects-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -191,14 +187,12 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
       transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-      filter: brightness(0.7) contrast(1.1);
     }
 
     .project-card:hover .project-image {
-      transform: scale(1.08);
-      filter: brightness(0.5) contrast(1.2);
+      transform: scale(1.05);
+      filter: brightness(0.8);
     }
 
     .project-overlay {
@@ -344,9 +338,12 @@
 <body>
   <div class="wrap">
     <header>
-      <a class="brand-btn" href="index.html">
-        <img src="image-menu.png" alt="Retour au menu" />
-      </a>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <a class="brand-btn" href="index.html">
+          <img src="image-menu.png" alt="Retour au menu" />
+        </a>
+        <span style="font-size: 1.2rem; font-weight: 600; letter-spacing: 0.3px;">Harsen Schmidt</span>
+      </div>
       <nav class="nav">
         <a href="index.html">Portfolio</a>
         <a href="contact.html">Contact</a>
@@ -355,10 +352,11 @@
     
     <main>
       <section class="hero">
+        <h1 class="portfolio-title">Portfolio</h1>
         <div class="projects-grid">
           
           <a href="identite.html" class="project-card">
-            <img src="ayamaya-1.jpg" alt="Identité visuelle" class="project-image">
+            <div class="project-image" style="background: #4169E1;"></div>
             <div class="project-overlay">
               <h2 class="project-title">Identité visuelle</h2>
               <p class="project-description">Création de logotypes et chartes graphiques pour des marques uniques et mémorables.</p>
@@ -367,7 +365,7 @@
           </a>
 
           <a href="affiche-edition.html" class="project-card">
-            <img src="Fond-site.jpg" alt="Affiche / Édition" class="project-image">
+            <div class="project-image" style="background: #FFD700;"></div>
             <div class="project-overlay">
               <h2 class="project-title">Affiche / Édition</h2>
               <p class="project-description">Design éditorial et affiches impactantes pour communiquer visuellement.</p>
@@ -376,7 +374,7 @@
           </a>
 
           <a href="experimentation.html" class="project-card">
-            <img src="image-menu.png" alt="Expérimentation" class="project-image">
+            <div class="project-image" style="background: #32CD32;"></div>
             <div class="project-overlay">
               <h2 class="project-title">Expérimentation</h2>
               <p class="project-description">Projets créatifs explorant de nouvelles formes graphiques et visuelles.</p>
