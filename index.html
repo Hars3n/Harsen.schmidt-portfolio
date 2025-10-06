@@ -71,7 +71,6 @@
       background: transparent;
     }
 
-    /* FIX: Image menu non croppée */
     .brand-btn {
       display: block;
       padding: 8px;
@@ -125,7 +124,6 @@
       overflow: hidden;
     }
 
-    /* NOUVEAU: Fond fixe non croppé - zone centrale uniquement */
     .hero::before {
       content: '';
       position: fixed;
@@ -175,68 +173,6 @@
       box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
     }
 
-    /* --- PAGE CONTACT --- */
-    .contact-page {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 12vh 6vw;
-      gap: 40px;
-      min-height: 100vh;
-    }
-
-    .contact-info {
-      max-width: 420px;
-    }
-
-    .contact-info h2 {
-      margin-bottom: 12px;
-      font-size: 1.5rem;
-    }
-
-    .contact-info h3 {
-      margin-top: 24px;
-      margin-bottom: 8px;
-      font-size: 1.2rem;
-    }
-
-    .contact-info p {
-      color: #ccc;
-      line-height: 1.6;
-      font-size: 1rem;
-    }
-
-    .cv-preview {
-      flex: 1;
-      min-width: 320px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border: 2px dashed #555;
-      padding: 80px 50px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-    }
-
-    .cv-preview span {
-      color: #999;
-      font-size: 0.95rem;
-    }
-
-    .contact-info a {
-      color: #ccc;
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: all 0.3s ease;
-    }
-
-    .contact-info a:hover {
-      color: #fff;
-      border-bottom: 1px solid #fff;
-    }
-
     /* --- FOOTER --- */
     footer {
       margin-top: auto;
@@ -279,35 +215,21 @@
         padding: 14px 24px;
         font-size: 1rem;
       }
-
-      .contact-page {
-        flex-direction: column;
-        align-items: center;
-        padding: 10vh 4vw;
-      }
-
-      .cv-preview {
-        width: 100%;
-        padding: 60px 30px;
-      }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <!-- Image du bouton menu - CORRIGÉE -->
       <a class="brand-btn" id="homeBtn">
         <img src="image-menu.png" alt="Retour au menu" />
       </a>
-      <!-- Menu principal -->
       <nav class="nav">
         <a id="portfolioBtn">Portfolio</a>
-        <a id="contactBtn">Contact</a>
+        <a href="contact.html">Contact</a>
       </nav>
     </header>
     <main>
-      <!-- PAGE D'ACCUEIL avec FOND -->
       <section class="hero" id="homeSection">
         <div class="projects-menu" id="projectsMenu">
           <a href="identite.html">Identité visuelle</a>
@@ -315,53 +237,27 @@
           <a href="experimentation.html">Expérimentation</a>
         </div>
       </section>
-      <!-- PAGE CONTACT -->
-      <section id="contactPage" class="contact-page" style="display:none;">
-        <div class="cv-preview">
-          <span>CV en PDF — à ajouter ici</span>
-        </div>
-        <div class="contact-info">
-          <h2>Recherche de stage</h2>
-          <p>Je recherche un stage de 3 mois du 27 avril au 27 juillet 2026.</p>
-          <h3>Contact</h3>
-          <p>
-            Téléphone : 06 64 81 29 02<br/>
-            Mail : <a href="mailto:harsen.schmidtk95@gmail.com">harsen.schmidtk95@gmail.com</a><br/>
-            Instagram : <a href="https://instagram.com/Hars.3n" target="_blank">@Hars.3n</a>
-          </p>
-        </div>
-      </section>
     </main>
     <footer>
       <div>© <span id="year"></span> Harsen Schmidt — Portfolio</div>
     </footer>
   </div>
-  <!-- SCRIPT JS -->
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+    
     const portfolioBtn = document.getElementById('portfolioBtn');
-    const contactBtn = document.getElementById('contactBtn');
     const projectsMenu = document.getElementById('projectsMenu');
     const homeSection = document.getElementById('homeSection');
-    const contactPage = document.getElementById('contactPage');
     const homeBtn = document.getElementById('homeBtn');
 
     portfolioBtn.addEventListener('click', () => {
       projectsMenu.style.display = (projectsMenu.style.display === 'flex') ? 'none' : 'flex';
-      contactPage.style.display = 'none';
       homeSection.style.display = 'flex';
-    });
-
-    contactBtn.addEventListener('click', () => {
-      homeSection.style.display = 'none';
-      projectsMenu.style.display = 'none';
-      contactPage.style.display = 'flex';
     });
 
     homeBtn.addEventListener('click', () => {
       homeSection.style.display = 'flex';
       projectsMenu.style.display = 'none';
-      contactPage.style.display = 'none';
     });
   </script>
 </body>
