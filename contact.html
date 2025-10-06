@@ -3,142 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact – Harsen Schmidt</title>
+  <title>Contact — Harsen Schmidt</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* Force l'affichage correct de la page contact */
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .wrap {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    main.contact-page {
-      display: flex !important;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12vh 8vw;
-      gap: 80px;
-      min-height: 100vh;
-      flex: 1;
-    }
-    
-    .cv-preview {
-      display: flex !important;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      flex-shrink: 0;
-    }
-    
-    .cv-preview img {
-      width: 350px;
-      height: auto;
-      border-radius: 8px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      display: block;
-    }
-    
-    .cv-preview img:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-    }
-    
-    .download-cv-btn {
-      display: inline-block !important;
-      padding: 14px 32px;
-      background: rgba(255, 255, 255, 0.95);
-      color: #0b0b0b;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: 10px;
-      transition: all 0.3s ease;
-      text-decoration: none;
-      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
-    }
-    
-    .download-cv-btn:hover {
-      background: #fff;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 24px rgba(255, 255, 255, 0.3);
-    }
-    
-    .contact-info {
-      flex: 1;
-      max-width: 500px;
-      text-align: left;
-    }
-    
-    .contact-info h2 {
-      margin-bottom: 16px;
-      font-size: 1.8rem;
-      font-weight: 600;
-      color: #f5f5f5;
-    }
-    
-    .contact-info h3 {
-      margin-top: 28px;
-      margin-bottom: 12px;
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #f5f5f5;
-    }
-    
-    .contact-info p {
-      color: #ccc;
-      line-height: 1.8;
-      font-size: 1rem;
-      margin-bottom: 8px;
-    }
-    
-    .contact-info a {
-      color: #ccc;
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: all 0.3s ease;
-    }
-    
-    .contact-info a:hover {
-      color: #fff;
-      border-bottom: 1px solid #fff;
-    }
-    
-    @media (max-width: 768px) {
-      main.contact-page {
-        flex-direction: column;
-        align-items: center;
-        padding: 10vh 4vw;
-      }
-      
-      .cv-preview {
-        width: 100%;
-      }
-      
-      .cv-preview img {
-        width: 100%;
-        max-width: 350px;
-      }
-    }
-  </style>
 </head>
 <body>
+  <div class="animated-bg"></div>
+  
   <div class="wrap">
     <!-- HEADER -->
     <header>
-      <a href="index.html" class="brand-btn">
-        <img src="image-menu.png" alt="Retour à l'accueil" />
-      </a>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <a href="home.html" class="brand-btn">
+          <img src="image-menu.png" alt="Retour à l'accueil" />
+        </a>
+        <span style="font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; opacity: 0.9;">Harsen Schmidt</span>
+      </div>
       <nav class="nav">
-        <a href="index.html">Portfolio</a>
+        <a href="home.html">Accueil</a>
+        <a href="portfolio.html">Portfolio</a>
         <a href="contact.html">Contact</a>
       </nav>
     </header>
@@ -167,7 +49,7 @@
     
     <!-- FOOTER -->
     <footer>
-      &copy; <span id="year"></span> Harsen Schmidt – Portfolio
+      <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
     </footer>
   </div>
   
