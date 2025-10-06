@@ -3,394 +3,365 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Harsen Schmidt — Portfolio</title>
-  <meta name="description" content="Portfolio de Harsen Schmidt — Étudiant en 2e année DNMADE Graphisme, à la recherche d'un stage de 3 mois du 27 avril au 27 juillet 2026." />
+  <title>Harsen Schmidt — Designer Graphique</title>
+  <meta name="description" content="Harsen Schmidt, étudiant en 2e année DNMADe Graphisme à L'Initiative Paris. Recherche de stage 3 mois - Avril à Juillet 2026." />
   <style>
-    @charset "UTF-8";
-
-    /* --- RESET & BASE --- */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    html, body {
-      height: 100%;
-      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      color: #f5f5f5;
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(270deg, #333333, #000000, #000000);
-      background-size: 600% 600%;
-      animation: gradient 50s ease infinite;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #ffffff;
       overflow-x: hidden;
+      background: #0a0a0a;
     }
 
-    @keyframes gradient {
-      0%   { background-position: 0% 50%; }
-      50%  { background-position: 100% 50%; }
+    /* Fond animé avec dégradé moderne */
+    .animated-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-      cursor: pointer;
+    /* Overlay sombre pour contraste */
+    .animated-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(80px);
     }
 
-    img {
-      max-width: 100%;
-      height: auto;
-      display: block;
+    /* Effet de particules lumineuses */
+    .animated-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(240, 147, 251, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(79, 172, 254, 0.1) 0%, transparent 50%);
+      animation: particleFloat 20s ease-in-out infinite;
     }
 
-    .wrap {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      width: 100%;
+    @keyframes particleFloat {
+      0%, 100% { transform: translate(0, 0); }
+      33% { transform: translate(30px, -30px); }
+      66% { transform: translate(-20px, 20px); }
     }
 
-    /* --- HEADER --- */
+    /* Header minimaliste */
     header {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      padding: 16px 3vw;
+      padding: 24px 5vw;
       display: flex;
       justify-content: space-between;
       align-items: center;
       z-index: 100;
-      background: transparent;
+      background: rgba(10, 10, 10, 0.5);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .brand-btn {
-      display: block;
-      padding: 8px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
+    .logo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      opacity: 0.9;
     }
 
-    .brand-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-      transform: translateY(-2px);
-    }
-
-    .brand-btn img {
-      width: 50px;
-      height: 50px;
-      object-fit: contain;
-      display: block;
-    }
-
-    /* --- NAVIGATION --- */
-    .nav {
+    nav {
       display: flex;
-      gap: 28px;
-      align-items: center;
+      gap: 32px;
     }
 
-    .nav a {
-      font-size: 1rem;
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 0.95rem;
       font-weight: 500;
-      opacity: 0.85;
-      transition: all 0.25s ease;
-      padding: 8px 16px;
-      border-radius: 8px;
-    }
-
-    .nav a:hover {
-      opacity: 1;
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    /* --- HERO SECTION --- */
-    .hero {
+      opacity: 0.8;
+      transition: all 0.3s ease;
       position: relative;
+    }
+
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      transition: width 0.3s ease;
+    }
+
+    nav a:hover {
+      opacity: 1;
+    }
+
+    nav a:hover::after {
       width: 100%;
+    }
+
+    /* Hero Section */
+    .hero {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 120px 4vw 80px;
-      overflow: hidden;
-    }
-
-    /* Suppression du fond d'image */
-
-    /* --- PROJECTS GRID --- */
-    .portfolio-title {
-      font-size: 3rem;
-      font-weight: 700;
       text-align: center;
-      margin-bottom: 60px;
-      color: #fff;
-      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-      letter-spacing: -0.5px;
-    }
-
-    .projects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 24px;
-      max-width: 1400px;
-      width: 100%;
-      padding: 20px;
+      padding: 100px 5vw 80px;
       position: relative;
-      z-index: 2;
     }
 
-    .project-card {
-      position: relative;
-      aspect-ratio: 4/3;
-      border-radius: 16px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-      background: rgba(20, 20, 20, 0.8);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    .hero-content {
+      max-width: 900px;
+      animation: fadeInUp 1s ease-out;
     }
 
-    .project-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      z-index: 1;
-    }
-
-    .project-card:hover {
-      transform: translateY(-12px) scale(1.02);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .project-card:hover::before {
-      opacity: 1;
-    }
-
-    .project-image {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    }
-
-    .project-card:hover .project-image {
-      transform: scale(1.05);
-      filter: brightness(0.8);
-    }
-
-    .project-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 32px;
-      background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
-      z-index: 2;
-      transition: all 0.5s ease;
-    }
-
-    .project-card:hover .project-overlay {
-      background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.6) 60%, rgba(0, 0, 0, 0.2) 100%);
-    }
-
-    .project-title {
-      font-size: 1.6rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      transform: translateY(0);
-      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-      color: #fff;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-    }
-
-    .project-card:hover .project-title {
-      transform: translateY(-8px);
-    }
-
-    .project-description {
-      font-size: 0.95rem;
-      color: rgba(255, 255, 255, 0.8);
-      line-height: 1.5;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0.1s;
-    }
-
-    .project-card:hover .project-description {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .project-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 16px;
-      padding: 10px 20px;
-      background: rgba(255, 255, 255, 0.95);
-      color: #0b0b0b;
-      font-size: 0.9rem;
-      font-weight: 600;
-      border-radius: 8px;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0.15s;
-      width: fit-content;
-    }
-
-    .project-card:hover .project-cta {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .project-cta:hover {
-      background: #fff;
-      gap: 12px;
-    }
-
-    /* --- FOOTER --- */
-    footer {
-      margin-top: auto;
-      padding: 32px 6vw;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      color: #888;
-      text-align: center;
-      font-size: 0.9rem;
-      position: relative;
-      z-index: 5;
-    }
-
-    /* --- RESPONSIVE --- */
-    @media (max-width: 768px) {
-      header {
-        padding: 16px 4vw;
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
       }
-
-      .brand-btn img {
-        width: 60px;
-        height: 60px;
-      }
-
-      .nav {
-        gap: 16px;
-      }
-
-      .nav a {
-        font-size: 0.9rem;
-        padding: 6px 12px;
-      }
-
-      .hero {
-        padding: 100px 4vw 60px;
-      }
-
-      .projects-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-        padding: 10px;
-      }
-
-      .project-card {
-        aspect-ratio: 3/2;
-      }
-
-      .project-title {
-        font-size: 1.3rem;
-      }
-
-      .project-overlay {
-        padding: 24px;
-      }
-
-      /* Sur mobile, afficher toujours les descriptions */
-      .project-description,
-      .project-cta {
+      to {
         opacity: 1;
         transform: translateY(0);
       }
     }
 
-    @media (min-width: 769px) and (max-width: 1200px) {
-      .projects-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -2px;
+    }
+
+    .hero .subtitle {
+      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 16px;
+      font-weight: 400;
+      line-height: 1.6;
+      animation: fadeInUp 1s ease-out 0.2s backwards;
+    }
+
+    .hero .description {
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      color: rgba(255, 255, 255, 0.65);
+      margin-bottom: 48px;
+      font-weight: 400;
+      line-height: 1.7;
+      animation: fadeInUp 1s ease-out 0.4s backwards;
+    }
+
+    .stage-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: rgba(102, 126, 234, 0.15);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #b8c5ff;
+      margin-bottom: 48px;
+      animation: fadeInUp 1s ease-out 0.3s backwards;
+      backdrop-filter: blur(10px);
+    }
+
+    .stage-badge::before {
+      content: '●';
+      color: #667eea;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeInUp 1s ease-out 0.6s backwards;
+    }
+
+    .btn {
+      padding: 16px 36px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      position: relative;
+      overflow: hidden;
+      border: 2px solid transparent;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #ffffff;
+      box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .btn-primary:hover::before {
+      opacity: 1;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 50px rgba(102, 126, 234, 0.5);
+    }
+
+    .btn span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-3px);
+    }
+
+    /* Section Info Cards - SUPPRIMÉ */
+
+    /* Footer */
+    footer {
+      padding: 40px 5vw;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(10, 10, 10, 0.5);
+      backdrop-filter: blur(20px);
+    }
+
+    footer p {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header {
+        padding: 20px 5vw;
+      }
+
+      nav {
+        gap: 20px;
+      }
+
+      nav a {
+        font-size: 0.85rem;
+      }
+
+      .hero {
+        padding: 80px 5vw 60px;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .btn {
+        width: 100%;
+        text-align: center;
       }
     }
+
+    /* Animation d'entrée - SUPPRIMÉ */
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div style="display: flex; align-items: center; gap: 16px;">
-        <a class="brand-btn" href="index.html">
-          <img src="image-menu.png" alt="Retour au menu" />
-        </a>
-        <span style="font-size: 1.2rem; font-weight: 600; letter-spacing: 0.3px;">Harsen Schmidt</span>
-      </div>
-      <nav class="nav">
-        <a href="index.html">Portfolio</a>
-        <a href="contact.html">Contact</a>
-      </nav>
-    </header>
-    
-    <main>
-      <section class="hero">
-        <h1 class="portfolio-title">Portfolio</h1>
-        <div class="projects-grid">
-          
-          <a href="identite.html" class="project-card">
-            <div class="project-image" style="background: #4169E1;"></div>
-            <div class="project-overlay">
-              <h2 class="project-title">Identité visuelle</h2>
-              <p class="project-description">Création de logotypes et chartes graphiques pour des marques uniques et mémorables.</p>
-              <span class="project-cta">Découvrir →</span>
-            </div>
-          </a>
+  <div class="animated-bg"></div>
 
-          <a href="affiche-edition.html" class="project-card">
-            <div class="project-image" style="background: #FFD700;"></div>
-            <div class="project-overlay">
-              <h2 class="project-title">Affiche / Édition</h2>
-              <p class="project-description">Design éditorial et affiches impactantes pour communiquer visuellement.</p>
-              <span class="project-cta">Découvrir →</span>
-            </div>
-          </a>
+  <header>
+    <div class="logo">HS</div>
+    <nav>
+      <a href="index.html">Portfolio</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </header>
 
-          <a href="experimentation.html" class="project-card">
-            <div class="project-image" style="background: #32CD32;"></div>
-            <div class="project-overlay">
-              <h2 class="project-title">Expérimentation</h2>
-              <p class="project-description">Projets créatifs explorant de nouvelles formes graphiques et visuelles.</p>
-              <span class="project-cta">Découvrir →</span>
-            </div>
-          </a>
-
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Harsen Schmidt</h1>
+        <p class="subtitle">Étudiant en 2ᵉ année DNMADe Graphisme<br>à L'Initiative Paris</p>
+        
+        <div class="stage-badge">
+          Recherche un stage de 3 mois du 27 avril au 27 juillet 2026
         </div>
-      </section>
-    </main>
-    
-    <footer>
-      <div>© <span id="year"></span> Harsen Schmidt — Portfolio</div>
-    </footer>
-  </div>
-  
+
+        <p class="description">
+          Designer graphique passionné par la création d'identités visuelles fortes et de contenus éditoriaux impactants.
+        </p>
+
+        <div class="cta-buttons">
+          <a href="index.html" class="btn btn-primary">
+            <span>Découvrir mon portfolio</span>
+          </a>
+          <a href="contact.html" class="btn btn-secondary">
+            <span>Me contacter</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
+  </footer>
+
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
