@@ -1,494 +1,685 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact – Harsen Schmidt</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - HARSEN Schmidt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@700&family=Cormorant+Garamond:ital,wght@1,700&family=Imperial+Script&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/old-london" rel="stylesheet">
+    <style>
+        @import url('https://fonts.cdnfonts.com/css/futura-pt');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    html {
-      scroll-behavior: smooth;
-    }
+        :root {
+            --primary-red: #FF0033;
+        }
 
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      color: #ffffff;
-      overflow-x: hidden;
-      background: #0f0f0f;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+        body {
+            font-family: 'Futura PT', 'Futura', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    /* Background avec texture et grain */
-    .animated-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -2;
-      background: 
-        radial-gradient(circle at 20% 20%, rgba(220, 38, 38, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(34, 197, 94, 0.12) 0%, transparent 50%),
-        #0f0f0f;
-    }
+        /* Curseur personnalisé */
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--primary-red);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s;
+        }
 
-    /* Grain texture overlay */
-    .animated-bg::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
-      opacity: 0.6;
-      mix-blend-mode: overlay;
-    }
+        /* Canvas pour l'effet de désagrégation */
+        .disintegration-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+        }
 
-    /* Glass effect overlays */
-    .glass-layer {
-      position: fixed;
-      pointer-events: none;
-      z-index: -1;
-    }
+        /* Effet halftone de fond */
+        .halftone-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.08;
+        }
 
-    .glass-1 {
-      top: 10%;
-      left: 5%;
-      width: 300px;
-      height: 300px;
-      background: rgba(220, 38, 38, 0.08);
-      filter: blur(80px);
-      border-radius: 50%;
-      animation: float 15s ease-in-out infinite;
-    }
+        .halftone-bg::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, rgba(255, 255, 255, 0.4) 2px, transparent 2px),
+                radial-gradient(circle, rgba(255, 0, 51, 0.3) 1.5px, transparent 1.5px);
+            background-size: 40px 40px, 60px 60px;
+            background-position: 0 0, 30px 30px;
+            animation: halftoneFloat 40s ease-in-out infinite;
+        }
 
-    .glass-2 {
-      bottom: 15%;
-      right: 8%;
-      width: 250px;
-      height: 250px;
-      background: rgba(34, 197, 94, 0.08);
-      filter: blur(80px);
-      border-radius: 50%;
-      animation: float 18s ease-in-out infinite reverse;
-    }
+        @keyframes halftoneFloat {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(20px, -20px) scale(1.05);
+            }
+            50% {
+                transform: translate(-10px, 30px) scale(0.95);
+            }
+            75% {
+                transform: translate(30px, 10px) scale(1.02);
+            }
+        }
 
-    @keyframes float {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(30px, -50px) scale(1.1); }
-      66% { transform: translate(-40px, 30px) scale(0.9); }
-    }
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 30px;
+            z-index: 1000;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-    /* Header avec effet glass */
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      padding: 20px 5vw;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 100;
-      background: rgba(15, 15, 15, 0.7);
-      backdrop-filter: blur(20px) saturate(180%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-    }
+        header a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
 
-    .logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      background: linear-gradient(135deg, #ffffff 0%, #dc2626 50%, #22c55e 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
-    }
+        header a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-red);
+            transition: width 0.3s ease;
+        }
 
-    nav {
-      display: flex;
-      gap: 40px;
-    }
+        header a:hover::after {
+            width: 100%;
+        }
 
-    nav a {
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      opacity: 0.7;
-      transition: all 0.3s ease;
-      position: relative;
-      padding: 8px 0;
-    }
+        /* Main container */
+        main {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 140px 80px 80px;
+            gap: 80px;
+            min-height: 100vh;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
 
-    nav a::before {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: linear-gradient(90deg, #dc2626, #22c55e);
-      transition: width 0.3s ease;
-    }
+        /* CV Preview avec mini-jeu de rotation */
+        .cv-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+            flex-shrink: 0;
+        }
 
-    nav a:hover {
-      opacity: 1;
-      color: #dc2626;
-    }
+        .cv-container {
+            position: relative;
+            width: 440px;
+            height: 620px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
 
-    nav a:hover::before {
-      width: 100%;
-    }
+        .cv-card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
 
-    /* Main contact */
-    main.contact-page {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      padding: 160px 8vw 80px;
-      gap: 80px;
-      min-height: 100vh;
-      flex: 1;
-      animation: fadeInUp 1s ease-out;
-    }
+        .cv-card.flipped {
+            transform: rotateY(180deg);
+        }
 
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(40px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+        .cv-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border: 2px solid rgba(255, 0, 51, 0.2);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            box-shadow: 
+                inset 0 0 60px rgba(255, 0, 51, 0.05),
+                0 0 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
 
-    /* CV Preview */
-    .cv-preview {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 32px;
-      flex-shrink: 0;
-      animation: fadeInUp 1s ease-out 0.2s backwards;
-    }
+        .cv-face:hover {
+            border-color: rgba(255, 0, 51, 0.5);
+            box-shadow: 
+                inset 0 0 80px rgba(255, 0, 51, 0.15),
+                0 0 60px rgba(255, 0, 51, 0.3);
+        }
 
-    .cv-preview img {
-      width: 440px;
-      height: auto;
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 0 60px rgba(220, 38, 38, 0.3);
-      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-      clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
-      background: rgba(20, 20, 20, 0.5);
-      backdrop-filter: blur(10px);
-    }
+        .cv-front img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-    .cv-preview img:hover {
-      transform: translateY(-12px) scale(1.02);
-      box-shadow: 0 0 80px rgba(220, 38, 38, 0.5);
-      border-color: rgba(220, 38, 38, 0.5);
-    }
+        .cv-back {
+            transform: rotateY(180deg);
+            background: rgba(255, 0, 51, 0.1);
+            font-size: 18px;
+            padding: 40px;
+            text-align: center;
+        }
 
-    .download-cv-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      padding: 18px 42px;
-      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-      color: #ffffff;
-      font-size: 1rem;
-      font-weight: 700;
-      text-decoration: none;
-      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
-      border: 2px solid rgba(220, 38, 38, 0.5);
-      box-shadow: 
-        0 0 30px rgba(220, 38, 38, 0.4),
-        inset 0 0 20px rgba(255, 255, 255, 0.1);
-      position: relative;
-      overflow: hidden;
-    }
+        .cv-back p {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-red);
+            margin-bottom: 20px;
+        }
 
-    .download-cv-btn::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
-      opacity: 0;
-      transition: opacity 0.4s ease;
-    }
+        .flip-instruction {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 10px;
+            text-align: center;
+        }
 
-    .download-cv-btn:hover::before {
-      opacity: 1;
-    }
+        .download-cv-btn {
+            padding: 15px 40px;
+            background: var(--primary-red);
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 2px solid var(--primary-red);
+            box-shadow: 0 0 20px rgba(255, 0, 51, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    .download-cv-btn span {
-      position: relative;
-      z-index: 1;
-    }
+        .download-cv-btn:hover {
+            background: #fff;
+            color: var(--primary-red);
+            box-shadow: 0 0 40px rgba(255, 0, 51, 0.6);
+            transform: translateY(-3px);
+        }
 
-    .download-cv-btn:hover {
-      transform: translateY(-4px) scale(1.05);
-      box-shadow: 
-        0 0 50px rgba(220, 38, 38, 0.6),
-        0 8px 30px rgba(220, 38, 38, 0.4);
-    }
+        /* Contact Info avec mini-jeu de révélation */
+        .contact-info {
+            flex: 1;
+            max-width: 550px;
+        }
 
-    /* Contact Info */
-    .contact-info {
-      flex: 1;
-      max-width: 550px;
-      animation: fadeInUp 1s ease-out 0.1s backwards;
-    }
+        .contact-info h2 {
+            font-size: 80px;
+            font-weight: 700;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
 
-    .contact-info h2 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2.5rem, 5vw, 3.5rem);
-      font-weight: 700;
-      margin-bottom: 24px;
-      letter-spacing: -2px;
-      color: #ffffff;
-      text-shadow: 
-        0 0 40px rgba(220, 38, 38, 0.5),
-        0 0 80px rgba(220, 38, 38, 0.3),
-        4px 4px 0 rgba(0, 0, 0, 0.3);
-      position: relative;
-    }
+        .contact-info h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 150px;
+            height: 2px;
+            background: linear-gradient(to right, var(--primary-red), transparent);
+        }
 
-    .contact-info h2::after {
-      content: '';
-      position: absolute;
-      bottom: -12px;
-      left: 0;
-      width: 100px;
-      height: 3px;
-      background: linear-gradient(90deg, #dc2626, transparent);
-      box-shadow: 0 0 20px rgba(220, 38, 38, 0.6);
-    }
+        /* Mini-jeu: lettres qui se révèlent au clic */
+        .contact-info h2 span {
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.3;
+            filter: blur(3px);
+        }
 
-    .stage-info {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 28px;
-      background: rgba(220, 38, 38, 0.1);
-      border: 2px solid rgba(220, 38, 38, 0.3);
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #dc2626;
-      margin: 32px 0 40px;
-      backdrop-filter: blur(10px);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-      position: relative;
-      overflow: hidden;
-    }
+        .contact-info h2 span.revealed {
+            opacity: 1;
+            filter: blur(0);
+            color: var(--primary-red);
+            transform: scale(1.1);
+        }
 
-    .stage-info::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.2), transparent);
-      animation: shimmer 3s infinite;
-    }
+        .contact-info h2 span:hover {
+            transform: scale(1.05);
+        }
 
-    @keyframes shimmer {
-      100% { left: 100%; }
-    }
+        .stage-info {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 30px;
+            background: rgba(255, 0, 51, 0.1);
+            border: 2px solid var(--primary-red);
+            color: var(--primary-red);
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+        }
 
-    .stage-info::after {
-      content: '●';
-      color: #dc2626;
-      animation: pulse 2s ease-in-out infinite;
-    }
+        .stage-info::after {
+            content: '●';
+            animation: pulse 2s ease-in-out infinite;
+        }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.8); }
-    }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
 
-    .contact-info h3 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: #22c55e;
-      margin: 32px 0 16px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      text-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
-    }
+        .contact-info h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-red);
+            margin: 30px 0 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-    .contact-info p {
-      color: rgba(255, 255, 255, 0.8);
-      line-height: 2;
-      font-size: 1.05rem;
-      margin-bottom: 8px;
-    }
+        .contact-info p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 2;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
 
-    .contact-info a {
-      color: rgba(255, 255, 255, 0.8);
-      text-decoration: none;
-      transition: all 0.3s ease;
-      position: relative;
-      display: inline-block;
-    }
+        /* Mini-jeu: liens avec effet de scratch */
+        .contact-info a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            position: relative;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
 
-    .contact-info a::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: linear-gradient(90deg, #dc2626, #22c55e);
-      transition: width 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    }
+        .contact-info a::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-50%);
+            transition: all 0.3s ease;
+        }
 
-    .contact-info a:hover {
-      color: #ffffff;
-    }
+        .contact-info a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-red), transparent);
+            transition: width 0.4s ease;
+        }
 
-    .contact-info a:hover::after {
-      width: 100%;
-    }
+        .contact-info a:hover {
+            color: #fff;
+        }
 
-    /* Footer */
-    footer {
-      margin-top: auto;
-      padding: 40px 5vw;
-      text-align: center;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      background: rgba(15, 15, 15, 0.8);
-      backdrop-filter: blur(20px);
-      position: relative;
-    }
+        .contact-info a:hover::before {
+            width: 0;
+        }
 
-    footer::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 150px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.5), transparent);
-      box-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
-    }
+        .contact-info a:hover::after {
+            width: 100%;
+        }
 
-    footer p {
-      color: rgba(255, 255, 255, 0.4);
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
+        /* Easter egg: cliquer 5 fois sur le stage info pour animation */
+        .stage-info.party-mode {
+            animation: partyMode 0.5s ease infinite;
+            background: linear-gradient(45deg, 
+                rgba(255, 0, 51, 0.2) 0%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                rgba(255, 0, 51, 0.2) 100%);
+            background-size: 200% 200%;
+        }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-      header {
-        padding: 16px 5vw;
-      }
+        @keyframes partyMode {
+            0% { 
+                transform: rotate(-2deg) scale(1);
+                background-position: 0% 50%;
+            }
+            25% { 
+                transform: rotate(2deg) scale(1.05);
+            }
+            50% { 
+                transform: rotate(-2deg) scale(1);
+                background-position: 100% 50%;
+            }
+            75% { 
+                transform: rotate(2deg) scale(1.05);
+            }
+            100% { 
+                transform: rotate(-2deg) scale(1);
+                background-position: 0% 50%;
+            }
+        }
 
-      .logo {
-        font-size: 1.6rem;
-      }
+        /* Footer */
+        footer {
+            margin-top: auto;
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
 
-      nav {
-        gap: 24px;
-      }
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary-red), transparent);
+            box-shadow: 0 0 20px rgba(255, 0, 51, 0.5);
+        }
 
-      nav a {
-        font-size: 0.75rem;
-      }
+        footer p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-      main.contact-page {
-        flex-direction: column;
-        padding: 140px 5vw 60px;
-        gap: 50px;
-      }
+        @media (max-width: 1024px) {
+            main {
+                flex-direction: column;
+                padding: 120px 40px 60px;
+                gap: 50px;
+            }
 
-      .cv-preview {
-        width: 100%;
-      }
+            .cv-container {
+                width: 100%;
+                max-width: 440px;
+            }
 
-      .cv-preview img {
-        width: 100%;
-        max-width: 440px;
-      }
+            .contact-info {
+                max-width: 100%;
+            }
 
-      .contact-info {
-        max-width: 100%;
-      }
-    }
-  </style>
+            .contact-info h2 {
+                font-size: 60px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            main {
+                padding: 100px 20px 40px;
+            }
+
+            .contact-info h2 {
+                font-size: 50px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="animated-bg"></div>
-  <div class="glass-layer glass-1"></div>
-  <div class="glass-layer glass-2"></div>
+    <div class="halftone-bg"></div>
+    
+    <!-- Curseur et canvas de désagrégation -->
+    <div class="cursor-dot"></div>
+    <canvas class="disintegration-canvas"></canvas>
+    
+    <header>
+        <a href="index.html">ACCUEIL</a>
+        <a href="portfolio.html">PORTFOLIO</a>
+        <a href="contact.html">CONTACT</a>
+    </header>
 
-  <header>
-    <div class="logo">HS</div>
-    <nav>
-      <a href="index.html">Accueil</a>
-      <a href="portfolio.html">Portfolio</a>
-      <a href="contact.html">Contact</a>
-    </nav>
-  </header>
+    <main>
+        <div class="cv-preview">
+            <div class="cv-container" id="cvCard">
+                <div class="cv-card">
+                    <div class="cv-face cv-front">
+                        <img src="Cv-harsen.jpg" alt="CV de Harsen Schmidt">
+                    </div>
+                    <div class="cv-face cv-back">
+                        <p>🎨 DESIGNER GRAPHIQUE</p>
+                        <p style="font-size: 18px; color: rgba(255,255,255,0.8); font-weight: normal;">
+                            Étudiant en 2<sup>e</sup> année DNMADe<br>
+                            Passionné par le design et l'innovation visuelle
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <p class="flip-instruction">Cliquez sur la carte pour la retourner</p>
+            <a href="Cv-harsen.jpg" download="CV_Harsen_Schmidt.jpg" class="download-cv-btn">
+                <span>Télécharger CV</span>
+            </a>
+        </div>
 
-  <main class="contact-page">
-    <div class="cv-preview">
-      <img src="Cv-harsen.jpg" alt="CV de Harsen Schmidt" loading="eager">
-      <a href="Cv-harsen.jpg" download="CV_Harsen_Schmidt.jpg" class="download-cv-btn">
-        <span>Télécharger CV</span>
-      </a>
-    </div>
+        <div class="contact-info">
+            <h2 id="contactTitle">
+                <span>C</span><span>O</span><span>N</span><span>T</span><span>A</span><span>C</span><span>T</span>
+            </h2>
+            
+            <div class="stage-info" id="stageInfo">
+                Stage recherché · 3 mois · Avril-Juillet 2026
+            </div>
+            
+            <p>Je recherche un stage de 3 mois du 27 avril au 27 juillet 2026 en design graphique.</p>
+            
+            <h3>Coordonnées</h3>
+            <p>
+                <strong>Téléphone :</strong> 06 64 81 29 02<br/>
+                <strong>Email :</strong> <a href="mailto:harsen.schmidtk95@gmail.com">harsen.schmidtk95@gmail.com</a><br/>
+                <strong>Instagram :</strong> <a href="https://instagram.com/Hars.3n" target="_blank" rel="noopener">@Hars.3n</a>
+            </p>
+        </div>
+    </main>
 
-    <div class="contact-info">
-      <h2>CONTACT</h2>
-      
-      <div class="stage-info">
-        Stage recherché · 3 mois · Avril-Juillet 2026
-      </div>
-      
-      <p>Je recherche un stage de 3 mois du 27 avril au 27 juillet 2026 en design graphique.</p>
-      
-      <h3>Coordonnées</h3>
-      <p>
-        <strong>Téléphone :</strong> 06 64 81 29 02<br/>
-        <strong>Email :</strong> <a href="mailto:harsen.schmidtk95@gmail.com">harsen.schmidtk95@gmail.com</a><br/>
-        <strong>Instagram :</strong> <a href="https://instagram.com/Hars.3n" target="_blank" rel="noopener">@Hars.3n</a>
-      </p>
-    </div>
-  </main>
+    <footer>
+        <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
+    </footer>
 
-  <footer>
-    <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
-  </footer>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+        // Mini-jeu 1: Flip du CV au clic
+        const cvContainer = document.getElementById('cvCard');
+        const cvCard = cvContainer.querySelector('.cv-card');
+        
+        cvContainer.addEventListener('click', () => {
+            cvCard.classList.toggle('flipped');
+        });
+
+        // Mini-jeu 2: Révéler les lettres du titre au clic
+        const titleLetters = document.querySelectorAll('#contactTitle span');
+        
+        titleLetters.forEach(letter => {
+            letter.addEventListener('click', function() {
+                this.classList.add('revealed');
+            });
+        });
+
+        // Easter egg: double-clic sur le titre révèle tout
+        document.getElementById('contactTitle').addEventListener('dblclick', function() {
+            titleLetters.forEach(letter => {
+                letter.classList.add('revealed');
+            });
+        });
+
+        // Mini-jeu 3: Cliquer 5 fois sur stage-info pour mode party
+        const stageInfo = document.getElementById('stageInfo');
+        let clickCount = 0;
+        let clickTimeout;
+
+        stageInfo.addEventListener('click', function() {
+            clickCount++;
+            clearTimeout(clickTimeout);
+
+            if (clickCount >= 5) {
+                this.classList.add('party-mode');
+                setTimeout(() => {
+                    this.classList.remove('party-mode');
+                    clickCount = 0;
+                }, 3000);
+            }
+
+            clickTimeout = setTimeout(() => {
+                clickCount = 0;
+            }, 1000);
+        });
+
+        // Effet de désagrégation
+        const canvas = document.querySelector('.disintegration-canvas');
+        const ctx = canvas.getContext('2d');
+        const cursorDot = document.querySelector('.cursor-dot');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        let mouseX = 0;
+        let mouseY = 0;
+        let particles = [];
+        
+        const interactiveElements = document.querySelectorAll('a, button, .cv-container, #contactTitle span, .stage-info');
+        
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = (Math.random() - 0.5) * 3;
+                this.speedY = (Math.random() - 0.5) * 3;
+                this.color = color;
+                this.life = 1;
+                this.decay = Math.random() * 0.02 + 0.01;
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= this.decay;
+                this.size *= 0.96;
+            }
+            
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.life;
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+            }
+        }
+        
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            cursorDot.style.left = mouseX + 'px';
+            cursorDot.style.top = mouseY + 'px';
+            
+            interactiveElements.forEach(element => {
+                const rect = element.getBoundingClientRect();
+                const elementCenterX = rect.left + rect.width / 2;
+                const elementCenterY = rect.top + rect.height / 2;
+                const distance = Math.sqrt(
+                    Math.pow(mouseX - elementCenterX, 2) + 
+                    Math.pow(mouseY - elementCenterY, 2)
+                );
+                
+                if (distance < 100) {
+                    const style = window.getComputedStyle(element);
+                    const color = style.color;
+                    
+                    if (Math.random() > 0.7) {
+                        for (let i = 0; i < 2; i++) {
+                            const angle = Math.random() * Math.PI * 2;
+                            const radius = Math.random() * 40 + 20;
+                            const particleX = mouseX + Math.cos(angle) * radius;
+                            const particleY = mouseY + Math.sin(angle) * radius;
+                            particles.push(new Particle(particleX, particleY, color));
+                        }
+                    }
+                }
+            });
+        });
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles = particles.filter(particle => particle.life > 0);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            ctx.globalAlpha = 1;
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
 </body>
 </html>
