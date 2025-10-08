@@ -444,7 +444,160 @@
             color: #000 !important;
         }
 
-        /* Easter Egg 3: Barre de recherche secrète */
+        /* Easter Egg 4: Mode Kawaii Orlane */
+        body.kawaii-mode {
+            background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 25%, #FFE4E1 50%, #FFF0F5 75%, #FFB6C1 100%) !important;
+            background-size: 400% 400% !important;
+            animation: kawaii-gradient 15s ease infinite !important;
+        }
+
+        @keyframes kawaii-gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body.kawaii-mode * {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive !important;
+        }
+
+        body.kawaii-mode .project-card,
+        body.kawaii-mode .filter-btn,
+        body.kawaii-mode header,
+        body.kawaii-mode footer,
+        body.kawaii-mode .back-to-top {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: 3px solid #FFB6C1 !important;
+            color: #FF69B4 !important;
+            box-shadow: 
+                0 0 20px rgba(255, 182, 193, 0.6),
+                inset 0 0 30px rgba(255, 192, 203, 0.3) !important;
+            border-radius: 20px !important;
+        }
+
+        body.kawaii-mode .project-title,
+        body.kawaii-mode .filter-btn,
+        body.kawaii-mode header a,
+        body.kawaii-mode footer p {
+            color: #FF69B4 !important;
+            text-shadow: 2px 2px 0 #FFC0CB !important;
+        }
+
+        body.kawaii-mode .project-tag {
+            color: #FF1493 !important;
+        }
+
+        body.kawaii-mode .project-description {
+            color: #FF69B4 !important;
+        }
+
+        body.kawaii-mode .portfolio-header h1::after {
+            background: linear-gradient(to right, #FF69B4, #FFB6C1) !important;
+        }
+
+        body.kawaii-mode .back-to-top::before {
+            content: '♡' !important;
+            color: #FF69B4 !important;
+        }
+
+        /* Petits noeuds kawaii flottants */
+        body.kawaii-mode::before,
+        body.kawaii-mode::after {
+            content: '🎀';
+            position: fixed;
+            font-size: 40px;
+            animation: float-bow 4s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        body.kawaii-mode::before {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        body.kawaii-mode::after {
+            top: 20%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        @keyframes float-bow {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(10deg);
+            }
+        }
+
+        /* Textes coréens */
+        body.kawaii-mode .portfolio-header h1::before {
+            content: '포트폴리오 ';
+            color: #FFB6C1;
+            font-size: 0.5em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        body.kawaii-mode .portfolio-header p::after {
+            content: ' ♡ 귀여워 ♡';
+            color: #FF69B4;
+        }
+
+        body.kawaii-mode .filter-btn.active {
+            background: rgba(255, 105, 180, 0.3) !important;
+            border-color: #FF1493 !important;
+            transform: scale(1.1);
+        }
+
+        body.kawaii-mode .project-cta {
+            background: #FF69B4 !important;
+            border-radius: 25px !important;
+        }
+
+        /* Coeurs flottants */
+        .kawaii-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9997;
+            display: none;
+        }
+
+        body.kawaii-mode .kawaii-hearts {
+            display: block;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            animation: float-up 6s ease-in infinite;
+            opacity: 0;
+        }
+
+        @keyframes float-up {
+            0% {
+                opacity: 0;
+                transform: translateY(0) rotate(0deg);
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100vh) rotate(360deg);
+            }
+        }
+
+        /* Animation tremblement de terre */
         .secret-search {
             position: fixed;
             bottom: -100px;
@@ -488,7 +641,7 @@
 
 
 
-        /* Animation tremblement de terre */
+        /* Easter Egg 3: Barre de recherche secrète */
         @keyframes earthquake {
             0%, 100% { transform: translate(0, 0) rotate(0deg); }
             10% { transform: translate(-10px, 5px) rotate(-1deg); }
@@ -640,6 +793,8 @@
 
     <div class="back-to-top" id="backToTop"></div>
 
+    <div class="kawaii-hearts" id="kawaiiHearts"></div>
+
     <div class="secret-search" id="secretSearch">
         <input type="text" id="secretInput" placeholder="...">
     </div>
@@ -751,7 +906,18 @@
             if (e.key === 'Enter') {
                 const value = secretInput.value.toLowerCase().trim();
                 
-                if (value === 'harsen') {
+                if (value === 'orlane') {
+                    document.body.classList.toggle('kawaii-mode');
+                    secretSearch.classList.remove('active');
+                    
+                    if (document.body.classList.contains('kawaii-mode')) {
+                        createKawaiiHearts();
+                        console.log('💖 Mode Kawaii activé ! 귀여워 ♡');
+                    } else {
+                        document.getElementById('kawaiiHearts').innerHTML = '';
+                        console.log('💖 Mode Kawaii désactivé');
+                    }
+                } else if (value === 'harsen') {
                     window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
                     secretSearch.classList.remove('active');
                     console.log('🎵 Surprise musicale !');
@@ -769,6 +935,23 @@
                 secretInput.value = '';
             }
         });
+
+        // Fonction pour créer les coeurs flottants kawaii
+        function createKawaiiHearts() {
+            const heartsContainer = document.getElementById('kawaiiHearts');
+            const hearts = ['💖', '💗', '💕', '💓', '💝', '🎀', '✨', '🌸'];
+            
+            // Créer 15 coeurs
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.animationDelay = Math.random() * 6 + 's';
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                heartsContainer.appendChild(heart);
+            }
+        }
     </script>
 </body>
 </html>
