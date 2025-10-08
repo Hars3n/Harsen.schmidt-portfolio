@@ -864,20 +864,32 @@
         // ========== EASTER EGG 2: Code Konami pour Mode Windows 98 ==========
         let konamiCode = [];
         const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let konamiIndex = 0;
         
         document.addEventListener('keydown', (e) => {
-            konamiCode.push(e.key);
-            konamiCode = konamiCode.slice(-konamiSequence.length);
-            
-            if (konamiCode.join(',') === konamiSequence.join(',')) {
-                document.body.classList.toggle('win98-mode');
-                konamiCode = [];
+            // Vérifier si la touche correspond à la séquence
+            if (e.key === konamiSequence[konamiIndex]) {
+                konamiIndex++;
+                console.log(`✓ Touche ${konamiIndex}/${konamiSequence.length} correcte: ${e.key}`);
                 
-                if (document.body.classList.contains('win98-mode')) {
-                    console.log('💾 Windows 98 mode activé ! Bienvenue en 1998 !');
-                } else {
-                    console.log('💾 Retour au présent !');
+                // Si toute la séquence est complétée
+                if (konamiIndex === konamiSequence.length) {
+                    document.body.classList.toggle('win98-mode');
+                    konamiIndex = 0; // Réinitialiser
+                    
+                    if (document.body.classList.contains('win98-mode')) {
+                        console.log('💾 Windows 98 mode activé ! Bienvenue en 1998 !');
+                        alert('🎮 Code Konami validé ! Windows 98 mode activé !');
+                    } else {
+                        console.log('💾 Retour au présent !');
+                    }
                 }
+            } else {
+                // Réinitialiser si mauvaise touche
+                if (konamiIndex > 0) {
+                    console.log(`✗ Séquence réinitialisée. Touche attendue: ${konamiSequence[konamiIndex]}, reçue: ${e.key}`);
+                }
+                konamiIndex = 0;
             }
         });
 
