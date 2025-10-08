@@ -24,6 +24,51 @@
             background: #1a1a1a;
             color: #fff;
             overflow-x: hidden;
+            transition: all 0.5s ease;
+        }
+
+        /* Mode Rétro Windows 98 */
+        body.retro-mode {
+            background: #008080;
+            font-family: 'Courier New', monospace;
+        }
+
+        body.retro-mode * {
+            font-family: 'Courier New', monospace !important;
+        }
+
+        body.retro-mode .container,
+        body.retro-mode header,
+        body.retro-mode footer {
+            background: #c0c0c0;
+            color: #000;
+            border: 3px outset #dfdfdf;
+            box-shadow: 2px 2px 0 #000;
+        }
+
+        body.retro-mode .project-card {
+            background: #c0c0c0;
+            border: 3px outset #dfdfdf;
+            image-rendering: pixelated;
+        }
+
+        body.retro-mode .filter-btn {
+            background: #c0c0c0;
+            border: 3px outset #dfdfdf;
+            color: #000;
+            padding: 8px 16px;
+        }
+
+        body.retro-mode .filter-btn:active {
+            border-style: inset;
+        }
+
+        body.retro-mode h1, 
+        body.retro-mode h2,
+        body.retro-mode p,
+        body.retro-mode a {
+            color: #000 !important;
+            text-shadow: 1px 1px 0 #fff;
         }
 
         /* Curseur personnalisé */
@@ -37,6 +82,10 @@
             z-index: 9999;
             transform: translate(-50%, -50%);
             transition: width 0.2s, height 0.2s;
+        }
+
+        body.retro-mode .cursor-dot {
+            display: none;
         }
 
         /* Canvas pour l'effet de désagrégation */
@@ -60,6 +109,10 @@
             pointer-events: none;
             z-index: 0;
             opacity: 0.08;
+        }
+
+        body.retro-mode .halftone-bg {
+            display: none;
         }
 
         .halftone-bg::before {
@@ -131,6 +184,49 @@
             width: 100%;
         }
 
+        /* Bouton secret Konami */
+        .secret-konami {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            width: 30px;
+            height: 30px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 999;
+            opacity: 0.01;
+            transition: opacity 0.3s;
+        }
+
+        .secret-konami:hover {
+            opacity: 0.3;
+        }
+
+        /* Easter egg notification */
+        .easter-egg-notify {
+            position: fixed;
+            top: 100px;
+            right: 40px;
+            background: var(--primary-red);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 0;
+            box-shadow: 0 5px 20px rgba(255, 0, 51, 0.5);
+            z-index: 10000;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            font-weight: bold;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .easter-egg-notify.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
         /* Container principal */
         .container {
             max-width: 1920px;
@@ -154,6 +250,12 @@
             margin-bottom: 20px;
             position: relative;
             display: inline-block;
+            cursor: help;
+            transition: all 0.3s ease;
+        }
+
+        .portfolio-header h1:hover {
+            transform: rotate(-2deg) scale(1.05);
         }
 
         .portfolio-header h1::after {
@@ -171,6 +273,13 @@
             font-size: 20px;
             color: #e0e0e0;
             margin-top: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .portfolio-header p:hover {
+            color: var(--primary-red);
+            letter-spacing: 2px;
         }
 
         /* Filtres */
@@ -396,6 +505,7 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             background: rgba(26, 26, 26, 0.8);
             backdrop-filter: blur(10px);
+            position: relative;
         }
 
         footer p {
@@ -403,6 +513,39 @@
             font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        /* Secret disco ball */
+        .disco-ball {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(45deg, #ff0033, #00ff88, #3366ff, #ff00ff);
+            background-size: 400% 400%;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+            z-index: 10001;
+            pointer-events: none;
+            animation: discoSpin 2s infinite linear;
+            box-shadow: 0 0 50px rgba(255, 0, 51, 0.8);
+        }
+
+        .disco-ball.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            animation: discoSpin 2s infinite linear, discoColors 3s infinite;
+        }
+
+        @keyframes discoSpin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @keyframes discoColors {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
         @media (max-width: 1200px) {
@@ -457,23 +600,28 @@
     <div class="cursor-dot"></div>
     <canvas class="disintegration-canvas"></canvas>
     
+    <!-- Easter eggs secrets -->
+    <button class="secret-konami" title="???">🎮</button>
+    <div class="easter-egg-notify" id="easterNotify"></div>
+    <div class="disco-ball" id="discoBall"></div>
+    
     <header>
-        <a href="index.html">ACCUEIL</a>
+        <a href="index.html" ondblclick="secretShake()">ACCUEIL</a>
         <a href="portfolio.html">PORTFOLIO</a>
-        <a href="contact.html">CONTACT</a>
+        <a href="contact.html" oncontextmenu="secretRainbow(event)">CONTACT</a>
     </header>
 
     <div class="container">
         <div class="portfolio-header">
-            <h1>PORTFOLIO</h1>
-            <p>Découvrez mes créations graphiques</p>
+            <h1 id="mainTitle" onclick="cycleFont()" title="Cliquez-moi!">PORTFOLIO</h1>
+            <p onclick="secretInvert()">Découvrez mes créations graphiques</p>
         </div>
 
         <div class="filter-container">
             <button class="filter-btn active" data-filter="all">Tous les projets</button>
             <button class="filter-btn" data-filter="identite">Identité visuelle</button>
             <button class="filter-btn" data-filter="edition">Affiche / Édition</button>
-            <button class="filter-btn" data-filter="experimentation">Expérimentation</button>
+            <button class="filter-btn" data-filter="experimentation" ondblclick="activateDisco()">Expérimentation</button>
         </div>
 
         <div class="projects-grid">
@@ -506,14 +654,395 @@
         </div>
     </div>
 
-    <footer>
-        <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
+    <footer ondblclick="secretFooter()">
+        <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique <span style="opacity: 0.1; font-size: 10px; cursor: help;" title="Cliquez 10 fois sur le footer pour activer le mode rétro!">👾</span></p>
     </footer>
 
     <div class="back-to-top" id="backToTop"></div>
 
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Variables pour easter eggs
+        let fontIndex = 0;
+        const fonts = [
+            "'Futura PT', 'Futura', sans-serif",
+            "'Pixelify Sans', cursive",
+            "'Cormorant Garamond', serif",
+            "'Imperial Script', cursive",
+            "'Comic Sans MS', cursive",
+            "monospace"
+        ];
+        let konamiCode = [];
+        const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let footerClicks = 0;
+        let isInverted = false;
+
+        // Fonction pour afficher notification easter egg
+        function showEasterEgg(message) {
+            const notify = document.getElementById('easterNotify');
+            notify.textContent = '🎉 ' + message;
+            notify.classList.add('show');
+            setTimeout(() => {
+                notify.classList.remove('show');
+            }, 3000);
+        }
+
+        // Easter egg 1: Changer la police du titre
+        function cycleFont() {
+            fontIndex = (fontIndex + 1) % fonts.length;
+            const title = document.getElementById('mainTitle');
+            title.style.fontFamily = fonts[fontIndex];
+            
+            const fontNames = ['Futura', 'Pixel', 'Garamond', 'Script', 'Comic Sans', 'Monospace'];
+            showEasterEgg(`Police ${fontNames[fontIndex]} activée!`);
+        }
+
+        // Easter egg 2: Mode inversé
+        function secretInvert() {
+            isInverted = !isInverted;
+            if (isInverted) {
+                document.body.style.filter = 'invert(1) hue-rotate(180deg)';
+                showEasterEgg('Mode Négatif activé!');
+            } else {
+                document.body.style.filter = 'none';
+                showEasterEgg('Mode Normal restauré!');
+            }
+        }
+
+        // Easter egg 3: Shake animation
+        function secretShake() {
+            document.body.style.animation = 'shake 0.5s';
+            showEasterEgg('Tremblement de terre!');
+            setTimeout(() => {
+                document.body.style.animation = '';
+            }, 500);
+        }
+
+        // Ajouter keyframes shake
+        const shakeStyle = document.createElement('style');
+        shakeStyle.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+                20%, 40%, 60%, 80% { transform: translateX(10px); }
+            }
+        `;
+        document.head.appendChild(shakeStyle);
+
+        // Easter egg 4: Rainbow text
+        function secretRainbow(e) {
+            e.preventDefault();
+            const links = document.querySelectorAll('header a');
+            let hue = 0;
+            const interval = setInterval(() => {
+                links.forEach(link => {
+                    link.style.color = `hsl(${hue}, 100%, 50%)`;
+                });
+                hue = (hue + 5) % 360;
+            }, 50);
+            
+            showEasterEgg('Mode Arc-en-ciel activé!');
+            
+            setTimeout(() => {
+                clearInterval(interval);
+                links.forEach(link => {
+                    link.style.color = '';
+                });
+            }, 5000);
+        }
+
+        // Easter egg 5: Mode Disco
+        function activateDisco() {
+            const discoBall = document.getElementById('discoBall');
+            discoBall.classList.add('active');
+            document.body.style.animation = 'discoColors 2s infinite';
+            
+            showEasterEgg('DISCO TIME!');
+            
+            setTimeout(() => {
+                discoBall.classList.remove('active');
+                document.body.style.animation = '';
+            }, 5000);
+        }
+
+        // Easter egg 6: Mode Windows 98 (footer double-click)
+        let retroMode = false;
+        function secretFooter() {
+            footerClicks++;
+            if (footerClicks >= 10) {
+                footerClicks = 0;
+                retroMode = !retroMode;
+                document.body.classList.toggle('retro-mode');
+                
+                if (retroMode) {
+                    showEasterEgg('Mode Windows 98 activé!');
+                    // Son de démarrage Windows (simulé par vibration)
+                    if (navigator.vibrate) {
+                        navigator.vibrate([100, 50, 100, 50, 200]);
+                    }
+                } else {
+                    showEasterEgg('Retour au mode moderne!');
+                }
+            }
+        }
+
+        // Easter egg 7: Code Konami
+        document.addEventListener('keydown', (e) => {
+            konamiCode.push(e.key);
+            konamiCode = konamiCode.slice(-10);
+            
+            if (konamiCode.join(',') === konamiSequence.join(',')) {
+                konamiCode = [];
+                activateKonamiMode();
+            }
+        });
+
+        function activateKonamiMode() {
+            showEasterEgg('CODE KONAMI ACTIVÉ! Mode Dieu!');
+            
+            // Effet de matrice
+            const matrixEffect = document.createElement('div');
+            matrixEffect.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 255, 0, 0.05);
+                pointer-events: none;
+                z-index: 9997;
+                font-family: monospace;
+                font-size: 20px;
+                color: #0f0;
+                overflow: hidden;
+            `;
+            
+            document.body.appendChild(matrixEffect);
+            
+            // Animation matrice
+            let matrixText = '';
+            for (let i = 0; i < 50; i++) {
+                matrixText += String.fromCharCode(33 + Math.random() * 94);
+            }
+            
+            let y = 0;
+            const matrixInterval = setInterval(() => {
+                matrixEffect.textContent += matrixText + '\n';
+                y += 20;
+                if (y > window.innerHeight) {
+                    clearInterval(matrixInterval);
+                    setTimeout(() => {
+                        matrixEffect.remove();
+                    }, 1000);
+                }
+            }, 100);
+            
+            // Bonus: tout devient vert
+            document.body.style.filter = 'hue-rotate(90deg) saturate(2)';
+            setTimeout(() => {
+                document.body.style.filter = '';
+            }, 5000);
+        }
+
+        // Easter egg 8: Triple click sur le logo
+        let titleClicks = 0;
+        let titleTimer;
+        document.getElementById('mainTitle').addEventListener('click', () => {
+            titleClicks++;
+            clearTimeout(titleTimer);
+            titleTimer = setTimeout(() => {
+                if (titleClicks >= 5) {
+                    secretGlitch();
+                }
+                titleClicks = 0;
+            }, 500);
+        });
+
+        function secretGlitch() {
+            showEasterEgg('GLITCH MODE ACTIVÉ!');
+            const title = document.getElementById('mainTitle');
+            const originalText = title.textContent;
+            const glitchChars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+            
+            let glitchCount = 0;
+            const glitchInterval = setInterval(() => {
+                let glitchedText = '';
+                for (let i = 0; i < originalText.length; i++) {
+                    if (Math.random() > 0.7) {
+                        glitchedText += glitchChars[Math.floor(Math.random() * glitchChars.length)];
+                    } else {
+                        glitchedText += originalText[i];
+                    }
+                }
+                title.textContent = glitchedText;
+                
+                glitchCount++;
+                if (glitchCount > 20) {
+                    clearInterval(glitchInterval);
+                    title.textContent = originalText;
+                }
+            }, 100);
+        }
+
+        // Easter egg 9: Clic droit sur le bouton secret
+        document.querySelector('.secret-konami').addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            secretPartyMode();
+        });
+
+        function secretPartyMode() {
+            showEasterEgg('PARTY MODE! 🎉🎊');
+            
+            // Confettis
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    createConfetti();
+                }, i * 30);
+            }
+        }
+
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            const colors = ['#FF0033', '#00FF88', '#3366FF', '#FF00FF', '#FFFF00'];
+            confetti.style.cssText = `
+                position: fixed;
+                width: ${Math.random() * 10 + 5}px;
+                height: ${Math.random() * 10 + 5}px;
+                background: ${colors[Math.floor(Math.random() * colors.length)]};
+                top: -20px;
+                left: ${Math.random() * 100}%;
+                z-index: 10000;
+                pointer-events: none;
+                transform: rotate(${Math.random() * 360}deg);
+            `;
+            document.body.appendChild(confetti);
+            
+            let y = -20;
+            let x = parseFloat(confetti.style.left);
+            let rotation = Math.random() * 360;
+            
+            const fall = setInterval(() => {
+                y += 5;
+                x += (Math.random() - 0.5) * 2;
+                rotation += 10;
+                confetti.style.top = y + 'px';
+                confetti.style.left = x + '%';
+                confetti.style.transform = `rotate(${rotation}deg)`;
+                
+                if (y > window.innerHeight) {
+                    clearInterval(fall);
+                    confetti.remove();
+                }
+            }, 20);
+        }
+
+        // Easter egg 10: Maintenir Shift + Ctrl et cliquer sur un projet
+        document.querySelectorAll('.project-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (e.shiftKey && e.ctrlKey) {
+                    e.preventDefault();
+                    secretCardFlip(card);
+                }
+            });
+        });
+
+        function secretCardFlip(card) {
+            showEasterEgg('Carte secrète révélée!');
+            card.style.transform = 'rotateY(180deg) scale(1.1)';
+            card.style.background = 'linear-gradient(45deg, #FF0033, #3366FF)';
+            
+            setTimeout(() => {
+                card.style.transform = '';
+                card.style.background = '';
+            }, 2000);
+        }
+
+        // Easter egg 11: Taper "secret" sur le clavier
+        let secretWord = '';
+        document.addEventListener('keypress', (e) => {
+            secretWord += e.key;
+            secretWord = secretWord.slice(-6);
+            
+            if (secretWord === 'secret') {
+                showEasterEgg('Vous avez trouvé le mot secret!');
+                secretExplosion();
+                secretWord = '';
+            }
+        });
+
+        function secretExplosion() {
+            const projectCards = document.querySelectorAll('.project-card');
+            projectCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.transform = `translate(${(Math.random() - 0.5) * 500}px, ${(Math.random() - 0.5) * 500}px) rotate(${Math.random() * 360}deg) scale(0.5)`;
+                    card.style.opacity = '0.5';
+                }, index * 100);
+            });
+            
+            setTimeout(() => {
+                projectCards.forEach(card => {
+                    card.style.transform = '';
+                    card.style.opacity = '';
+                });
+            }, 3000);
+        }
+
+        // Easter egg 12: Scroll très rapide
+        let lastScrollTop = 0;
+        let scrollSpeed = 0;
+        window.addEventListener('scroll', () => {
+            const st = window.pageYOffset;
+            scrollSpeed = Math.abs(st - lastScrollTop);
+            lastScrollTop = st;
+            
+            if (scrollSpeed > 100) {
+                secretSpeedLines();
+            }
+        });
+
+        let speedLinesActive = false;
+        function secretSpeedLines() {
+            if (speedLinesActive) return;
+            speedLinesActive = true;
+            
+            showEasterEgg('MODE VITESSE ACTIVÉ!');
+            
+            const speedLines = document.createElement('div');
+            speedLines.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 9996;
+                background: repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(255, 0, 51, 0.3) 10px,
+                    rgba(255, 0, 51, 0.3) 12px
+                );
+                animation: speedMove 0.1s linear infinite;
+            `;
+            
+            const speedStyle = document.createElement('style');
+            speedStyle.textContent = `
+                @keyframes speedMove {
+                    from { background-position: 0 0; }
+                    to { background-position: 50px 0; }
+                }
+            `;
+            document.head.appendChild(speedStyle);
+            document.body.appendChild(speedLines);
+            
+            setTimeout(() => {
+                speedLines.remove();
+                speedStyle.remove();
+                speedLinesActive = false;
+            }, 1000);
+        }
 
         // Filtres
         const filterBtns = document.querySelectorAll('.filter-btn');
@@ -553,6 +1082,45 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
+        // Easter egg sur le bouton back to top (hold 3 sec)
+        let backToTopHoldTimer;
+        backToTop.addEventListener('mousedown', () => {
+            backToTopHoldTimer = setTimeout(() => {
+                secretRocket();
+            }, 3000);
+        });
+
+        backToTop.addEventListener('mouseup', () => {
+            clearTimeout(backToTopHoldTimer);
+        });
+
+        backToTop.addEventListener('mouseleave', () => {
+            clearTimeout(backToTopHoldTimer);
+        });
+
+        function secretRocket() {
+            showEasterEgg('DÉCOLLAGE DE LA FUSÉE!');
+            backToTop.textContent = '🚀';
+            backToTop.style.animation = 'rocketLaunch 2s ease-out';
+            
+            const rocketStyle = document.createElement('style');
+            rocketStyle.textContent = `
+                @keyframes rocketLaunch {
+                    0% { transform: translateY(0) rotate(0deg) scale(1); }
+                    50% { transform: translateY(-50px) rotate(10deg) scale(1.5); }
+                    100% { transform: translateY(-1000px) rotate(45deg) scale(0.5); }
+                }
+            `;
+            document.head.appendChild(rocketStyle);
+            
+            setTimeout(() => {
+                backToTop.textContent = '';
+                backToTop.style.animation = '';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                rocketStyle.remove();
+            }, 2000);
+        }
+
         // Effet de désagrégation des éléments au survol
         const canvas = document.querySelector('.disintegration-canvas');
         const ctx = canvas.getContext('2d');
@@ -565,7 +1133,6 @@
         let mouseY = 0;
         let particles = [];
         
-        // Éléments interactifs à cibler
         const interactiveElements = document.querySelectorAll('a, button, .project-card');
         
         class Particle {
@@ -594,7 +1161,6 @@
             }
         }
         
-        // Suivre la souris
         document.addEventListener('mousemove', (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
@@ -602,7 +1168,6 @@
             cursorDot.style.left = mouseX + 'px';
             cursorDot.style.top = mouseY + 'px';
             
-            // Vérifier si on survole un élément interactif
             interactiveElements.forEach(element => {
                 const rect = element.getBoundingClientRect();
                 const elementCenterX = rect.left + rect.width / 2;
@@ -612,7 +1177,6 @@
                     Math.pow(mouseY - elementCenterY, 2)
                 );
                 
-                // Si la souris est proche de l'élément
                 if (distance < 100) {
                     const style = window.getComputedStyle(element);
                     const color = style.color;
@@ -630,7 +1194,6 @@
             });
         });
         
-        // Animation des particules
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
@@ -647,11 +1210,24 @@
         
         animate();
         
-        // Redimensionner le canvas
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         });
-    </script>
-</body>
-</html>
+
+        // Message de bienvenue pour les curieux
+        console.log('%c🎮 EASTER EGGS DISPONIBLES:', 'color: #FF0033; font-size: 20px; font-weight: bold;');
+        console.log('%c1. Cliquez sur le titre "PORTFOLIO" pour changer la police', 'color: #00FF88;');
+        console.log('%c2. Cliquez sur "Découvrez mes créations" pour inverser les couleurs', 'color: #00FF88;');
+        console.log('%c3. Double-cliquez sur "ACCUEIL" pour un tremblement de terre', 'color: #00FF88;');
+        console.log('%c4. Clic droit sur "CONTACT" pour un arc-en-ciel', 'color: #00FF88;');
+        console.log('%c5. Double-cliquez sur "Expérimentation" pour le mode disco', 'color: #00FF88;');
+        console.log('%c6. Double-cliquez 10 fois sur le footer pour le mode Windows 98', 'color: #00FF88;');
+        console.log('%c7. Tapez le code Konami (↑↑↓↓←→←→BA) pour le mode Matrix', 'color: #00FF88;');
+        console.log('%c8. Cliquez 5 fois rapidement sur le titre pour le glitch', 'color: #00FF88;');
+        console.log('%c9. Clic droit sur le bouton secret (bas gauche) pour le party mode', 'color: #00FF88;');
+        console.log('%c10. Shift+Ctrl+Clic sur un projet pour le retourner', 'color: #00FF88;');
+        console.log('%c11. Tapez "secret" pour une explosion', 'color: #00FF88;');
+        console.log('%c12. Scrollez très vite pour les lignes de vitesse', 'color: #00FF88;');
+        console.log('%c13. Maintenez le bouton "retour en haut" pendant 3s pour la fusée', 'color: #00FF88;');
+        console.log('%c💡 Explorez et amusez-vous!', 'color: #FF0033; font-size: 16px; font-weight: bold;');
