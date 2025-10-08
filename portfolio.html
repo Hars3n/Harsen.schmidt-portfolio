@@ -26,7 +26,6 @@
             overflow-x: hidden;
         }
 
-        /* Curseur personnalisé */
         .cursor-dot {
             position: fixed;
             width: 8px;
@@ -39,7 +38,6 @@
             transition: width 0.2s, height 0.2s;
         }
 
-        /* Canvas pour l'effet de désagrégation */
         .disintegration-canvas {
             position: fixed;
             top: 0;
@@ -50,7 +48,6 @@
             z-index: 9998;
         }
 
-        /* Effet halftone de fond */
         .halftone-bg {
             position: fixed;
             top: 0;
@@ -90,7 +87,6 @@
             }
         }
 
-        /* Header */
         header {
             position: fixed;
             top: 0;
@@ -131,7 +127,6 @@
             width: 100%;
         }
 
-        /* Container principal */
         .container {
             max-width: 1920px;
             margin: 0 auto;
@@ -140,7 +135,6 @@
             z-index: 1;
         }
 
-        /* Portfolio header */
         .portfolio-header {
             text-align: center;
             margin-bottom: 80px;
@@ -173,7 +167,6 @@
             margin-top: 30px;
         }
 
-        /* Filtres */
         .filter-container {
             display: flex;
             justify-content: center;
@@ -211,7 +204,6 @@
             box-shadow: 0 0 30px rgba(255, 0, 51, 0.4);
         }
 
-        /* Projects grid */
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -314,6 +306,7 @@
             transform: translateY(20px);
             transition: all 0.4s ease;
             cursor: pointer;
+            user-select: none;
         }
 
         .project-card:hover .project-description {
@@ -353,7 +346,6 @@
             transform: translateX(5px);
         }
 
-        /* Back to top */
         .back-to-top {
             position: fixed;
             bottom: 40px;
@@ -390,13 +382,13 @@
             font-weight: bold;
         }
 
-        /* Footer */
         footer {
             padding: 40px;
             text-align: center;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             background: rgba(26, 26, 26, 0.8);
             backdrop-filter: blur(10px);
+            position: relative;
         }
 
         footer p {
@@ -411,12 +403,14 @@
         /* Easter Egg 1: Inversion des couleurs */
         .inverted {
             filter: invert(1) hue-rotate(180deg);
+            transition: filter 0.5s ease;
         }
 
         /* Easter Egg 2: Mode Windows 98 */
         body.win98-mode {
             font-family: 'Courier New', monospace !important;
             background: #008080 !important;
+            transition: all 0.5s ease;
         }
 
         body.win98-mode * {
@@ -435,13 +429,19 @@
 
         body.win98-mode .project-title,
         body.win98-mode .project-description,
-        body.win98-mode .project-tag {
+        body.win98-mode .project-tag,
+        body.win98-mode header a,
+        body.win98-mode footer p {
             color: #000 !important;
         }
 
         body.win98-mode .back-to-top {
             background: #c0c0c0 !important;
             border: 3px outset #c0c0c0 !important;
+        }
+
+        body.win98-mode .back-to-top::before {
+            color: #000 !important;
         }
 
         /* Easter Egg 3: Barre de recherche secrète */
@@ -452,16 +452,17 @@
             transform: translateX(-50%);
             width: 400px;
             padding: 20px;
-            background: rgba(26, 26, 26, 0.95);
+            background: rgba(26, 26, 26, 0.98);
             border: 2px solid var(--primary-red);
             border-radius: 10px;
             z-index: 10000;
-            transition: bottom 0.5s ease;
+            transition: bottom 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             backdrop-filter: blur(10px);
+            box-shadow: 0 -10px 40px rgba(255, 0, 51, 0.4);
         }
 
         .secret-search.active {
-            bottom: 100px;
+            bottom: 120px;
         }
 
         .secret-search input {
@@ -473,50 +474,19 @@
             font-size: 16px;
             font-family: 'Futura PT', 'Futura', sans-serif;
             outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .secret-search input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--primary-red);
         }
 
         .secret-search input::placeholder {
             color: rgba(255, 255, 255, 0.5);
         }
 
-        /* Easter Egg 4: Jeu Dino */
-        .dino-game {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px;
-            height: 200px;
-            background: #1a1a1a;
-            border: 3px solid var(--primary-red);
-            z-index: 10001;
-            display: none;
-            box-shadow: 0 0 50px rgba(255, 0, 51, 0.5);
-        }
 
-        .dino-game.active {
-            display: block;
-        }
-
-        .dino-game canvas {
-            width: 100%;
-            height: 100%;
-        }
-
-        .dino-game-close {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 30px;
-            height: 30px;
-            background: var(--primary-red);
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            z-index: 1;
-        }
 
         /* Animation tremblement de terre */
         @keyframes earthquake {
@@ -539,10 +509,25 @@
         footer p span:last-child {
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
         }
 
         footer p span:last-child:hover {
             color: var(--primary-red);
+        }
+
+        footer p span:last-child::after {
+            content: '🔍';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        footer p span:last-child:hover::after {
+            opacity: 1;
         }
 
         @media (max-width: 1200px) {
@@ -591,25 +576,19 @@
             .secret-search {
                 width: 90%;
             }
-
-            .dino-game {
-                width: 90%;
-                max-width: 600px;
-            }
         }
     </style>
 </head>
 <body>
     <div class="halftone-bg"></div>
     
-    <!-- Curseur et canvas de désagrégation -->
     <div class="cursor-dot"></div>
     <canvas class="disintegration-canvas"></canvas>
     
     <header>
-        <a href="index.html">ACCUEIL</a>
-        <a href="portfolio.html">PORTFOLIO</a>
-        <a href="contact.html">CONTACT</a>
+        <a href="#accueil">ACCUEIL</a>
+        <a href="#portfolio">PORTFOLIO</a>
+        <a href="#contact">CONTACT</a>
     </header>
 
     <div class="container">
@@ -626,7 +605,7 @@
         </div>
 
         <div class="projects-grid">
-            <a href="identite.html" class="project-card" data-category="identite">
+            <a href="#identite" class="project-card" data-category="identite">
                 <div class="project-overlay">
                     <span class="project-tag">Identité visuelle</span>
                     <h2 class="project-title">BRANDING</h2>
@@ -635,7 +614,7 @@
                 </div>
             </a>
 
-            <a href="affiche-edition.html" class="project-card" data-category="edition">
+            <a href="#edition" class="project-card" data-category="edition">
                 <div class="project-overlay">
                     <span class="project-tag">Design éditorial</span>
                     <h2 class="project-title">PRINT & ÉDITION</h2>
@@ -644,7 +623,7 @@
                 </div>
             </a>
 
-            <a href="experimentation.html" class="project-card" data-category="experimentation">
+            <a href="#experimentation" class="project-card" data-category="experimentation">
                 <div class="project-overlay">
                     <span class="project-tag">Expérimentation</span>
                     <h2 class="project-title">CRÉATIF</h2>
@@ -661,19 +640,54 @@
 
     <div class="back-to-top" id="backToTop"></div>
 
-    <!-- Easter Egg: Barre de recherche secrète -->
     <div class="secret-search" id="secretSearch">
-        <input type="text" id="secretInput" placeholder="Tapez quelque chose...">
-    </div>
-
-    <!-- Easter Egg: Jeu Dino -->
-    <div class="dino-game" id="dinoGame">
-        <button class="dino-game-close" id="dinoClose">×</button>
-        <canvas id="dinoCanvas"></canvas>
+        <input type="text" id="secretInput" placeholder="...">
     </div>
 
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Curseur personnalisé
+        const cursorDot = document.querySelector('.cursor-dot');
+        document.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+        });
+
+        // Back to top
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Filtres
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const projectCards = document.querySelectorAll('.project-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filter = btn.dataset.filter;
+                
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                projectCards.forEach(card => {
+                    if (filter === 'all' || card.dataset.category === filter) {
+                        card.classList.remove('hidden');
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+            });
+        });
 
         // ========== EASTER EGG 1: Cliquer sur la description inverse les couleurs ==========
         const projectDescriptions = document.querySelectorAll('.project-description');
@@ -682,6 +696,13 @@
                 e.preventDefault();
                 e.stopPropagation();
                 document.body.classList.toggle('inverted');
+                
+                // Notification visuelle
+                if (document.body.classList.contains('inverted')) {
+                    console.log('🎨 Mode inversé activé !');
+                } else {
+                    console.log('🎨 Mode normal restauré !');
+                }
             });
         });
 
@@ -696,6 +717,12 @@
             if (konamiCode.join(',') === konamiSequence.join(',')) {
                 document.body.classList.toggle('win98-mode');
                 konamiCode = [];
+                
+                if (document.body.classList.contains('win98-mode')) {
+                    console.log('💾 Windows 98 mode activé ! Bienvenue en 1998 !');
+                } else {
+                    console.log('💾 Retour au présent !');
+                }
             }
         });
 
@@ -704,10 +731,19 @@
         const secretSearch = document.getElementById('secretSearch');
         const secretInput = document.getElementById('secretInput');
         
-        secretTrigger.addEventListener('click', () => {
+        secretTrigger.addEventListener('click', (e) => {
+            e.preventDefault();
             secretSearch.classList.toggle('active');
             if (secretSearch.classList.contains('active')) {
                 setTimeout(() => secretInput.focus(), 500);
+                console.log('🔍 Barre de recherche secrète activée !');
+            }
+        });
+
+        // Fermer la recherche en cliquant ailleurs
+        document.addEventListener('click', (e) => {
+            if (!secretSearch.contains(e.target) && e.target !== secretTrigger) {
+                secretSearch.classList.remove('active');
             }
         });
 
@@ -715,180 +751,24 @@
             if (e.key === 'Enter') {
                 const value = secretInput.value.toLowerCase().trim();
                 
-                if (value === 'dino') {
+                if (value === 'harsen') {
+                    window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
                     secretSearch.classList.remove('active');
-                    document.getElementById('dinoGame').classList.add('active');
-                    startDinoGame();
-                } else if (value === 'harsen') {
-                    window.open('https://www.youtube.com/watch?v=xvFZjo5PgG0', '_blank');
-                    secretSearch.classList.remove('active');
+                    console.log('🎵 Surprise musicale !');
                 } else if (value === 'bardavid') {
                     document.body.classList.add('earthquake');
                     setTimeout(() => {
                         document.body.classList.remove('earthquake');
                     }, 500);
                     secretSearch.classList.remove('active');
+                    console.log('🌍 Tremblement de terre activé !');
                 } else {
-                    secretSearch.classList.remove('active');
+                    alert('Code secret non reconnu. Essayez : harsen ou bardavid');
                 }
                 
                 secretInput.value = '';
             }
         });
-
-        // ========== EASTER EGG 4: JEU DINO ==========
-        let dinoGameActive = false;
-        let dinoGameInterval;
-        
-        document.getElementById('dinoClose').addEventListener('click', () => {
-            document.getElementById('dinoGame').classList.remove('active');
-            dinoGameActive = false;
-            clearInterval(dinoGameInterval);
-        });
-
-        function startDinoGame() {
-            dinoGameActive = true;
-            const canvas = document.getElementById('dinoCanvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 600;
-            canvas.height = 200;
-            
-            let dino = {
-                x: 50,
-                y: 150,
-                width: 20,
-                height: 20,
-                jumping: false,
-                jumpHeight: 0,
-                gravity: 0.6,
-                jumpPower: 12,
-                velocity: 0
-            };
-            
-            let obstacles = [];
-            let score = 0;
-            let gameSpeed = 3;
-            let frameCount = 0;
-            
-            function jump() {
-                if (!dino.jumping) {
-                    dino.jumping = true;
-                    dino.velocity = -dino.jumpPower;
-                }
-            }
-            
-            document.addEventListener('keydown', (e) => {
-                if (dinoGameActive && e.code === 'Space') {
-                    e.preventDefault();
-                    jump();
-                }
-            });
-            
-            canvas.addEventListener('click', () => {
-                if (dinoGameActive) {
-                    jump();
-                }
-            });
-            
-            function createObstacle() {
-                obstacles.push({
-                    x: canvas.width,
-                    y: 150,
-                    width: 15,
-                    height: 30
-                });
-            }
-            
-            function updateDino() {
-                if (dino.jumping) {
-                    dino.velocity += dino.gravity;
-                    dino.y += dino.velocity;
-                    
-                    if (dino.y >= 150) {
-                        dino.y = 150;
-                        dino.jumping = false;
-                        dino.velocity = 0;
-                    }
-                }
-            }
-            
-            function updateObstacles() {
-                obstacles.forEach((obs, index) => {
-                    obs.x -= gameSpeed;
-                    
-                    if (obs.x + obs.width < 0) {
-                        obstacles.splice(index, 1);
-                        score++;
-                    }
-                    
-                    if (dino.x < obs.x + obs.width &&
-                        dino.x + dino.width > obs.x &&
-                        dino.y < obs.y + obs.height &&
-                        dino.y + dino.height > obs.y) {
-                        gameOver();
-                    }
-                });
-                
-                frameCount++;
-                if (frameCount % 120 === 0) {
-                    createObstacle();
-                }
-            }
-            
-            function draw() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = '#1a1a1a';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.strokeStyle = '#FF0033';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(0, 170);
-                ctx.lineTo(canvas.width, 170);
-                ctx.stroke();
-                
-                ctx.fillStyle = '#FF0033';
-                ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
-                
-                ctx.fillStyle = '#fff';
-                obstacles.forEach(obs => {
-                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                });
-                
-                ctx.fillStyle = '#fff';
-                ctx.font = '16px "Futura PT"';
-                ctx.fillText('Score: ' + score, 10, 30);
-                ctx.fillText('Appuyez sur ESPACE ou cliquez pour sauter', 150, 30);
-            }
-            
-            function gameOver() {
-                dinoGameActive = false;
-                clearInterval(dinoGameInterval);
-                
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = '#FF0033';
-                ctx.font = 'bold 30px "Futura PT"';
-                ctx.textAlign = 'center';
-                ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 20);
-                
-                ctx.fillStyle = '#fff';
-                ctx.font = '20px "Futura PT"';
-                ctx.fillText('Score: ' + score, canvas.width / 2, canvas.height / 2 + 20);
-                
-                setTimeout(() => {
-                    document.getElementById('dinoGame').classList.remove('active');
-                }, 3000);
-            }
-            
-            function gameLoop() {
-                if (!dinoGameActive) return;
-                
-                updateDino();
-                updateObstacles();
-                draw();
-            }
-            
-            dinoGameInterval
+    </script>
+</body>
+</html>
