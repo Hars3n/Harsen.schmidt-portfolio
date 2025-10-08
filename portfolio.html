@@ -397,7 +397,6 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        
 
         /* ========== EASTER EGGS STYLES ========== */
         
@@ -739,9 +738,9 @@
     <div class="cursor-dot"></div>
     <canvas class="disintegration-canvas"></canvas>
     
-     <header>
-        <a href="index.html">ACCUEIL</a>
-        <a href="#portfolio">PORTFOLIO</a>
+    <header>
+        <a href="#index.html">ACCUEIL</a>
+        <a href="portfolio.html">PORTFOLIO</a>
         <a href="contact.html">CONTACT</a>
     </header>
 
@@ -762,16 +761,17 @@
             <a href="#identite" class="project-card" data-category="identite">
                 <div class="project-overlay">
                     <span class="project-tag">Identité visuelle</span>
-                    <h2 class="project-title">Identité visuelle</h2>
-                    <p class="project-description">Création de logotypes et chartes graphiques.</p>
+                    <h2 class="project-title">BRANDING</h2>
+                    <p class="project-description">Création de logotypes et chartes graphiques pour des marques uniques et mémorables.</p>
                     <span class="project-cta">Découvrir</span>
                 </div>
             </a>
 
             <a href="#edition" class="project-card" data-category="edition">
                 <div class="project-overlay">
-                    <span class="project-tag">Affiches / Éditions</span>
-                    <h2 class="project-title">AFFICHES & ÉDITION</h2>
+                    <span class="project-tag">Design éditorial</span>
+                    <h2 class="project-title">PRINT & ÉDITION</h2>
+                    <p class="project-description">Design éditorial et affiches impactantes pour communiquer visuellement.</p>
                     <span class="project-cta">Découvrir</span>
                 </div>
             </a>
@@ -780,6 +780,7 @@
                 <div class="project-overlay">
                     <span class="project-tag">Expérimentation</span>
                     <h2 class="project-title">CRÉATIF</h2>
+                    <p class="project-description">Projets créatifs explorant de nouvelles formes graphiques et visuelles.</p>
                     <span class="project-cta">Découvrir</span>
                 </div>
             </a>
@@ -844,8 +845,8 @@
         });
 
         // ========== EASTER EGG 1: Cliquer sur la description inverse les couleurs ==========
-        const projectTag = document.querySelectorAll('.project-tag');
-        projectTag.forEach(desc => {
+        const projectDescriptions = document.querySelectorAll('.project-description');
+        projectDescriptions.forEach(desc => {
             desc.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -928,7 +929,7 @@
                     secretSearch.classList.remove('active');
                     console.log('🌍 Tremblement de terre activé !');
                 } else {
-                    alert('Code secret non reconnu);
+                    alert('Code secret non reconnu. Essayez : harsen ou bardavid');
                 }
                 
                 secretInput.value = '';
