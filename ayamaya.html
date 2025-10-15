@@ -194,103 +194,74 @@
             margin-top: 20px;
         }
 
-        .content-section {
+        /* Section Info Projet */
+        .project-info {
+            margin-bottom: 120px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            margin-bottom: 100px;
-            align-items: start;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 60px;
         }
 
-        .text-content {
-            position: sticky;
-            top: 140px;
-        }
-
-        .text-block {
-            margin-bottom: 50px;
-            padding: 30px;
+        .info-block {
+            padding: 50px 40px;
             background: rgba(255, 255, 255, 0.02);
-            border-left: 3px solid rgba(255, 0, 51, 0.3);
+            border-left: 4px solid var(--primary-red);
             transition: all 0.3s ease;
         }
 
-        .text-block:hover {
+        .info-block:hover {
             background: rgba(255, 255, 255, 0.05);
-            border-left-color: var(--primary-red);
-            transform: translateX(5px);
+            transform: translateX(10px);
         }
 
-        .text-block h3 {
-            font-size: 24px;
+        .info-title {
+            font-size: 16px;
             color: var(--primary-red);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
             font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 25px;
         }
 
-        .text-block p {
-            font-size: 18px;
+        .info-content {
+            font-size: 20px;
             line-height: 1.8;
-            color: rgba(255, 255, 255, 0.85);
-            text-align: left;
+            color: rgba(255, 255, 255, 0.9);
         }
 
-        .images-gallery {
-            display: flex;
-            flex-direction: column;
+        /* Galerie complète */
+        .full-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
             gap: 40px;
+            margin-bottom: 120px;
         }
 
         .gallery-item {
             position: relative;
             overflow: hidden;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 0, 51, 0.2);
-            transition: all 0.5s ease;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 0, 51, 0.15);
+            transition: all 0.4s ease;
+            aspect-ratio: 16/10;
         }
 
         .gallery-item:hover {
             border-color: var(--primary-red);
-            box-shadow: 
-                0 20px 60px rgba(255, 0, 51, 0.3),
-                inset 0 0 80px rgba(255, 0, 51, 0.1);
-            transform: scale(1.02);
+            box-shadow: 0 20px 60px rgba(255, 0, 51, 0.3);
+            transform: translateY(-5px);
         }
 
         .gallery-item img {
             width: 100%;
-            height: auto;
+            height: 100%;
+            object-fit: cover;
             display: block;
-            transition: transform 0.5s ease;
+            transition: transform 0.6s ease;
         }
 
         .gallery-item:hover img {
-            transform: scale(1.05);
-        }
-
-        .gallery-caption {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 20px;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .gallery-item:hover .gallery-caption {
-            opacity: 1;
-        }
-
-        .gallery-caption-text {
-            font-size: 14px;
-            color: var(--primary-red);
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            transform: scale(1.08);
         }
 
         /* Section PDF Charte Graphique */
@@ -390,13 +361,13 @@
                 padding: 120px 50px 60px;
             }
 
-            .content-section {
+            .project-info {
                 grid-template-columns: 1fr;
-                gap: 60px;
+                gap: 40px;
             }
 
-            .text-content {
-                position: static;
+            .full-gallery {
+                grid-template-columns: 1fr;
             }
 
             .project-title {
@@ -427,7 +398,7 @@
                 font-size: 20px;
             }
 
-            .text-block p {
+            .info-content {
                 font-size: 16px;
             }
 
@@ -464,52 +435,79 @@
             <p class="project-subtitle">Édition</p>
         </div>
 
-        <div class="content-section">
-            <div class="text-content">
-                <div class="text-block">
-                    <h3>Concept</h3>
-                    <p>Ayamaya est un projet d'identité visuelle complète développé pour une maison d'édition contemporaine. L'objectif était de créer une identité forte et reconnaissable qui reflète l'innovation et la créativité de la marque.</p>
-                </div>
-
-                <div class="text-block">
-                    <h3>Approche créative</h3>
-                    <p>Le design s'articule autour de formes géométriques audacieuses et d'une typographie moderne. Chaque élément a été pensé pour créer une cohérence visuelle à travers tous les supports de communication.</p>
-                </div>
-
-                <div class="text-block">
-                    <h3>Identité de marque</h3>
-                    <p>La charte graphique définit l'ensemble des règles d'utilisation de l'identité visuelle : logotype, palette de couleurs, typographies, déclinaisons et applications sur différents supports.</p>
-                </div>
+        <!-- Section Présentation du Projet -->
+        <div class="project-info">
+            <div class="info-block">
+                <h2 class="info-title">DEMANDE</h2>
+                <p class="info-content">Réalisation d'un logotype et identité visuelle complète pour la maison d'édition Ayamaya.</p>
             </div>
 
-            <div class="images-gallery">
-                <div class="gallery-item">
-                    <img src="ayamaya-1.jpg" alt="Ayamaya - Visuel 1" loading="lazy">
-                    <div class="gallery-caption">
-                        <div class="gallery-caption-text">Identité principale</div>
-                    </div>
-                </div>
+            <div class="info-block">
+                <h2 class="info-title">DESCRIPTION</h2>
+                <p class="info-content">À rédiger plus tard.</p>
+            </div>
+        </div>
 
-                <div class="gallery-item">
-                    <img src="ayamaya-2.jpg" alt="Ayamaya - Visuel 2" loading="lazy">
-                    <div class="gallery-caption">
-                        <div class="gallery-caption-text">Applications</div>
-                    </div>
-                </div>
+        <!-- Galerie d'images dense -->
+        <div class="full-gallery">
+            <div class="gallery-item">
+                <img src="ayamaya-1.jpg" alt="Ayamaya - Logotype principal" loading="lazy">
+            </div>
 
-                <div class="gallery-item">
-                    <img src="ayamaya-3.jpg" alt="Ayamaya - Visuel 3" loading="lazy">
-                    <div class="gallery-caption">
-                        <div class="gallery-caption-text">Déclinaisons</div>
-                    </div>
-                </div>
+            <div class="gallery-item">
+                <img src="ayamaya-2.jpg" alt="Ayamaya - Déclinaisons du logo" loading="lazy">
+            </div>
 
-                <div class="gallery-item">
-                    <img src="ayamaya-1.jpg" alt="Ayamaya - Détail" loading="lazy">
-                    <div class="gallery-caption">
-                        <div class="gallery-caption-text">Détails graphiques</div>
-                    </div>
-                </div>
+            <div class="gallery-item">
+                <img src="ayamaya-3.jpg" alt="Ayamaya - Palette de couleurs" loading="lazy">
+            </div>
+
+            <div class="gallery-item">
+                <img src="ayamaya-4.jpg" alt="Ayamaya - Typographies" loading="lazy">
+            </div>
+
+            <div class="gallery-item">
+                <img src="ayamaya-5.jpg" alt="Ayamaya - Applications print" loading="lazy">
+            </div>
+
+            <div class="gallery-item">
+                <img src="ayamaya-6.jpg" alt="Ayamaya - Papeterie" loading="lazy">
+            </div>
+
+            <div class="gallery-item">
+                <img src="ayamaya-7.jpg" alt="Ayamaya - Cartes de visite" loading="lazy">
+            </div>
+
+            <div class="gallery-item">
+                <img src="ayamaya-8.jpg" alt="Ayamaya - En-têtes de lettre" loading="lazy">
+            </div>
+
+            <div class="gallery-item">
+                <img src="ayamaya-9.jpg" alt="Ayamaya - Mockups" loading="lazy">
+            </div>
+
+            <div class="gallery-item">
+                <img src="ayamaya-10.jpg" alt="Ayamaya - Applications digitales" loading="lazy">
+            </div>
+
+            <div class="gallery-item">
+                <img src="ayamaya-11.jpg" alt="Ayamaya - Signalétique" loading="lazy">
+            </div>
+
+            <div class="gallery-item">
+                <img src="ayamaya-12.jpg" alt="Ayamaya - Supports de communication" loading="lazy">
+            </div>
+
+            <div class="gallery-item">
+                <img src="ayamaya-13.jpg" alt="Ayamaya - Affiches" loading="lazy">
+            </div>
+
+            <div class="gallery-item">
+                <img src="ayamaya-14.jpg" alt="Ayamaya - Packaging" loading="lazy">
+            </div>
+
+            <div class="gallery-item">
+                <img src="ayamaya-15.jpg" alt="Ayamaya - Détails graphiques" loading="lazy">
             </div>
         </div>
 
@@ -563,7 +561,7 @@
             });
         }, observerOptions);
 
-        document.querySelectorAll('.text-block, .gallery-item').forEach(item => {
+        document.querySelectorAll('.info-block, .gallery-item').forEach(item => {
             observer.observe(item);
         });
 
