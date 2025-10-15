@@ -245,7 +245,7 @@
         .carousel-row {
             display: flex;
             gap: 30px;
-            animation: scrollCarousel 25s linear infinite;
+            animation: scrollCarousel 40s linear infinite;
             will-change: transform;
         }
 
@@ -689,7 +689,6 @@
 
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
-        const portraitPages = [1, 15];
 
         pdfjsLib.getDocument('Charte-graphique-ayamaya.pdf').promise.then(pdf => {
             pdfDoc = pdf;
@@ -700,7 +699,7 @@
         function renderPage(num) {
             pageRendering = true;
             pdfDoc.getPage(num).then(page => {
-                let scale = portraitPages.includes(num) ? 0.4 : 0.75;
+                let scale = 0.75;
                 const viewport = page.getViewport({ scale });
 
                 canvas.height = viewport.height;
