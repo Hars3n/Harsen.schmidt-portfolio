@@ -1,411 +1,616 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Identité visuelle – Harsen Schmidt</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identité visuelle - HARSEN Schmidt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@700&family=Cormorant+Garamond:ital,wght@1,700&family=Imperial+Script&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/old-london" rel="stylesheet">
+    <style>
+        @import url('https://fonts.cdnfonts.com/css/futura-pt');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    html {
-      scroll-behavior: smooth;
-    }
+        :root {
+            --primary-red: #FF0033;
+        }
 
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      color: #ffffff;
-      overflow-x: hidden;
-      background: #0f0f0f;
-      position: relative;
-    }
+        body {
+            font-family: 'Futura PT', 'Futura', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow-x: hidden;
+        }
 
-    /* Background avec texture et grain */
-    .animated-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -2;
-      background: 
-        radial-gradient(circle at 20% 20%, rgba(220, 38, 38, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(34, 197, 94, 0.12) 0%, transparent 50%),
-        #0f0f0f;
-    }
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--primary-red);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s;
+        }
 
-    .animated-bg::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulance type='fractalNoise' baseFrequency='3.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
-      opacity: 0.6;
-      mix-blend-mode: overlay;
-    }
+        .halftone-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.08;
+        }
 
-    .glass-layer {
-      position: fixed;
-      pointer-events: none;
-      z-index: -1;
-    }
+        .halftone-bg::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, rgba(255, 255, 255, 0.4) 2px, transparent 2px),
+                radial-gradient(circle, rgba(255, 0, 51, 0.3) 1.5px, transparent 1.5px);
+            background-size: 40px 40px, 60px 60px;
+            background-position: 0 0, 30px 30px;
+            animation: halftoneFloat 40s ease-in-out infinite;
+        }
 
-    .glass-1 {
-      top: 10%;
-      left: 5%;
-      width: 300px;
-      height: 300px;
-      background: rgba(220, 38, 38, 0.08);
-      filter: blur(80px);
-      border-radius: 50%;
-      animation: float 15s ease-in-out infinite;
-    }
+        @keyframes halftoneFloat {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(20px, -20px) scale(1.05);
+            }
+            50% {
+                transform: translate(-10px, 30px) scale(0.95);
+            }
+            75% {
+                transform: translate(30px, 10px) scale(1.02);
+            }
+        }
 
-    .glass-2 {
-      bottom: 15%;
-      right: 8%;
-      width: 250px;
-      height: 250px;
-      background: rgba(34, 197, 94, 0.08);
-      filter: blur(80px);
-      border-radius: 50%;
-      animation: float 18s ease-in-out infinite reverse;
-    }
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 30px;
+            z-index: 1000;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-    @keyframes float {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(30px, -50px) scale(1.1); }
-      66% { transform: translate(-40px, 30px) scale(0.9); }
-    }
+        header a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
 
-    /* Header */
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      padding: 20px 5vw;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 100;
-      background: rgba(15, 15, 15, 0.7);
-      backdrop-filter: blur(20px) saturate(180%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-    }
+        header a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-red);
+            transition: width 0.3s ease;
+        }
 
-    .logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      background: linear-gradient(135deg, #ffffff 0%, #dc2626 50%, #22c55e 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
-    }
+        header a:hover::after {
+            width: 100%;
+        }
 
-    nav {
-      display: flex;
-      gap: 40px;
-    }
+        .container {
+            max-width: 1920px;
+            margin: 0 auto;
+            padding: 140px 100px 80px;
+            position: relative;
+            z-index: 1;
+        }
 
-    nav a {
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      opacity: 0.7;
-      transition: all 0.3s ease;
-      position: relative;
-      padding: 8px 0;
-    }
+        .page-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
 
-    nav a::before {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: linear-gradient(90deg, #dc2626, #22c55e);
-      transition: width 0.3s ease;
-    }
+        .page-header h1 {
+            font-size: 100px;
+            font-weight: 700;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
 
-    nav a:hover {
-      opacity: 1;
-      color: #dc2626;
-    }
+        .page-header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(to right, var(--primary-red), transparent);
+        }
 
-    nav a:hover::before {
-      width: 100%;
-    }
+        .page-header p {
+            font-size: 20px;
+            color: #e0e0e0;
+            margin-top: 30px;
+        }
 
-    main {
-      padding: 120px 0 80px;
-      animation: fadeInUp 1s ease-out;
-    }
+        /* Section de catégorie */
+        .category-section {
+            margin-bottom: 100px;
+        }
 
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(40px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+        .category-header {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid var(--primary-red);
+            backdrop-filter: blur(10px);
+        }
 
-    /* Hero section */
-    .hero-section {
-      padding: 0 5vw 60px;
-      max-width: 1600px;
-      margin: 0 auto;
-    }
+        .category-number {
+            font-size: 18px;
+            color: var(--primary-red);
+            font-weight: bold;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
 
-    .hero-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(5rem, 15vw, 12rem);
-      font-weight: 900;
-      line-height: 0.85;
-      letter-spacing: -4px;
-      margin-bottom: 40px;
-      text-transform: uppercase;
-      background: linear-gradient(180deg, #dc2626 0%, #b91c1c 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: 0 0 60px rgba(220, 38, 38, 0.5);
-      position: relative;
-      animation: fadeInUp 1s ease-out 0.2s backwards;
-    }
+        .category-title {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
 
-    .hero-subtitle {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2rem, 5vw, 3.5rem);
-      font-weight: 900;
-      color: #22c55e;
-      text-transform: uppercase;
-      letter-spacing: -2px;
-      margin-bottom: 60px;
-      text-shadow: 0 0 40px rgba(34, 197, 94, 0.5);
-      animation: fadeInUp 1s ease-out 0.3s backwards;
-    }
+        .category-subtitle {
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
 
-    /* Grid */
-    .editorial-grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 20px;
-      padding: 0 5vw;
-      max-width: 1600px;
-      margin: 0 auto 80px;
-      animation: fadeInUp 1s ease-out 0.4s backwards;
-    }
+        /* Grille Pinterest */
+        .pinterest-grid {
+            column-count: 4;
+            column-gap: 25px;
+        }
 
-    .grid-item {
-      position: relative;
-      overflow: hidden;
-      background-color: #111;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    }
+        .pinterest-item {
+            break-inside: avoid;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
 
-    .grid-item:hover {
-      transform: translateY(-8px);
-      border-color: rgba(220, 38, 38, 0.5);
-      box-shadow: 0 0 60px rgba(220, 38, 38, 0.3);
-    }
+        .pinterest-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-red);
+            box-shadow: 
+                0 10px 40px rgba(255, 0, 51, 0.3),
+                inset 0 0 60px rgba(255, 0, 51, 0.1);
+        }
 
-    .grid-item img {
-      width: 100%;
-      height: auto;
-      object-fit: contain;
-      display: block;
-      transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-      mix-blend-mode: luminosity;
-      opacity: 0.9;
-    }
+        .pinterest-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.4s ease;
+        }
 
-    .grid-item:hover img {
-      mix-blend-mode: normal;
-      opacity: 1;
-      transform: scale(1.05);
-    }
+        .pinterest-item:hover img {
+            transform: scale(1.05);
+        }
 
-    .grid-large { grid-column: span 8; }
-    .grid-medium { grid-column: span 4; }
-    .grid-small { grid-column: span 6; }
-    .grid-tall { grid-column: span 4; }
+        .pinterest-item-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
 
-    /* PDF Section */
-    .pdf-section {
-      padding: 80px 5vw;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
+        .pinterest-item:hover .pinterest-item-overlay {
+            opacity: 1;
+        }
 
-    .pdf-section h2 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2.5rem, 6vw, 4rem);
-      font-weight: 900;
-      color: #ffffff;
-      text-transform: uppercase;
-      letter-spacing: -2px;
-      margin-bottom: 48px;
-    }
+        .pinterest-item-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--primary-red);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-    .pdf-viewer {
-      background: rgba(20, 20, 20, 0.8);
-      backdrop-filter: blur(20px);
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      padding: 48px;
-    }
+        /* Section PDF */
 
-    #pdf-canvas {
-      width: 100%;
-      height: auto;
-      display: block;
-      margin: 0 auto;
-      background: white;
-      box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
-    }
-  </style>
+        .back-to-top {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 0 20px rgba(255, 0, 51, 0.5);
+            border: 2px solid rgba(255, 0, 51, 0.5);
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(255, 0, 51, 0.7);
+        }
+
+        .back-to-top::before {
+            content: '↑';
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        footer {
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        footer p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .pinterest-grid {
+                column-count: 3;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                padding: 120px 50px 60px;
+            }
+
+            .pinterest-grid {
+                column-count: 2;
+            }
+
+            .page-header h1 {
+                font-size: 70px;
+            }
+
+            .category-title {
+                font-size: 32px;
+            }
+
+            .category-subtitle {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 100px 20px 40px;
+            }
+
+            .pinterest-grid {
+                column-count: 1;
+            }
+
+            .page-header h1 {
+                font-size: 50px;
+            }
+
+            .category-title {
+                font-size: 28px;
+            }
+
+            .category-subtitle {
+                font-size: 18px;
+            }
+
+            .pinterest-item-overlay {
+                opacity: 1;
+            }
+
+            .pdf-section {
+                padding: 30px 20px;
+            }
+
+            .pdf-controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+    </style>
 </head>
 <body>
-  <div class="animated-bg"></div>
-  <div class="glass-layer glass-1"></div>
-  <div class="glass-layer glass-2"></div>
+    <div class="halftone-bg"></div>
+    <div class="cursor-dot"></div>
+    
+    <header>
+        <a href="index.html">ACCUEIL</a>
+        <a href="portfolio.html">PORTFOLIO</a>
+        <a href="contact.html">CONTACT</a>
+    </header>
 
-  <header>
-    <div class="logo">HS</div>
-    <nav>
-      <a href="index.html">Accueil</a>
-      <a href="portfolio.html">Portfolio</a>
-      <a href="contact.html">Contact</a>
-    </nav>
-  </header>
-
-  <main>
-    <section class="hero-section">
-      <h1 class="hero-title">AYAMAYA</h1>
-      <h2 class="hero-subtitle">ÉDITION</h2>
-    </section>
-
-    <section class="editorial-grid">
-      <div class="grid-item grid-large">
-        <img src="ayamaya-1.jpg" alt="Ayamaya projet 1" loading="lazy">
-      </div>
-      <div class="grid-item grid-medium">
-        <img src="ayamaya-2.jpg" alt="Ayamaya projet 2" loading="lazy">
-      </div>
-      <div class="grid-item grid-small">
-        <img src="ayamaya-3.jpg" alt="Ayamaya projet 3" loading="lazy">
-      </div>
-      <div class="grid-item grid-small">
-        <img src="ayamaya-1.jpg" alt="Ayamaya projet détail" loading="lazy">
-      </div>
-    </section>
-
-    <section class="pdf-section">
-      <h2>CHARTE GRAPHIQUE</h2>
-      <div class="pdf-viewer">
-        <div class="pdf-controls">
-          <button id="prev-page"><span>← Précédent</span></button>
-          <span class="page-info">Page <span id="page-num">1</span> / <span id="page-count">0</span></span>
-          <button id="next-page"><span>Suivant →</span></button>
+    <div class="container">
+        <div class="page-header">
+            <h1>IDENTITÉ VISUELLE</h1>
+            <p>Découvrez mes créations d'identité de marque</p>
         </div>
-        <canvas id="pdf-canvas"></canvas>
-      </div>
-    </section>
-  </main>
 
-  <footer>
-    <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
-  </footer>
+        <!-- Catégorie: AYAMAYA -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-number">PROJET - AYAMAYA</div>
+                <h2 class="category-title">Édition</h2>
+                <p class="category-subtitle">Création d'identité visuelle complète</p>
+            </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
+            <div class="pinterest-grid">
+                <div class="pinterest-item">
+                    <img src="ayamaya-1.jpg" alt="Ayamaya projet 1" loading="lazy">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Ayamaya - Visuel 1</div>
+                    </div>
+                </div>
+                <div class="pinterest-item">
+                    <img src="ayamaya-2.jpg" alt="Ayamaya projet 2" loading="lazy">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Ayamaya - Visuel 2</div>
+                    </div>
+                </div>
+                <div class="pinterest-item">
+                    <img src="ayamaya-3.jpg" alt="Ayamaya projet 3" loading="lazy">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Ayamaya - Visuel 3</div>
+                    </div>
+                </div>
+                <div class="pinterest-item">
+                    <img src="ayamaya-1.jpg" alt="Ayamaya projet détail" loading="lazy">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Ayamaya - Détail</div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    let pdfDoc = null;
-    let pageNum = 1;
-    let pageRendering = false;
-    let pageNumPending = null;
+    </div>
 
-    const canvas = document.getElementById('pdf-canvas');
-    const ctx = canvas.getContext('2d');
-    const portraitPages = [1, 15];
+    <footer>
+        <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
+    </footer>
 
-    pdfjsLib.getDocument('Charte-graphique-ayamaya.pdf').promise.then(pdf => {
-      pdfDoc = pdf;
-      document.getElementById('page-count').textContent = pdf.numPages;
-      renderPage(pageNum);
-    }).catch(error => console.error('Erreur de chargement du PDF:', error));
+    <div class="back-to-top" id="backToTop"></div>
 
-    function renderPage(num) {
-      pageRendering = true;
-      pdfDoc.getPage(num).then(page => {
-        // ✅ Réduction du scale d’au moins moitié
-        let scale = portraitPages.includes(num) ? 0.4 : 0.75;
-        const viewport = page.getViewport({ scale });
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
 
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        const renderContext = { canvasContext: ctx, viewport };
-        page.render(renderContext).promise.then(() => {
-          pageRendering = false;
-          if (pageNumPending !== null) {
-            renderPage(pageNumPending);
-            pageNumPending = null;
-          }
+        // Curseur personnalisé
+        const cursorDot = document.querySelector('.cursor-dot');
+        document.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
         });
-      });
 
-      document.getElementById('page-num').textContent = num;
-      document.getElementById('prev-page').disabled = (num <= 1);
-      document.getElementById('next-page').disabled = (num >= pdfDoc.numPages);
-    }
+        // Back to top
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
 
-    function queueRenderPage(num) {
-      if (pageRendering) {
-        pageNumPending = num;
-      } else {
-        renderPage(num);
-      }
-    }
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
 
-    document.getElementById('prev-page').addEventListener('click', () => {
-      if (pageNum <= 1) return;
-      pageNum--;
-      queueRenderPage(pageNum);
-    });
+        // Animation au scroll des items Pinterest
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
 
-    document.getElementById('next-page').addEventListener('click', () => {
-      if (pageNum >= pdfDoc.numPages) return;
-      pageNum++;
-      queueRenderPage(pageNum);
-    });
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        entry.target.style.transition = 'all 0.6s ease';
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
 
-    window.addEventListener('resize', () => {
-      queueRenderPage(pageNum);
-    });
-  </script>
+        document.querySelectorAll('.pinterest-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        // PDF.js Configuration
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+
+        const canvas = document.getElementById('pdf-canvas');
+        const ctx = canvas.getContext('2d');
+        const portraitPages = [1, 15];
+
+        pdfjsLib.getDocument('Charte-graphique-ayamaya.pdf').promise.then(pdf => {
+            pdfDoc = pdf;
+            document.getElementById('page-count').textContent = pdf.numPages;
+            renderPage(pageNum);
+        }).catch(error => console.error('Erreur de chargement du PDF:', error));
+
+        function renderPage(num) {
+            pageRendering = true;
+            pdfDoc.getPage(num).then(page => {
+                let scale = portraitPages.includes(num) ? 0.4 : 0.75;
+                const viewport = page.getViewport({ scale });
+
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const renderContext = { canvasContext: ctx, viewport };
+                page.render(renderContext).promise.then(() => {
+                    pageRendering = false;
+                    if (pageNumPending !== null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            });
+
+            document.getElementById('page-num').textContent = num;
+            document.getElementById('prev-page').disabled = (num <= 1);
+            document.getElementById('next-page').disabled = (num >= pdfDoc.numPages);
+        }
+
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
+            }
+        }
+
+        document.getElementById('prev-page').addEventListener('click', () => {
+            if (pageNum <= 1) return;
+            pageNum--;
+            queueRenderPage(pageNum);
+        });
+
+        document.getElementById('next-page').addEventListener('click', () => {
+            if (pageNum >= pdfDoc.numPages) return;
+            pageNum++;
+            queueRenderPage(pageNum);
+        });
+
+        window.addEventListener('resize', () => {
+            queueRenderPage(pageNum);
+        });
+
+        // PDF.js Configuration
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+
+        const canvas = document.getElementById('pdf-canvas');
+        const ctx = canvas.getContext('2d');
+        const portraitPages = [1, 15];
+
+        pdfjsLib.getDocument('Charte-graphique-ayamaya.pdf').promise.then(pdf => {
+            pdfDoc = pdf;
+            document.getElementById('page-count').textContent = pdf.numPages;
+            renderPage(pageNum);
+        }).catch(error => console.error('Erreur de chargement du PDF:', error));
+
+        function renderPage(num) {
+            pageRendering = true;
+            pdfDoc.getPage(num).then(page => {
+                let scale = portraitPages.includes(num) ? 0.4 : 0.75;
+                const viewport = page.getViewport({ scale });
+
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const renderContext = { canvasContext: ctx, viewport };
+                page.render(renderContext).promise.then(() => {
+                    pageRendering = false;
+                    if (pageNumPending !== null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            });
+
+            document.getElementById('page-num').textContent = num;
+            document.getElementById('prev-page').disabled = (num <= 1);
+            document.getElementById('next-page').disabled = (num >= pdfDoc.numPages);
+        }
+
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
+            }
+        }
+
+        document.getElementById('prev-page').addEventListener('click', () => {
+            if (pageNum <= 1) return;
+            pageNum--;
+            queueRenderPage(pageNum);
+        });
+
+        document.getElementById('next-page').addEventListener('click', () => {
+            if (pageNum >= pdfDoc.numPages) return;
+            pageNum++;
+            queueRenderPage(pageNum);
+        });
+
+        window.addEventListener('resize', () => {
+            queueRenderPage(pageNum);
+        });
+    </script>
 </body>
 </html>
