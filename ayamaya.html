@@ -20,7 +20,7 @@
         }
 
         body {
-            font-family: 'Futura PT', 'Futura', sans-serif;
+            font-family: 'Helvetica', 'Arial', sans-serif;
             background: #1a1a1a;
             color: #fff;
             overflow-x: hidden;
@@ -179,6 +179,7 @@
         }
 
         .project-title {
+            font-family: 'Futura PT', 'Futura', sans-serif;
             font-size: 80px;
             font-weight: 700;
             letter-spacing: -2px;
@@ -215,6 +216,7 @@
         }
 
         .info-title {
+            font-family: 'Futura PT', 'Futura', sans-serif;
             font-size: 16px;
             color: var(--primary-red);
             font-weight: 700;
@@ -231,10 +233,46 @@
 
         /* Galerie complète */
         .full-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 40px;
             margin-bottom: 120px;
+        }
+
+        .gallery-row {
+            margin-bottom: 40px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .carousel-row {
+            display: flex;
+            gap: 30px;
+            animation: scrollCarousel 40s linear infinite;
+            will-change: transform;
+        }
+
+        .carousel-row:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes scrollCarousel {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .large-image-row {
+            display: flex;
+            justify-content: center;
+            padding: 0 40px;
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            padding: 0 40px;
         }
 
         .gallery-item {
@@ -243,7 +281,7 @@
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 0, 51, 0.15);
             transition: all 0.4s ease;
-            aspect-ratio: 16/10;
+            flex-shrink: 0;
         }
 
         .gallery-item:hover {
@@ -255,13 +293,31 @@
         .gallery-item img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             display: block;
             transition: transform 0.6s ease;
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .gallery-item:hover img {
-            transform: scale(1.08);
+            transform: scale(1.05);
+        }
+
+        .carousel-row .gallery-item {
+            width: 400px;
+            height: 300px;
+        }
+
+        .large-image-row .gallery-item {
+            width: 90%;
+            max-width: 1200px;
+            height: auto;
+            min-height: 500px;
+        }
+
+        .grid-row .gallery-item {
+            width: 100%;
+            height: 350px;
         }
 
         /* Section PDF Charte Graphique */
@@ -274,6 +330,7 @@
         }
 
         .pdf-section h2 {
+            font-family: 'Futura PT', 'Futura', sans-serif;
             font-size: 42px;
             font-weight: 700;
             margin-bottom: 40px;
@@ -311,7 +368,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             transition: all 0.3s ease;
-            font-family: 'Futura PT', sans-serif;
+            font-family: 'Helvetica', 'Arial', sans-serif;
         }
 
         .pdf-controls button:hover {
@@ -366,8 +423,13 @@
                 gap: 40px;
             }
 
-            .full-gallery {
-                grid-template-columns: 1fr;
+            .carousel-row .gallery-item {
+                width: 350px;
+                height: 260px;
+            }
+
+            .grid-row {
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .project-title {
@@ -400,6 +462,19 @@
 
             .info-content {
                 font-size: 16px;
+            }
+
+            .carousel-row .gallery-item {
+                width: 280px;
+                height: 210px;
+            }
+
+            .grid-row {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-row .gallery-item {
+                height: 280px;
             }
 
             .pdf-section {
@@ -448,66 +523,105 @@
             </div>
         </div>
 
-        <!-- Galerie d'images dense -->
+        <!-- Galerie d'images dynamique -->
         <div class="full-gallery">
-            <div class="gallery-item">
-                <img src="ayamaya-1.jpg" alt="Ayamaya - Logotype principal" loading="lazy">
+            <!-- Première ligne : Carousel défilant -->
+            <div class="gallery-row">
+                <div class="carousel-row">
+                    <div class="gallery-item">
+                        <img src="ayamaya-1.jpg" alt="Ayamaya - Logotype principal" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="ayamaya-2.jpg" alt="Ayamaya - Déclinaisons du logo" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="ayamaya-3.jpg" alt="Ayamaya - Palette de couleurs" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="ayamaya-4.jpg" alt="Ayamaya - Typographies" loading="lazy">
+                    </div>
+                    <!-- Duplication pour l'effet infini -->
+                    <div class="gallery-item">
+                        <img src="ayamaya-1.jpg" alt="Ayamaya - Logotype principal" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="ayamaya-2.jpg" alt="Ayamaya - Déclinaisons du logo" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="ayamaya-3.jpg" alt="Ayamaya - Palette de couleurs" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="ayamaya-4.jpg" alt="Ayamaya - Typographies" loading="lazy">
+                    </div>
+                </div>
             </div>
 
-            <div class="gallery-item">
-                <img src="ayamaya-2.jpg" alt="Ayamaya - Déclinaisons du logo" loading="lazy">
+            <!-- Deuxième ligne : Grande image centrale -->
+            <div class="gallery-row large-image-row">
+                <div class="gallery-item">
+                    <img src="ayamaya-5.jpg" alt="Ayamaya - Applications print" loading="lazy">
+                </div>
             </div>
 
-            <div class="gallery-item">
-                <img src="ayamaya-3.jpg" alt="Ayamaya - Palette de couleurs" loading="lazy">
+            <!-- Troisième ligne : Grille 3 colonnes -->
+            <div class="gallery-row grid-row">
+                <div class="gallery-item">
+                    <img src="ayamaya-6.jpg" alt="Ayamaya - Papeterie" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="ayamaya-7.jpg" alt="Ayamaya - Cartes de visite" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="ayamaya-8.jpg" alt="Ayamaya - En-têtes de lettre" loading="lazy">
+                </div>
             </div>
 
-            <div class="gallery-item">
-                <img src="ayamaya-4.jpg" alt="Ayamaya - Typographies" loading="lazy">
+            <!-- Quatrième ligne : Carousel défilant inverse -->
+            <div class="gallery-row">
+                <div class="carousel-row" style="animation-direction: reverse;">
+                    <div class="gallery-item">
+                        <img src="ayamaya-9.jpg" alt="Ayamaya - Mockups" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="ayamaya-10.jpg" alt="Ayamaya - Applications digitales" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="ayamaya-11.jpg" alt="Ayamaya - Signalétique" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="ayamaya-12.jpg" alt="Ayamaya - Supports de communication" loading="lazy">
+                    </div>
+                    <!-- Duplication pour l'effet infini -->
+                    <div class="gallery-item">
+                        <img src="ayamaya-9.jpg" alt="Ayamaya - Mockups" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="ayamaya-10.jpg" alt="Ayamaya - Applications digitales" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="ayamaya-11.jpg" alt="Ayamaya - Signalétique" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="ayamaya-12.jpg" alt="Ayamaya - Supports de communication" loading="lazy">
+                    </div>
+                </div>
             </div>
 
-            <div class="gallery-item">
-                <img src="ayamaya-5.jpg" alt="Ayamaya - Applications print" loading="lazy">
+            <!-- Cinquième ligne : Grande image centrale -->
+            <div class="gallery-row large-image-row">
+                <div class="gallery-item">
+                    <img src="ayamaya-13.jpg" alt="Ayamaya - Affiches" loading="lazy">
+                </div>
             </div>
 
-            <div class="gallery-item">
-                <img src="ayamaya-6.jpg" alt="Ayamaya - Papeterie" loading="lazy">
-            </div>
-
-            <div class="gallery-item">
-                <img src="ayamaya-7.jpg" alt="Ayamaya - Cartes de visite" loading="lazy">
-            </div>
-
-            <div class="gallery-item">
-                <img src="ayamaya-8.jpg" alt="Ayamaya - En-têtes de lettre" loading="lazy">
-            </div>
-
-            <div class="gallery-item">
-                <img src="ayamaya-9.jpg" alt="Ayamaya - Mockups" loading="lazy">
-            </div>
-
-            <div class="gallery-item">
-                <img src="ayamaya-10.jpg" alt="Ayamaya - Applications digitales" loading="lazy">
-            </div>
-
-            <div class="gallery-item">
-                <img src="ayamaya-11.jpg" alt="Ayamaya - Signalétique" loading="lazy">
-            </div>
-
-            <div class="gallery-item">
-                <img src="ayamaya-12.jpg" alt="Ayamaya - Supports de communication" loading="lazy">
-            </div>
-
-            <div class="gallery-item">
-                <img src="ayamaya-13.jpg" alt="Ayamaya - Affiches" loading="lazy">
-            </div>
-
-            <div class="gallery-item">
-                <img src="ayamaya-14.jpg" alt="Ayamaya - Packaging" loading="lazy">
-            </div>
-
-            <div class="gallery-item">
-                <img src="ayamaya-15.jpg" alt="Ayamaya - Détails graphiques" loading="lazy">
+            <!-- Sixième ligne : Grille 2 colonnes -->
+            <div class="gallery-row grid-row" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="gallery-item">
+                    <img src="ayamaya-14.jpg" alt="Ayamaya - Packaging" loading="lazy">
+                </div>
+                <div class="gallery-item">
+                    <img src="ayamaya-15.jpg" alt="Ayamaya - Détails graphiques" loading="lazy">
+                </div>
             </div>
         </div>
 
