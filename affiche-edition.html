@@ -1,84 +1,572 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Affiche / Édition – Harsen Schmidt</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affiche & Édition - HARSEN Schmidt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@700&family=Cormorant+Garamond:ital,wght@1,700&family=Imperial+Script&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/old-london" rel="stylesheet">
+    <style>
+        @import url('https://fonts.cdnfonts.com/css/futura-pt');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <!-- Styles globaux -->
-  <link rel="stylesheet" href="style.css">
-  <!-- Styles spécifiques aux pages projets -->
-  <link rel="stylesheet" href="identite.css">
+        :root {
+            --primary-red: #FF0033;
+        }
+
+        body {
+            font-family: 'Futura PT', 'Futura', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--primary-red);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s;
+        }
+
+        .halftone-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.08;
+        }
+
+        .halftone-bg::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, rgba(255, 255, 255, 0.4) 2px, transparent 2px),
+                radial-gradient(circle, rgba(255, 0, 51, 0.3) 1.5px, transparent 1.5px);
+            background-size: 40px 40px, 60px 60px;
+            background-position: 0 0, 30px 30px;
+            animation: halftoneFloat 40s ease-in-out infinite;
+        }
+
+        @keyframes halftoneFloat {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(20px, -20px) scale(1.05);
+            }
+            50% {
+                transform: translate(-10px, 30px) scale(0.95);
+            }
+            75% {
+                transform: translate(30px, 10px) scale(1.02);
+            }
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 30px;
+            z-index: 1000;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        header a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        header a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-red);
+            transition: width 0.3s ease;
+        }
+
+        header a:hover::after {
+            width: 100%;
+        }
+
+        .container {
+            max-width: 1920px;
+            margin: 0 auto;
+            padding: 140px 100px 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .page-header h1 {
+            font-size: 100px;
+            font-weight: 700;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .page-header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(to right, var(--primary-red), transparent);
+        }
+
+        .page-header p {
+            font-size: 20px;
+            color: #e0e0e0;
+            margin-top: 30px;
+        }
+
+        /* Section de catégorie */
+        .category-section {
+            margin-bottom: 100px;
+        }
+
+        .category-header {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid var(--primary-red);
+            backdrop-filter: blur(10px);
+        }
+
+        .category-number {
+            font-size: 18px;
+            color: var(--primary-red);
+            font-weight: bold;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .category-title {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        .category-subtitle {
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+
+        .category-btn {
+            display: inline-block;
+            padding: 15px 35px;
+            background: var(--primary-red);
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .category-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .category-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .category-btn:hover {
+            box-shadow: 0 0 30px rgba(255, 0, 51, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Grille Pinterest */
+        .pinterest-grid {
+            column-count: 4;
+            column-gap: 25px;
+        }
+
+        .pinterest-item {
+            break-inside: avoid;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .pinterest-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-red);
+            box-shadow: 
+                0 10px 40px rgba(255, 0, 51, 0.3),
+                inset 0 0 60px rgba(255, 0, 51, 0.1);
+        }
+
+        .pinterest-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .pinterest-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .pinterest-item-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .pinterest-item:hover .pinterest-item-overlay {
+            opacity: 1;
+        }
+
+        .pinterest-item-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--primary-red);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 0 20px rgba(255, 0, 51, 0.5);
+            border: 2px solid rgba(255, 0, 51, 0.5);
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(255, 0, 51, 0.7);
+        }
+
+        .back-to-top::before {
+            content: '↑';
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        footer {
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        footer p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .pinterest-grid {
+                column-count: 3;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                padding: 120px 50px 60px;
+            }
+
+            .pinterest-grid {
+                column-count: 2;
+            }
+
+            .page-header h1 {
+                font-size: 70px;
+            }
+
+            .category-title {
+                font-size: 32px;
+            }
+
+            .category-subtitle {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 100px 20px 40px;
+            }
+
+            .pinterest-grid {
+                column-count: 1;
+            }
+
+            .page-header h1 {
+                font-size: 50px;
+            }
+
+            .category-title {
+                font-size: 28px;
+            }
+
+            .category-subtitle {
+                font-size: 18px;
+            }
+
+            .pinterest-item-overlay {
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="wrap">
-    <!-- HEADER -->
+    <div class="halftone-bg"></div>
+    <div class="cursor-dot"></div>
+    
     <header>
-      <a href="index.html" class="brand-btn">
-        <img src="image-menu.png" alt="Retour à l'accueil" />
-      </a>
-      <nav class="nav">
-        <a href="index.html">Portfolio</a>
-        <a href="contact.html">Contact</a>
-      </nav>
+        <a href="index.html">ACCUEIL</a>
+        <a href="portfolio.html">PORTFOLIO</a>
+        <a href="contact.html">CONTACT</a>
     </header>
 
-    <!-- MAIN CONTENT -->
-    <main>
-      <section class="project-section">
-        <div class="project-content">
-          <h1 class="project-title">Affiche / Édition</h1>
-
-          <!-- Images Grid -->
-          <div class="images-grid">
-            <div class="image-column">
-              <img src="affiche-1.jpg" alt="Affiche projet 1">
-              <img src="affiche-3.jpg" alt="Affiche projet 3">
-            </div>
-            <div class="image-column">
-              <img src="affiche-2.jpg" alt="Affiche projet 2">
-              <img src="affiche-4.jpg" alt="Affiche projet 4">
-            </div>
-          </div>
-
-          <!-- Section supplémentaire -->
-          <h2 class="section-title">Détails du projet</h2>
-          
-          <div class="images-grid">
-            <img src="affiche-5.jpg" alt="Affiche projet 5">
-            <img src="affiche-6.jpg" alt="Affiche projet 6">
-          </div>
+    <div class="container">
+        <div class="page-header">
+            <h1>AFFICHE & ÉDITION</h1>
+            <p>Découvrez mes créations éditoriales</p>
         </div>
 
-        <!-- Sidebar Info -->
-        <aside class="project-info">
-          <h3>Type de projet</h3>
-          <p>Affiche | Édition graphique</p>
+        <!-- Catégorie 1: Dialogue & Motif -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-number">1 - DIALOGUE & MOTIF</div>
+                <h2 class="category-title">Impression 4 mains</h2>
+                <a href="impression-4-main.html" class="category-btn">
+                    <span>En savoir plus</span>
+                </a>
+            </div>
 
-          <h3>Commanditaire</h3>
-          <p>À compléter</p>
+            <div class="pinterest-grid">
+                <div class="pinterest-item">
+                    <img src="images/impression1.jpg" alt="Impression 4 mains - Image 1">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Impression 1</div>
+                    </div>
+                </div>
+                <div class="pinterest-item">
+                    <img src="images/impression2.jpg" alt="Impression 4 mains - Image 2">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Impression 2</div>
+                    </div>
+                </div>
+                <div class="pinterest-item">
+                    <img src="images/impression3.jpg" alt="Impression 4 mains - Image 3">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Impression 3</div>
+                    </div>
+                </div>
+                <div class="pinterest-item">
+                    <img src="images/impression4.jpg" alt="Impression 4 mains - Image 4">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Impression 4</div>
+                    </div>
+                </div>
+                <div class="pinterest-item">
+                    <img src="images/impression5.jpg" alt="Impression 4 mains - Image 5">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Impression 5</div>
+                    </div>
+                </div>
+                <div class="pinterest-item">
+                    <img src="images/impression6.jpg" alt="Impression 4 mains - Image 6">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Impression 6</div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-          <h3>Date</h3>
-          <p>2024-2025</p>
+        <!-- Catégorie 2: Objet de médiation culturelle -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-number">2 - OBJET DE MÉDIATION CULTURELLE</div>
+                <h2 class="category-title">Où est passé la plaque au dragon ?</h2>
+                <a href="plaquedragon.html" class="category-btn">
+                    <span>En savoir plus</span>
+                </a>
+            </div>
 
-          <h3>Description</h3>
-          <p>Création d'affiches et de supports éditoriaux graphiques. Travail sur la typographie, la composition et l'identité visuelle pour différents événements et publications.</p>
-          
-          <h3>Techniques</h3>
-          <p>Design graphique, mise en page, impression</p>
-        </aside>
-      </section>
-    </main>
+            <div class="pinterest-grid">
+                <div class="pinterest-item">
+                    <img src="images/plaquedragon1.jpg" alt="Plaque au dragon - Image 1">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Plaque Dragon 1</div>
+                    </div>
+                </div>
+                <div class="pinterest-item">
+                    <img src="images/plaquedragon2.jpg" alt="Plaque au dragon - Image 2">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Plaque Dragon 2</div>
+                    </div>
+                </div>
+                <div class="pinterest-item">
+                    <img src="images/plaquedragon3.jpg" alt="Plaque au dragon - Image 3">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Plaque Dragon 3</div>
+                    </div>
+                </div>
+                <div class="pinterest-item">
+                    <img src="images/plaquedragon4.jpg" alt="Plaque au dragon - Image 4">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Plaque Dragon 4</div>
+                    </div>
+                </div>
+                <div class="pinterest-item">
+                    <img src="images/plaquedragon5.jpg" alt="Plaque au dragon - Image 5">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Plaque Dragon 5</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 
-    <!-- FOOTER -->
     <footer>
-      &copy; <span id="year"></span> Harsen Schmidt – Portfolio
+        <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
     </footer>
-  </div>
 
-  <script>
-    // Année footer
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+    <div class="back-to-top" id="backToTop"></div>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Curseur personnalisé
+        const cursorDot = document.querySelector('.cursor-dot');
+        document.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+        });
+
+        // Back to top
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Animation au scroll des items Pinterest
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        entry.target.style.transition = 'all 0.6s ease';
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.pinterest-item').forEach(item => {
+            observer.observe(item);
+        });
+    </script>
 </body>
 </html>
