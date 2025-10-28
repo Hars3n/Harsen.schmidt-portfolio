@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plaque au dragon - HARSEN Schmidt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-red: #FF0033;
+        }
+
+        body {
+            font-family: 'Source Code Pro', monospace;
+            background: #1a1a1a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--primary-red);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            padding: 10px 20px;
+            border: 2px solid transparent;
+        }
+
+        .back-button:hover {
+            color: var(--primary-red);
+            border-color: var(--primary-red);
+        }
+
+        .back-button::before {
+            content: '←';
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .back-button:hover::before {
+            transform: translateX(-5px);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-red);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 140px 80px 80px;
+        }
+
+        .project-hero {
+            text-align: center;
+            margin-bottom: 80px;
+            padding: 60px 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid var(--primary-red);
+            border-right: 4px solid var(--primary-red);
+        }
+
+        .project-category {
+            font-size: 14px;
+            color: var(--primary-red);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+        }
+
+        .project-title {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 80px;
+            font-weight: 400;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            line-height: 1.1;
+        }
+
+        .project-subtitle {
+            font-size: 32px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
+            margin-top: 20px;
+        }
+
+        .content-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            margin-bottom: 100px;
+        }
+
+        .text-content {
+            position: sticky;
+            top: 140px;
+            align-self: start;
+        }
+
+        .text-block {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 3px solid rgba(255, 0, 51, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .text-block:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-left-color: var(--primary-red);
+            transform: translateX(5px);
+        }
+
+        .text-block h3 {
+            font-size: 24px;
+            color: var(--primary-red);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .text-block p {
+            font-size: 18px;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 400;
+        }
+
+        .pdf-viewer {
+            margin-top: 50px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 3px solid rgba(255, 0, 51, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .pdf-viewer:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-left-color: var(--primary-red);
+        }
+
+        .pdf-viewer h3 {
+            font-size: 24px;
+            color: var(--primary-red);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .pdf-container {
+            width: 100%;
+            height: 800px;
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .pdf-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .images-gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            transition: all 0.5s ease;
+        }
+
+        .gallery-item:hover {
+            border-color: var(--primary-red);
+            box-shadow: 0 20px 60px rgba(255, 0, 51, 0.3);
+            transform: scale(1.02);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .gallery-item:hover .gallery-caption {
+            opacity: 1;
+        }
+
+        .gallery-caption-text {
+            font-size: 14px;
+            color: var(--primary-red);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .a4-images-section {
+            margin-top: 80px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .a4-image-container {
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            transition: all 0.5s ease;
+        }
+
+        .a4-image-container:hover {
+            border-color: var(--primary-red);
+            box-shadow: 0 20px 60px rgba(255, 0, 51, 0.3);
+            transform: scale(1.02);
+        }
+
+        .a4-image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .a4-image-container:hover img {
+            transform: scale(1.05);
+        }
+
+        footer {
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(26, 26, 26, 0.8);
+        }
+
+        footer p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                padding: 120px 50px 60px;
+            }
+
+            .content-section {
+                grid-template-columns: 1fr;
+                gap: 60px;
+            }
+
+            .text-content {
+                position: static;
+            }
+
+            .project-title {
+                font-size: 60px;
+            }
+
+            .project-subtitle {
+                font-size: 24px;
+            }
+
+            .a4-images-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 100px 20px 40px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+
+            .project-title {
+                font-size: 40px;
+            }
+
+            .project-subtitle {
+                font-size: 20px;
+            }
+
+            .text-block p {
+                font-size: 16px;
+            }
+
+            .pdf-container {
+                height: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor-dot"></div>
+    
+    <header>
+        <a href="affiche-edition.html" class="back-button">
+            <span>Retour</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">ACCUEIL</a>
+            <a href="portfolio.html">PORTFOLIO</a>
+            <a href="contact.html">CONTACT</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="project-hero">
+            <div class="project-category">Objet de médiation culturelle</div>
+            <h1 class="project-title">PLAQUE AU DRAGON</h1>
+            <p class="project-subtitle">Jeu de société</p>
+        </div>
+
+        <div class="content-section">
+            <div class="text-content">
+                <div class="text-block">
+                    <h3>Description</h3>
+                    <p>Réalisation d'un objet de médiation culturelle pour les enfants de 6-10 ans à partir d'un objet du musée Guimet.</p>
+                </div>
+
+                <div class="pdf-viewer">
+                    <h3>Livret de recherche</h3>
+                    <div class="pdf-container">
+                        <iframe src="Livret-recherche-dragon.pdf" type="application/pdf"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div class="images-gallery">
+                <div class="gallery-item">
+                    <img src="Photo-dragon1.jpg" alt="Plaque au dragon - Photo 1">
+                    <div class="gallery-caption">
+                        <div class="gallery-caption-text">Vue 01</div>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="Photo-dragon2.jpg" alt="Plaque au dragon - Photo 2">
+                    <div class="gallery-caption">
+                        <div class="gallery-caption-text">Vue 02</div>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="Photo-dragon3.jpg" alt="Plaque au dragon - Photo 3">
+                    <div class="gallery-caption">
+                        <div class="gallery-caption-text">Vue 03</div>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="Photo-dragon4.jpg" alt="Plaque au dragon - Photo 4">
+                    <div class="gallery-caption">
+                        <div class="gallery-caption-text">Vue 04</div>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="Photo-dragon5.jpg" alt="Plaque au dragon - Photo 5">
+                    <div class="gallery-caption">
+                        <div class="gallery-caption-text">Vue 05</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="a4-images-section">
+            <div class="a4-image-container">
+                <img src="Photo-dragon7.jpg" alt="Plaque au dragon - Document 1">
+            </div>
+            <div class="a4-image-container">
+                <img src="Plaque-dragon.jpg" alt="Plaque au dragon - Document 2">
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Curseur personnalisé
+        const cursorDot = document.querySelector('.cursor-dot');
+        document.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+        });
+
+        // Animation au scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(30px)';
+                    setTimeout(() => {
+                        entry.target.style.transition = 'all 0.8s ease';
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        });
+
+        document.querySelectorAll('.text-block, .gallery-item, .a4-image-container, .pdf-viewer').forEach(item => {
+            observer.observe(item);
+        });
+    </script>
+</body>
+</html>
