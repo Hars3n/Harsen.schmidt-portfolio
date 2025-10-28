@@ -219,12 +219,18 @@
             height: 800px;
             border: 1px solid rgba(255, 0, 51, 0.2);
             background: rgba(0, 0, 0, 0.3);
+            overflow: auto;
         }
 
         .pdf-container iframe {
             width: 100%;
             height: 100%;
             border: none;
+        }
+
+        .pdf-container embed {
+            width: 100%;
+            height: 100%;
         }
 
         .images-gallery {
@@ -414,7 +420,7 @@
                 <div class="pdf-viewer">
                     <h3>Livret de recherche</h3>
                     <div class="pdf-container">
-                        <iframe src="Livret-recherche-dragon.pdf" type="application/pdf"></iframe>
+                        <embed src="Livret-recherche-dragon.pdf#toolbar=0&navpanes=0&scrollbar=1" type="application/pdf">
                     </div>
                 </div>
             </div>
