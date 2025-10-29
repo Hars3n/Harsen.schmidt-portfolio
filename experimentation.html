@@ -172,6 +172,11 @@
         .pinterest-grid {
             column-count: 4;
             column-gap: 25px;
+            position: relative;
+        }
+
+        .pinterest-grid.frozen {
+            pointer-events: none;
         }
 
         .pinterest-item {
@@ -185,24 +190,31 @@
             cursor: pointer;
         }
 
+        .pinterest-item.placeholder {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
         .pinterest-item.draggable {
             cursor: grab;
+            pointer-events: auto;
         }
 
         .pinterest-item.dragging {
             cursor: grabbing;
             position: fixed !important;
             z-index: 1000 !important;
-            pointer-events: none;
             box-shadow: 0 20px 60px rgba(255, 0, 51, 0.5);
             border-color: var(--primary-red);
+            pointer-events: auto;
         }
 
         .pinterest-item.moved {
             position: fixed !important;
+            z-index: 100;
         }
 
-        .pinterest-item:hover {
+        .pinterest-item:not(.draggable):hover {
             transform: translateY(-5px);
             border-color: var(--primary-red);
             box-shadow: 
@@ -215,9 +227,10 @@
             height: auto;
             display: block;
             transition: transform 0.4s ease;
+            transform-origin: center center;
         }
 
-        .pinterest-item:hover img {
+        .pinterest-item:not(.draggable):hover img {
             transform: scale(1.05);
         }
 
@@ -405,18 +418,13 @@
                 const item = document.createElement('div');
                 item.className = 'pinterest-item';
                 
-                // Taille aléatoire réduite
-                const randomScale = 0.4 + Math.random() * 0.8; // Entre 0.4 et 1.2
-                const reducedScale = randomScale / 1.5; // Réduction globale par 1.5
-                
                 const img = document.createElement('img');
                 img.src = `expe-${num}.jpg`;
                 img.alt = `Expérimentation ${num}`;
-                img.style.width = `${reducedScale * 100}%`;
+                img.style.width = '100%';
                 img.style.height = 'auto';
                 
                 item.appendChild(img);
-                item.dataset.scale = reducedScale;
                 gallery.appendChild(item);
             });
         }
@@ -429,6 +437,7 @@
         let currentDraggedItem = null;
         let startX, startY;
         let movedItems = new Map();
+        let placeholders = new Map();
 
         const toggleSwitch = document.getElementById('toggleSwitch');
 
@@ -437,21 +446,44 @@
             toggleSwitch.classList.toggle('active');
             
             const items = document.querySelectorAll('.pinterest-item');
-            items.forEach(item => {
-                if (interactiveMode) {
-                    item.classList.add('draggable');
-                } else {
-                    item.classList.remove('draggable');
-                    // Réinitialiser uniquement les styles de position, pas la transformation
+            
+            if (interactiveMode) {
+                // Mode activé: figer la galerie
+                gallery.classList.add('frozen');
+                items.forEach(item => {
                     if (!movedItems.has(item)) {
-                        item.style.position = '';
-                        item.style.left = '';
-                        item.style.top = '';
-                        item.style.zIndex = '';
-                        item.style.width = '';
+                        item.classList.add('draggable');
+                    } else {
+                        // Les items déjà déplacés restent déplacés
+                        item.classList.add('draggable');
                     }
-                }
-            });
+                });
+            } else {
+                // Mode désactivé: tout revient à la normale
+                gallery.classList.remove('frozen');
+                movedItems.clear();
+                scales.clear();
+                
+                items.forEach(item => {
+                    item.classList.remove('draggable', 'moved', 'placeholder');
+                    item.style.position = '';
+                    item.style.left = '';
+                    item.style.top = '';
+                    item.style.zIndex = '';
+                    item.style.width = '';
+                    item.style.opacity = '';
+                    item.style.pointerEvents = '';
+                    
+                    const img = item.querySelector('img');
+                    if (img) {
+                        img.style.transform = '';
+                        img.style.width = '100%';
+                    }
+                });
+                
+                // Réinitialiser la galerie
+                initGallery();
+            }
         });
 
         // Gestion du drag & drop et zoom
@@ -461,7 +493,7 @@
             if (!interactiveMode) return;
             
             const item = e.target.closest('.pinterest-item');
-            if (!item) return;
+            if (!item || item.classList.contains('placeholder')) return;
 
             isDragging = true;
             currentDraggedItem = item;
@@ -470,11 +502,18 @@
             startX = e.clientX - rect.left;
             startY = e.clientY - rect.top;
 
-            // Sauvegarder la position si ce n'est pas déjà fait
+            // Si c'est la première fois qu'on déplace cet item
             if (!movedItems.has(item)) {
+                // Créer un placeholder à sa place d'origine
+                const placeholder = item.cloneNode(true);
+                placeholder.classList.add('placeholder');
+                placeholder.classList.remove('draggable');
+                item.parentNode.insertBefore(placeholder, item);
+                placeholders.set(item, placeholder);
+                
                 movedItems.set(item, {
-                    originalParent: item.parentElement,
-                    originalIndex: Array.from(item.parentElement.children).indexOf(item)
+                    placeholder: placeholder,
+                    originalRect: rect
                 });
             }
 
@@ -512,7 +551,7 @@
             if (!interactiveMode) return;
 
             const item = e.target.closest('.pinterest-item');
-            if (!item) return;
+            if (!item || item.classList.contains('placeholder')) return;
 
             e.preventDefault();
 
@@ -523,8 +562,17 @@
             scales.set(item, currentScale);
 
             const img = item.querySelector('img');
-            const baseScale = parseFloat(item.dataset.scale) || 1;
-            img.style.transform = `scale(${currentScale})`;
+            if (img) {
+                img.style.transform = `scale(${currentScale})`;
+                img.style.transformOrigin = 'center center';
+            }
+
+            // Ajuster la taille du conteneur pour le zoom
+            if (movedItems.has(item)) {
+                const originalRect = movedItems.get(item).originalRect;
+                const newWidth = originalRect.width * currentScale;
+                item.style.width = newWidth + 'px';
+            }
         }, { passive: false });
 
         // Réinitialiser l'ordre à chaque chargement
