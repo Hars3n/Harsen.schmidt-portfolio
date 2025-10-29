@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macro 1 - HARSEN Schmidt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-red: #FF0033;
+        }
+
+        body {
+            font-family: 'Source Code Pro', monospace;
+            background: #1a1a1a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--primary-red);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            padding: 10px 20px;
+            border: 2px solid transparent;
+        }
+
+        .back-button:hover {
+            color: var(--primary-red);
+            border-color: var(--primary-red);
+        }
+
+        .back-button::before {
+            content: '←';
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .back-button:hover::before {
+            transform: translateX(-5px);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-red);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 140px 80px 80px;
+        }
+
+        .project-hero {
+            text-align: center;
+            margin-bottom: 80px;
+            padding: 60px 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid var(--primary-red);
+            border-right: 4px solid var(--primary-red);
+        }
+
+        .project-title {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 80px;
+            font-weight: 400;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            line-height: 1.1;
+        }
+
+        /* Section avec titre */
+        .section {
+            margin-bottom: 100px;
+        }
+
+        .section-header {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid var(--primary-red);
+        }
+
+        .section-title {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 42px;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            margin-bottom: 15px;
+        }
+
+        .section-description {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+
+        /* Bandeau défilant */
+        .scrolling-banner {
+            width: 100%;
+            overflow: hidden;
+            border-top: 1px solid rgba(255, 0, 51, 0.2);
+            border-bottom: 1px solid rgba(255, 0, 51, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 40px 0;
+        }
+
+        .banner-track {
+            display: flex;
+            gap: 30px;
+            animation: scroll 60s linear infinite;
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .banner-image {
+            height: 400px;
+            width: auto;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .banner-image:hover {
+            border-color: var(--primary-red);
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 0, 51, 0.3);
+        }
+
+        /* Crayonnés */
+        .crayonnes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .crayonne-item {
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            transition: all 0.5s ease;
+        }
+
+        .crayonne-item:hover {
+            border-color: var(--primary-red);
+            box-shadow: 0 20px 60px rgba(255, 0, 51, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .crayonne-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .crayonne-item:hover img {
+            transform: scale(1.05);
+        }
+
+        /* Affiche finale avec loupe */
+        .affiche-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .affiche-wrapper {
+            position: relative;
+            flex: 1;
+            max-width: 600px;
+        }
+
+        .affiche-image-container {
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            cursor: crosshair;
+        }
+
+        .affiche-image-container.magnifying {
+            cursor: none;
+        }
+
+        .affiche-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .magnifier {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border: 3px solid var(--primary-red);
+            border-radius: 50%;
+            pointer-events: none;
+            background-repeat: no-repeat;
+            background-color: rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 30px rgba(255, 0, 51, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 10;
+        }
+
+        .magnifier.active {
+            display: block;
+        }
+
+        .magnifier-toggle {
+            padding: 15px 30px;
+            background: var(--primary-red);
+            color: #fff;
+            border: none;
+            font-family: 'Source Code Pro', monospace;
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .magnifier-toggle::before {
+            content: '🔍';
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .magnifier-toggle:hover {
+            box-shadow: 0 0 30px rgba(255, 0, 51, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .magnifier-toggle.active {
+            background: #fff;
+            color: var(--primary-red);
+        }
+
+        footer {
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(26, 26, 26, 0.8);
+        }
+
+        footer p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                padding: 120px 50px 60px;
+            }
+
+            .project-title {
+                font-size: 60px;
+            }
+
+            .section-title {
+                font-size: 32px;
+            }
+
+            .crayonnes-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+
+            .affiche-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 100px 20px 40px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+
+            .project-title {
+                font-size: 40px;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .banner-image {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor-dot"></div>
+    
+    <header>
+        <a href="affiche-edition.html" class="back-button">
+            <span>Retour</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">ACCUEIL</a>
+            <a href="portfolio.html">PORTFOLIO</a>
+            <a href="contact.html">CONTACT</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="project-hero">
+            <h1 class="project-title">MACRO 1</h1>
+        </div>
+
+        <!-- Section 1: Expérimentations -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">EXPÉRIMENTATIONS</h2>
+                <p class="section-description">Recherche de notions via des expérimentations plastiques en noir et blanc.</p>
+            </div>
+
+            <div class="scrolling-banner">
+                <div class="banner-track">
+                    <img src="macro1-exp1.jpg" alt="Expérimentation 1" class="banner-image">
+                    <img src="macro1-exp2.jpg" alt="Expérimentation 2" class="banner-image">
+                    <img src="macro1-exp3.jpg" alt="Expérimentation 3" class="banner-image">
+                    <img src="macro1-exp4.jpg" alt="Expérimentation 4" class="banner-image">
+                    <img src="macro1-exp5.jpg" alt="Expérimentation 5" class="banner-image">
+                    <img src="macro1-exp6.jpg" alt="Expérimentation 6" class="banner-image">
+                    <img src="macro1-exp7.jpg" alt="Expérimentation 7" class="banner-image">
+                    <img src="macro1-exp8.jpg" alt="Expérimentation 8" class="banner-image">
+                    <img src="macro1-exp9.jpg" alt="Expérimentation 9" class="banner-image">
+                    <img src="macro1-exp10.jpg" alt="Expérimentation 10" class="banner-image">
+                    <img src="macro1-exp11.jpg" alt="Expérimentation 11" class="banner-image">
+                    <img src="macro1-exp12.jpg" alt="Expérimentation 12" class="banner-image">
+                    <img src="macro1-exp13.jpg" alt="Expérimentation 13" class="banner-image">
+                    <img src="macro1-exp14.jpg" alt="Expérimentation 14" class="banner-image">
+                    <img src="macro1-exp15.jpg" alt="Expérimentation 15" class="banner-image">
+                    <!-- Duplication pour boucle infinie -->
+                    <img src="macro1-exp1.jpg" alt="Expérimentation 1" class="banner-image">
+                    <img src="macro1-exp2.jpg" alt="Expérimentation 2" class="banner-image">
+                    <img src="macro1-exp3.jpg" alt="Expérimentation 3" class="banner-image">
+                    <img src="macro1-exp4.jpg" alt="Expérimentation 4" class="banner-image">
+                    <img src="macro1-exp5.jpg" alt="Expérimentation 5" class="banner-image">
+                    <img src="macro1-exp6.jpg" alt="Expérimentation 6" class="banner-image">
+                    <img src="macro1-exp7.jpg" alt="Expérimentation 7" class="banner-image">
+                    <img src="macro1-exp8.jpg" alt="Expérimentation 8" class="banner-image">
+                    <img src="macro1-exp9.jpg" alt="Expérimentation 9" class="banner-image">
+                    <img src="macro1-exp10.jpg" alt="Expérimentation 10" class="banner-image">
+                    <img src="macro1-exp11.jpg" alt="Expérimentation 11" class="banner-image">
+                    <img src="macro1-exp12.jpg" alt="Expérimentation 12" class="banner-image">
+                    <img src="macro1-exp13.jpg" alt="Expérimentation 13" class="banner-image">
+                    <img src="macro1-exp14.jpg" alt="Expérimentation 14" class="banner-image">
+                    <img src="macro1-exp15.jpg" alt="Expérimentation 15" class="banner-image">
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Crayonnés -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">CRAYONNÉS</h2>
+            </div>
+
+            <div class="crayonnes-grid">
+                <div class="crayonne-item">
+                    <img src="crayonné-m1-1.jpg" alt="Crayonné 1">
+                </div>
+                <div class="crayonne-item">
+                    <img src="crayonné-m1-2.jpg" alt="Crayonné 2">
+                </div>
+                <div class="crayonne-item">
+                    <img src="crayonné-m1-3.jpg" alt="Crayonné 3">
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Affiche finale -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">AFFICHE FINALE</h2>
+            </div>
+
+            <div class="affiche-container">
+                <div class="affiche-wrapper">
+                    <div class="affiche-image-container" id="afficheContainer">
+                        <img src="affiche-m1.jpg" alt="Affiche Macro 1" class="affiche-image" id="afficheImage">
+                        <div class="magnifier" id="magnifier"></div>
+                    </div>
+                    <button class="magnifier-toggle" id="magnifierToggle">Activer la loupe</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Curseur personnalisé
+        const cursorDot = document.querySelector('.cursor-dot');
+        document.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+        });
+
+        // Système de loupe
+        const afficheContainer = document.getElementById('afficheContainer');
+        const afficheImage = document.getElementById('afficheImage');
+        const magnifier = document.getElementById('magnifier');
+        const magnifierToggle = document.getElementById('magnifierToggle');
+        let magnifierActive = false;
+
+        magnifierToggle.addEventListener('click', () => {
+            magnifierActive = !magnifierActive;
+            magnifierToggle.classList.toggle('active');
+            magnifier.classList.toggle('active', magnifierActive);
+            afficheContainer.classList.toggle('magnifying', magnifierActive);
+            
+            if (magnifierActive) {
+                magnifierToggle.textContent = '🔍 Désactiver la loupe';
+            } else {
+                magnifierToggle.textContent = '🔍 Activer la loupe';
+            }
+        });
+
+        afficheContainer.addEventListener('mousemove', (e) => {
+            if (!magnifierActive) return;
+
+            const rect = afficheContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Vérifier si la souris est dans l'image
+            if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+                magnifier.style.display = 'block';
+                
+                // Position de la loupe
+                const magnifierSize = 200;
+                magnifier.style.left = (x - magnifierSize / 2) + 'px';
+                magnifier.style.top = (y - magnifierSize / 2) + 'px';
+
+                // Zoom x2
+                const bgX = -((x / rect.width) * afficheImage.naturalWidth * 2 - magnifierSize / 2);
+                const bgY = -((y / rect.height) * afficheImage.naturalHeight * 2 - magnifierSize / 2);
+                
+                magnifier.style.backgroundImage = `url('${afficheImage.src}')`;
+                magnifier.style.backgroundSize = `${afficheImage.naturalWidth * 2}px ${afficheImage.naturalHeight * 2}px`;
+                magnifier.style.backgroundPosition = `${bgX}px ${bgY}px`;
+            }
+        });
+
+        afficheContainer.addEventListener('mouseleave', () => {
+            if (magnifierActive) {
+                magnifier.style.display = 'none';
+            }
+        });
+
+        // Animation au scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(30px)';
+                    setTimeout(() => {
+                        entry.target.style.transition = 'all 0.8s ease';
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        });
+
+        document.querySelectorAll('.section-header, .crayonne-item, .affiche-wrapper').forEach(item => {
+            observer.observe(item);
+        });
+    </script>
+</body>
+</html>
