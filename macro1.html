@@ -247,7 +247,7 @@
         .affiche-wrapper {
             position: relative;
             flex: 1;
-            max-width: 450px;
+            max-width: 600px;
         }
 
         .affiche-image-container {
@@ -476,7 +476,7 @@
                         <img src="affiche-m1.jpg" alt="Affiche Macro 1" class="affiche-image" id="afficheImage">
                         <div class="magnifier" id="magnifier"></div>
                     </div>
-                    <button class="magnifier-toggle" id="magnifierToggle">Activer la loupe</button>
+                    <button class="magnifier-toggle" id=>Activer la loupe</button>
                 </div>
             </div>
         </section>
@@ -529,16 +529,15 @@
                 
                 // Position de la loupe
                 const magnifierSize = 200;
-                magnifier.style.left = (x - magnifierSize / 2) + 'px';
-                magnifier.style.top = (y - magnifierSize / 2) + 'px';
+                magnifier.style.left = (x - magnifierSize / 1.3) + 'px';
+                magnifier.style.top = (y - magnifierSize / 1.3) + 'px';
 
-                // Zoom x1.3 (beaucoup moins puissant)
-                const zoomLevel = 1.3;
-                const bgX = -((x / rect.width) * afficheImage.naturalWidth * zoomLevel - magnifierSize / 2);
-                const bgY = -((y / rect.height) * afficheImage.naturalHeight * zoomLevel - magnifierSize / 2);
+                // Zoom x1.3
+                const bgX = -((x / rect.width) * afficheImage.naturalWidth * 1.3 - magnifierSize / 1.3);
+                const bgY = -((y / rect.height) * afficheImage.naturalHeight * 1.3 - magnifierSize / 1.3);
                 
                 magnifier.style.backgroundImage = `url('${afficheImage.src}')`;
-                magnifier.style.backgroundSize = `${afficheImage.naturalWidth * zoomLevel}px ${afficheImage.naturalHeight * zoomLevel}px`;
+                magnifier.style.backgroundSize = `${afficheImage.naturalWidth * 2}px ${afficheImage.naturalHeight * 2}px`;
                 magnifier.style.backgroundPosition = `${bgX}px ${bgY}px`;
             }
         });
