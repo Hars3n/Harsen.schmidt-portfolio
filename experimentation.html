@@ -1,92 +1,534 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Expérimentation – Harsen Schmidt</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expérimentation - HARSEN Schmidt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <!-- Styles globaux -->
-  <link rel="stylesheet" href="style.css">
-  <!-- Styles spécifiques aux pages projets -->
-  <link rel="stylesheet" href="identite.css">
+        :root {
+            --primary-red: #FF0033;
+        }
+
+        body {
+            font-family: 'Source Code Pro', monospace;
+            font-variation-settings: 'wght' 400;
+            background: #1a1a1a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--primary-red);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s;
+        }
+
+        .halftone-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.08;
+        }
+
+        .halftone-bg::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, rgba(255, 255, 255, 0.4) 2px, transparent 2px),
+                radial-gradient(circle, rgba(255, 0, 51, 0.3) 1.5px, transparent 1.5px);
+            background-size: 40px 40px, 60px 60px;
+            background-position: 0 0, 30px 30px;
+            animation: halftoneFloat 40s ease-in-out infinite;
+        }
+
+        @keyframes halftoneFloat {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(20px, -20px) scale(1.05);
+            }
+            50% {
+                transform: translate(-10px, 30px) scale(0.95);
+            }
+            75% {
+                transform: translate(30px, 10px) scale(1.02);
+            }
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 30px;
+            z-index: 1000;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        header a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        header a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-red);
+            transition: width 0.3s ease;
+        }
+
+        header a:hover::after {
+            width: 100%;
+        }
+
+        .container {
+            max-width: 1920px;
+            margin: 0 auto;
+            padding: 140px 100px 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .page-header h1 {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 100px;
+            font-weight: 400;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .page-header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(to right, var(--primary-red), transparent);
+        }
+
+        .page-header p {
+            font-size: 20px;
+            color: #e0e0e0;
+            margin-top: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .control-btn {
+            position: fixed;
+            top: 100px;
+            right: 40px;
+            padding: 15px 35px;
+            background: var(--primary-red);
+            color: #fff;
+            border: none;
+            font-family: 'Source Code Pro', monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            box-shadow: 0 0 20px rgba(255, 0, 51, 0.5);
+        }
+
+        .control-btn:hover {
+            box-shadow: 0 0 30px rgba(255, 0, 51, 0.7);
+            transform: translateY(-2px);
+        }
+
+        .control-btn.active {
+            background: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .pinterest-grid {
+            column-count: 4;
+            column-gap: 25px;
+        }
+
+        .pinterest-item {
+            break-inside: avoid;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .pinterest-item.draggable {
+            cursor: grab;
+        }
+
+        .pinterest-item.dragging {
+            cursor: grabbing;
+            position: fixed;
+            z-index: 1000;
+            pointer-events: none;
+            box-shadow: 0 20px 60px rgba(255, 0, 51, 0.5);
+            border-color: var(--primary-red);
+        }
+
+        .pinterest-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-red);
+            box-shadow: 
+                0 10px 40px rgba(255, 0, 51, 0.3),
+                inset 0 0 60px rgba(255, 0, 51, 0.1);
+        }
+
+        .pinterest-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .pinterest-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 0 20px rgba(255, 0, 51, 0.5);
+            border: 2px solid rgba(255, 0, 51, 0.5);
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(255, 0, 51, 0.7);
+        }
+
+        .back-to-top::before {
+            content: '↑';
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        footer {
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        footer p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 1400px) {
+            .pinterest-grid {
+                column-count: 3;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                padding: 120px 50px 60px;
+            }
+
+            .pinterest-grid {
+                column-count: 2;
+            }
+
+            .page-header h1 {
+                font-size: 70px;
+            }
+
+            .control-btn {
+                top: 90px;
+                right: 20px;
+                padding: 12px 25px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 100px 20px 40px;
+            }
+
+            .pinterest-grid {
+                column-count: 1;
+            }
+
+            .page-header h1 {
+                font-size: 50px;
+            }
+
+            .control-btn {
+                position: static;
+                margin: 0 auto 30px;
+                display: block;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="wrap">
-    <!-- HEADER -->
+    <div class="halftone-bg"></div>
+    <div class="cursor-dot"></div>
+    
     <header>
-      <a href="index.html" class="brand-btn">
-        <img src="image-menu.png" alt="Retour à l'accueil" />
-      </a>
-      <nav class="nav">
-        <a href="index.html">Portfolio</a>
-        <a href="contact.html">Contact</a>
-      </nav>
+        <a href="index.html">ACCUEIL</a>
+        <a href="portfolio.html">PORTFOLIO</a>
+        <a href="contact.html">CONTACT</a>
     </header>
 
-    <!-- MAIN CONTENT -->
-    <main>
-      <section class="project-section">
-        <div class="project-content">
-          <h1 class="project-title">Expérimentation</h1>
+    <button class="control-btn" id="controlBtn">Mode Interactif OFF</button>
 
-          <!-- Images Grid - 3 colonnes pour plus de variété -->
-          <div class="images-grid images-grid-3">
-            <img src="experiment-1.jpg" alt="Expérimentation 1">
-            <img src="experiment-2.jpg" alt="Expérimentation 2">
-            <img src="experiment-3.jpg" alt="Expérimentation 3">
-          </div>
-
-          <h2 class="section-title">Recherches visuelles</h2>
-          
-          <div class="images-grid">
-            <div class="image-column">
-              <img src="experiment-4.jpg" alt="Expérimentation 4">
-              <img src="experiment-6.jpg" alt="Expérimentation 6">
-            </div>
-            <div class="image-column">
-              <img src="experiment-5.jpg" alt="Expérimentation 5">
-              <img src="experiment-7.jpg" alt="Expérimentation 7">
-            </div>
-          </div>
-
-          <h2 class="section-title">Explorations techniques</h2>
-          
-          <div class="images-grid images-grid-3">
-            <img src="experiment-8.jpg" alt="Expérimentation 8">
-            <img src="experiment-9.jpg" alt="Expérimentation 9">
-            <img src="experiment-10.jpg" alt="Expérimentation 10">
-          </div>
+    <div class="container">
+        <div class="page-header">
+            <h1>EXPÉRIMENTATION</h1>
+            <p>Galerie Pratique Expérimentale</p>
         </div>
 
-        <!-- Sidebar Info -->
-        <aside class="project-info">
-          <h3>Type de projet</h3>
-          <p>Expérimentation | Recherche visuelle</p>
+        <div class="pinterest-grid" id="gallery"></div>
+    </div>
 
-          <h3>Contexte</h3>
-          <p>Travaux personnels et académiques</p>
-
-          <h3>Période</h3>
-          <p>2024-2025</p>
-
-          <h3>Description</h3>
-          <p>Série d'expérimentations graphiques explorant différentes techniques, médiums et approches créatives. Recherche plastique autour de la typographie, de la couleur, des formes et des matières.</p>
-          
-          <h3>Techniques</h3>
-          <p>Collage, photographie, design génératif, manipulation d'images, techniques mixtes</p>
-        </aside>
-      </section>
-    </main>
-
-    <!-- FOOTER -->
     <footer>
-      &copy; <span id="year"></span> Harsen Schmidt – Portfolio
+        <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
     </footer>
-  </div>
 
-  <script>
-    // Année footer
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+    <div class="back-to-top" id="backToTop"></div>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Curseur personnalisé
+        const cursorDot = document.querySelector('.cursor-dot');
+        document.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+        });
+
+        // Back to top
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Génération de la galerie
+        const gallery = document.getElementById('gallery');
+        const imageCount = 30;
+        let imageOrder = [];
+
+        // Créer un ordre aléatoire des images
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function initGallery() {
+            imageOrder = shuffleArray([...Array(imageCount).keys()].map(i => i + 1));
+            gallery.innerHTML = '';
+            
+            imageOrder.forEach(num => {
+                const item = document.createElement('div');
+                item.className = 'pinterest-item';
+                
+                const img = document.createElement('img');
+                img.src = `expe-${num}.jpg`;
+                img.alt = `Expérimentation ${num}`;
+                img.style.width = '100%';
+                img.style.height = 'auto';
+                
+                item.appendChild(img);
+                gallery.appendChild(item);
+            });
+        }
+
+        initGallery();
+
+        // Mode interactif
+        let interactiveMode = false;
+        let isDragging = false;
+        let currentDraggedItem = null;
+        let startX, startY;
+        let scrollLeft, scrollTop;
+
+        const controlBtn = document.getElementById('controlBtn');
+
+        controlBtn.addEventListener('click', () => {
+            interactiveMode = !interactiveMode;
+            controlBtn.textContent = interactiveMode ? 'Mode Interactif ON' : 'Mode Interactif OFF';
+            controlBtn.classList.toggle('active');
+            
+            const items = document.querySelectorAll('.pinterest-item');
+            items.forEach(item => {
+                if (interactiveMode) {
+                    item.classList.add('draggable');
+                } else {
+                    item.classList.remove('draggable');
+                    item.style.transform = '';
+                    item.style.position = '';
+                    item.style.left = '';
+                    item.style.top = '';
+                    item.style.zIndex = '';
+                }
+            });
+        });
+
+        // Gestion du drag & drop et zoom
+        let originalPositions = new Map();
+        let scales = new Map();
+
+        gallery.addEventListener('mousedown', (e) => {
+            if (!interactiveMode) return;
+            
+            const item = e.target.closest('.pinterest-item');
+            if (!item) return;
+
+            isDragging = true;
+            currentDraggedItem = item;
+            
+            if (!originalPositions.has(item)) {
+                const rect = item.getBoundingClientRect();
+                originalPositions.set(item, {
+                    x: rect.left,
+                    y: rect.top,
+                    width: rect.width,
+                    height: rect.height
+                });
+                scales.set(item, 1);
+            }
+
+            const rect = item.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+
+            item.classList.add('dragging');
+            item.style.position = 'fixed';
+            item.style.left = rect.left + 'px';
+            item.style.top = rect.top + 'px';
+            item.style.width = rect.width + 'px';
+            item.style.zIndex = '1000';
+
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging || !currentDraggedItem) return;
+
+            const newX = e.clientX - startX;
+            const newY = e.clientY - startY;
+
+            currentDraggedItem.style.left = newX + 'px';
+            currentDraggedItem.style.top = newY + 'px';
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (currentDraggedItem) {
+                currentDraggedItem.classList.remove('dragging');
+            }
+            isDragging = false;
+            currentDraggedItem = null;
+        });
+
+        // Zoom avec la molette
+        gallery.addEventListener('wheel', (e) => {
+            if (!interactiveMode) return;
+
+            const item = e.target.closest('.pinterest-item');
+            if (!item) return;
+
+            e.preventDefault();
+
+            let currentScale = scales.get(item) || 1;
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            currentScale = Math.min(Math.max(0.5, currentScale + delta), 3);
+            
+            scales.set(item, currentScale);
+
+            const existingTransform = item.style.transform.replace(/scale\([^)]*\)/g, '').trim();
+            item.style.transform = `${existingTransform} scale(${currentScale})`.trim();
+        }, { passive: false });
+
+        // Réinitialiser l'ordre à chaque chargement
+        window.addEventListener('load', () => {
+            initGallery();
+        });
+    </script>
 </body>
 </html>
