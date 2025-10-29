@@ -226,12 +226,13 @@
             width: 100%;
             height: auto;
             display: block;
-            transition: transform 0.4s ease;
+            transition: none;
             transform-origin: center center;
         }
 
         .pinterest-item:not(.draggable):hover img {
             transform: scale(1.05);
+            transition: transform 0.4s ease;
         }
 
         .back-to-top {
@@ -488,6 +489,7 @@
 
         // Gestion du drag & drop et zoom
         let scales = new Map();
+        let itemSizes = new Map();
 
         gallery.addEventListener('mousedown', (e) => {
             if (!interactiveMode) return;
@@ -515,6 +517,13 @@
                     placeholder: placeholder,
                     originalRect: rect
                 });
+                
+                // Initialiser la taille et l'échelle
+                itemSizes.set(item, {
+                    width: rect.width,
+                    height: rect.height
+                });
+                scales.set(item, 1);
             }
 
             item.classList.add('dragging', 'moved');
@@ -522,6 +531,7 @@
             item.style.left = rect.left + 'px';
             item.style.top = rect.top + 'px';
             item.style.width = rect.width + 'px';
+            item.style.height = rect.height + 'px';
             item.style.zIndex = '1000';
 
             e.preventDefault();
@@ -530,11 +540,14 @@
         document.addEventListener('mousemove', (e) => {
             if (!isDragging || !currentDraggedItem) return;
 
-            const newX = e.clientX - startX;
-            const newY = e.clientY - startY;
+            const currentSize = itemSizes.get(currentDraggedItem);
+            if (currentSize) {
+                const newX = e.clientX - (startX * (scales.get(currentDraggedItem) || 1));
+                const newY = e.clientY - (startY * (scales.get(currentDraggedItem) || 1));
 
-            currentDraggedItem.style.left = newX + 'px';
-            currentDraggedItem.style.top = newY + 'px';
+                currentDraggedItem.style.left = newX + 'px';
+                currentDraggedItem.style.top = newY + 'px';
+            }
         });
 
         document.addEventListener('mouseup', () => {
@@ -546,32 +559,48 @@
             currentDraggedItem = null;
         });
 
-        // Zoom avec la molette
-        gallery.addEventListener('wheel', (e) => {
-            if (!interactiveMode) return;
-
-            const item = e.target.closest('.pinterest-item');
-            if (!item || item.classList.contains('placeholder')) return;
+        // Zoom avec la molette - seulement quand l'image est tenue
+        document.addEventListener('wheel', (e) => {
+            if (!interactiveMode || !isDragging || !currentDraggedItem) return;
 
             e.preventDefault();
 
-            let currentScale = scales.get(item) || 1;
-            const delta = e.deltaY > 0 ? -0.1 : 0.1;
-            currentScale = Math.min(Math.max(0.5, currentScale + delta), 3);
-            
-            scales.set(item, currentScale);
-
+            const item = currentDraggedItem;
             const img = item.querySelector('img');
-            if (img) {
-                img.style.transform = `scale(${currentScale})`;
-                img.style.transformOrigin = 'center center';
-            }
+            if (!img) return;
 
-            // Ajuster la taille du conteneur pour le zoom
-            if (movedItems.has(item)) {
-                const originalRect = movedItems.get(item).originalRect;
-                const newWidth = originalRect.width * currentScale;
+            let currentScale = scales.get(item) || 1;
+            const delta = e.deltaY > 0 ? -0.15 : 0.15;
+            const newScale = Math.min(Math.max(0.3, currentScale + delta), 4);
+            
+            scales.set(item, newScale);
+
+            // Obtenir la taille originale
+            const originalSize = movedItems.get(item)?.originalRect || itemSizes.get(item);
+            if (originalSize) {
+                const newWidth = originalSize.width * newScale;
+                const newHeight = originalSize.height * newScale;
+                
+                // Mettre à jour la taille du conteneur
                 item.style.width = newWidth + 'px';
+                item.style.height = newHeight + 'px';
+                
+                // Stocker la nouvelle taille
+                itemSizes.set(item, {
+                    width: newWidth,
+                    height: newHeight
+                });
+
+                // Ajuster la position pour que le zoom se fasse depuis le centre
+                const rect = item.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                const newX = centerX - (newWidth / 2);
+                const newY = centerY - (newHeight / 2);
+                
+                item.style.left = newX + 'px';
+                item.style.top = newY + 'px';
             }
         }, { passive: false });
 
