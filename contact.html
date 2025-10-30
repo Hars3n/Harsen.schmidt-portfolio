@@ -161,7 +161,29 @@
             width: 440px;
             height: 620px;
             perspective: 1000px;
+        }
+
+        .cv-flip-btn {
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 30px;
+            background: var(--primary-red);
+            color: #fff;
+            border: 2px solid var(--primary-red);
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .cv-flip-btn:hover {
+            background: #fff;
+            color: var(--primary-red);
         }
 
         .cv-card {
@@ -191,6 +213,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
+            pointer-events: auto;
         }
 
         .cv-face:hover {
@@ -200,9 +223,18 @@
                 0 0 60px rgba(255, 0, 51, 0.3);
         }
 
-        .cv-front embed {
+        .cv-card.flipped .cv-front {
+            pointer-events: none;
+        }
+
+        .cv-card:not(.flipped) .cv-back {
+            pointer-events: none;
+        }
+
+        .cv-front iframe {
             width: 100%;
             height: 100%;
+            border: none;
         }
 
         .cv-back {
@@ -481,7 +513,7 @@
             <div class="cv-container" id="cvCard">
                 <div class="cv-card">
                     <div class="cv-face cv-front">
-                        <embed src="Cv-harsen.pdf" type="application/pdf" width="100%" height="100%" />
+                        <iframe src="Cv-harsen.pdf#toolbar=0&navpanes=0&scrollbar=0" type="application/pdf"></iframe>
                     </div>
                     <div class="cv-face cv-back">
                         <p>🎨 DESIGNER GRAPHIQUE</p>
@@ -490,8 +522,9 @@
                         </p>
                     </div>
                 </div>
+                <button class="cv-flip-btn" id="flipBtn">Retourner la carte</button>
             </div>
-            <p class="flip-instruction">Cliquez sur la carte pour la retourner</p>
+            <p class="flip-instruction">Découvrez mon profil au verso</p>
             <a href="Cv-harsen.pdf" download="Cv-harsen.pdf" class="download-cv-btn">
                 <span>Télécharger CV</span>
             </a>
@@ -524,12 +557,17 @@
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // Flip du CV au clic
-        const cvContainer = document.getElementById('cvCard');
-        const cvCard = cvContainer.querySelector('.cv-card');
+        // Flip du CV avec bouton dédié
+        const flipBtn = document.getElementById('flipBtn');
+        const cvCard = document.querySelector('.cv-card');
         
-        cvContainer.addEventListener('click', () => {
+        flipBtn.addEventListener('click', () => {
             cvCard.classList.toggle('flipped');
+            if (cvCard.classList.contains('flipped')) {
+                flipBtn.textContent = 'Voir le CV';
+            } else {
+                flipBtn.textContent = 'Retourner la carte';
+            }
         });
 
         // Mini-jeu: Cliquer 5 fois sur stage-info pour mode party
@@ -566,7 +604,7 @@
         let mouseY = 0;
         let particles = [];
         
-        const interactiveElements = document.querySelectorAll('a, button, .cv-container, #contactTitle span, .stage-info');
+        const interactiveElements = document.querySelectorAll('a, button:not(#flipBtn), .stage-info');
         
         class Particle {
             constructor(x, y, color) {
