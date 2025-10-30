@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact - HARSEN Schmidt</title>
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@700&family=Cormorant+Garamond:ital,wght@1,700&family=Imperial+Script&display=swap" rel="stylesheet">
-    <link href="https://fonts.cdnfonts.com/css/old-london" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.cdnfonts.com/css/futura-pt');
+        @import url('https://fonts.cdnfonts.com/css/helvetica-neue-9');
         
         * {
             margin: 0;
@@ -20,7 +19,7 @@
         }
 
         body {
-            font-family: 'Futura PT', 'Futura', sans-serif;
+            font-family: 'Source Code Pro', monospace;
             background: #1a1a1a;
             color: #fff;
             overflow-x: hidden;
@@ -201,10 +200,9 @@
                 0 0 60px rgba(255, 0, 51, 0.3);
         }
 
-        .cv-front img {
+        .cv-front embed {
             width: 100%;
             height: 100%;
-            object-fit: cover;
         }
 
         .cv-back {
@@ -253,15 +251,16 @@
             transform: translateY(-3px);
         }
 
-        /* Contact Info avec mini-jeu de révélation */
+        /* Contact Info */
         .contact-info {
             flex: 1;
             max-width: 550px;
         }
 
         .contact-info h2 {
+            font-family: 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+            font-weight: 400;
             font-size: 80px;
-            font-weight: 700;
             letter-spacing: -2px;
             text-transform: uppercase;
             margin-bottom: 20px;
@@ -279,24 +278,9 @@
             background: linear-gradient(to right, var(--primary-red), transparent);
         }
 
-        /* Mini-jeu: lettres qui se révèlent au clic */
+        /* Titre contact sans effet */
         .contact-info h2 span {
             display: inline-block;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            opacity: 0.3;
-            filter: blur(3px);
-        }
-
-        .contact-info h2 span.revealed {
-            opacity: 1;
-            filter: blur(0);
-            color: var(--primary-red);
-            transform: scale(1.1);
-        }
-
-        .contact-info h2 span:hover {
-            transform: scale(1.05);
         }
 
         .stage-info {
@@ -341,7 +325,7 @@
             margin-bottom: 10px;
         }
 
-        /* Mini-jeu: liens avec effet de scratch */
+        /* Liens avec effet de scratch */
         .contact-info a {
             color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
@@ -497,7 +481,7 @@
             <div class="cv-container" id="cvCard">
                 <div class="cv-card">
                     <div class="cv-face cv-front">
-                        <img src="Cv-harsen.pdf" alt="CV de Harsen Schmidt">
+                        <embed src="Cv-harsen.pdf" type="application/pdf" width="100%" height="100%" />
                     </div>
                     <div class="cv-face cv-back">
                         <p>🎨 DESIGNER GRAPHIQUE</p>
@@ -508,7 +492,7 @@
                 </div>
             </div>
             <p class="flip-instruction">Cliquez sur la carte pour la retourner</p>
-            <a href="Cv-harsen.jpg" download="CV_Harsen_Schmidt.jpg" class="download-cv-btn">
+            <a href="Cv-harsen.pdf" download="Cv-harsen.pdf" class="download-cv-btn">
                 <span>Télécharger CV</span>
             </a>
         </div>
@@ -540,7 +524,7 @@
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // Mini-jeu 1: Flip du CV au clic
+        // Flip du CV au clic
         const cvContainer = document.getElementById('cvCard');
         const cvCard = cvContainer.querySelector('.cv-card');
         
@@ -548,23 +532,7 @@
             cvCard.classList.toggle('flipped');
         });
 
-        // Mini-jeu 2: Révéler les lettres du titre au clic
-        const titleLetters = document.querySelectorAll('#contactTitle span');
-        
-        titleLetters.forEach(letter => {
-            letter.addEventListener('click', function() {
-                this.classList.add('revealed');
-            });
-        });
-
-        // Easter egg: double-clic sur le titre révèle tout
-        document.getElementById('contactTitle').addEventListener('dblclick', function() {
-            titleLetters.forEach(letter => {
-                letter.classList.add('revealed');
-            });
-        });
-
-        // Mini-jeu 3: Cliquer 5 fois sur stage-info pour mode party
+        // Mini-jeu: Cliquer 5 fois sur stage-info pour mode party
         const stageInfo = document.getElementById('stageInfo');
         let clickCount = 0;
         let clickTimeout;
