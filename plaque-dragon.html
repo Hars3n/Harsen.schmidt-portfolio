@@ -280,13 +280,13 @@
         }
 
         .pdf-wrapper {
-            max-width: 495px;
+            max-width: 400px;
             width: 100%;
         }
 
         .pdf-container {
-            width: 495px;
-            height: 700px;
+            width: 400px;
+            height: 565px;
             border: 2px solid var(--primary-red);
             background: rgba(0, 0, 0, 0.3);
             overflow: hidden;
@@ -294,41 +294,33 @@
             position: relative;
         }
 
-        .pdf-container embed {
+        .pdf-container iframe {
             width: 100%;
             height: 100%;
-            pointer-events: none;
-        }
-
-        .pdf-container::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
+            border: none;
         }
 
         .pdf-controls {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
+            width: 100%;
         }
 
         .pdf-button {
             background: rgba(255, 0, 51, 0.1);
             border: 2px solid var(--primary-red);
             color: #fff;
-            padding: 12px 24px;
+            padding: 10px 20px;
             font-family: 'Source Code Pro', monospace;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
             cursor: pointer;
             transition: all 0.3s ease;
+            flex: 1;
         }
 
         .pdf-button:hover {
@@ -344,8 +336,11 @@
 
         .pdf-page-info {
             color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
+            font-size: 12px;
             letter-spacing: 1px;
+            white-space: nowrap;
+            text-align: center;
+            min-width: 80px;
         }
 
         footer {
@@ -414,9 +409,14 @@
 
             .pdf-container {
                 width: 100%;
-                max-width: 495px;
-                height: 700px;
+                max-width: 400px;
+                height: 565px;
                 margin: 0 auto 20px;
+            }
+
+            .pdf-button {
+                font-size: 11px;
+                padding: 8px 15px;
             }
         }
     </style>
@@ -510,7 +510,7 @@
             <h3>Livret de recherche</h3>
             <div class="pdf-wrapper">
                 <div class="pdf-container">
-                    <embed id="pdf-viewer" src="Livret-recherche-dragon.pdf#page=1&toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=67" type="application/pdf">
+                    <iframe id="pdf-viewer" src="Livret-recherche-dragon.pdf#page=1&toolbar=0&navpanes=0&scrollbar=0&view=Fit"></iframe>
                 </div>
                 <div class="pdf-controls">
                     <button class="pdf-button" id="prev-page">← Précédent</button>
@@ -543,7 +543,8 @@
         const nextButton = document.getElementById('next-page');
 
         function updatePDF() {
-            pdfViewer.src = `Livret-recherche-dragon.pdf#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=67`;
+            const newSrc = `Livret-recherche-dragon.pdf#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0&view=Fit`;
+            pdfViewer.src = newSrc;
             currentPageSpan.textContent = currentPage;
             prevButton.disabled = currentPage === 1;
         }
