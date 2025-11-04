@@ -162,34 +162,66 @@
             align-self: start;
         }
 
-        .text-block {
+        .info-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 0, 51, 0.3);
+            padding: 40px;
             margin-bottom: 50px;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.02);
-            border-left: 3px solid rgba(255, 0, 51, 0.3);
             transition: all 0.3s ease;
         }
 
-        .text-block:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-left-color: var(--primary-red);
-            transform: translateX(5px);
+        .info-card:hover {
+            border-color: var(--primary-red);
+            box-shadow: 0 10px 40px rgba(255, 0, 51, 0.2);
         }
 
-        .text-block h3 {
-            font-size: 24px;
-            color: var(--primary-red);
+        .info-item {
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 20px;
             font-weight: 700;
         }
 
-        .text-block p {
+        .info-value {
             font-size: 18px;
-            line-height: 1.8;
-            color: rgba(255, 255, 255, 0.85);
-            font-weight: 400;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .info-item.keywords .info-value {
+            font-size: 16px;
+        }
+
+        .keyword-red {
+            color: var(--primary-red);
+            font-weight: 700;
+        }
+
+        .color-section {
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 3px solid rgba(255, 0, 51, 0.3);
+        }
+
+        .color-section h3 {
+            font-size: 20px;
+            color: var(--primary-red);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            font-weight: 700;
         }
 
         .images-gallery {
@@ -390,10 +422,6 @@
                 font-size: 20px;
             }
 
-            .text-block p {
-                font-size: 16px;
-            }
-
             .color-palette {
                 gap: 10px;
             }
@@ -422,31 +450,33 @@
     <div class="container">
         <div class="project-hero">
             <div class="project-category">Impression 4 mains</div>
-            <h1 class="project-title">DIALOGUE É MOTIF</h1>
+            <h1 class="project-title">DIALOGUE & MOTIF</h1>
             <p class="project-subtitle">Frustration urbaine</p>
         </div>
 
         <div class="content-section">
             <div class="text-content">
-                <div class="text-block">
-                    <h3>Demande</h3>
-                    <p>Explorer la couleur et les formes d'impression comme moyen d'expression d'une émotion en duo, en créant un dialogue visuel à travers le motif.</p>
+                <div class="info-card">
+                    <div class="info-item">
+                        <span class="info-label">Support :</span>
+                        <span class="info-value">Livret format A5</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Méthode :</span>
+                        <span class="info-value">Impression manuelle</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Demande :</span>
+                        <span class="info-value">Faire dialoguer les pages via une émotion</span>
+                    </div>
+                    <div class="info-item keywords">
+                        <span class="info-label">Mots clefs :</span>
+                        <span class="info-value"><span class="keyword-red">Frustration</span> — Urbain — Stress — Agitation — Oppression</span>
+                    </div>
                 </div>
 
-                <div class="text-block">
-                    <h3>Contexte</h3>
-                    <p>Nous avons choisi de travailler sur l'émotion de la frustration, en la situant dans l'environnement urbain — la rue, les murs, les traces et les tensions du quotidien. Ce cadre met en lumière la confrontation entre l'espace public et l'état intérieur.</p>
-                </div>
-
-                <div class="text-block">
-                    <h3>Signification / Intention</h3>
-                    <p>La frustration a été traduite à travers des impressions réalisées directement dans la rue, combinées à des éléments ruraux. Les textures, marques et matières recueillies incarnent l'agitation et l'oppression ressenties face à la ville.</p>
-                </div>
-
-                <div class="text-block">
-                    <h3>Choix plastiques</h3>
-                    <p>Une palette de couleurs composée de rouge, noir, argenté et marron évoque la colère, la densité et le désordre intérieur. Ces teintes, associées à des surfaces rugueuses et contrastées, créent une mini-édition expressive où dialogue matière et émotion.</p>
-                    
+                <div class="color-section">
+                    <h3>Palette de couleurs</h3>
                     <div class="color-palette">
                         <div class="color-swatch red">
                             <span class="color-label">Rouge</span>
@@ -554,7 +584,7 @@
             rootMargin: '0px 0px -100px 0px'
         });
 
-        document.querySelectorAll('.text-block, .gallery-item').forEach(item => {
+        document.querySelectorAll('.info-card, .color-section, .gallery-item').forEach(item => {
             observer.observe(item);
         });
     </script>
