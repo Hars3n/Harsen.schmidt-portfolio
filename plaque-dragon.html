@@ -280,22 +280,34 @@
         }
 
         .pdf-wrapper {
-            max-width: 800px;
+            max-width: 495px;
             width: 100%;
         }
 
         .pdf-container {
-            width: 100%;
-            height: 500px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 495px;
+            height: 700px;
+            border: 2px solid var(--primary-red);
             background: rgba(0, 0, 0, 0.3);
             overflow: hidden;
             margin-bottom: 20px;
+            position: relative;
         }
 
         .pdf-container embed {
             width: 100%;
             height: 100%;
+            pointer-events: none;
+        }
+
+        .pdf-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
         }
 
         .pdf-controls {
@@ -396,8 +408,15 @@
                 font-size: 16px;
             }
 
+            .pdf-wrapper {
+                max-width: 100%;
+            }
+
             .pdf-container {
-                height: 400px;
+                width: 100%;
+                max-width: 495px;
+                height: 700px;
+                margin: 0 auto 20px;
             }
         }
     </style>
@@ -491,7 +510,7 @@
             <h3>Livret de recherche</h3>
             <div class="pdf-wrapper">
                 <div class="pdf-container">
-                    <embed id="pdf-viewer" src="Livret-recherche-dragon.pdf#page=1&toolbar=0&navpanes=0&scrollbar=0" type="application/pdf">
+                    <embed id="pdf-viewer" src="Livret-recherche-dragon.pdf#page=1&toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=67" type="application/pdf">
                 </div>
                 <div class="pdf-controls">
                     <button class="pdf-button" id="prev-page">← Précédent</button>
@@ -524,7 +543,7 @@
         const nextButton = document.getElementById('next-page');
 
         function updatePDF() {
-            pdfViewer.src = `Livret-recherche-dragon.pdf#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0`;
+            pdfViewer.src = `Livret-recherche-dragon.pdf#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=67`;
             currentPageSpan.textContent = currentPage;
             prevButton.disabled = currentPage === 1;
         }
