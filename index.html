@@ -35,6 +35,11 @@
             top: 0;
             left: 0;
             z-index: 0;
+            pointer-events: all;
+        }
+        
+        .liquid-ether-container canvas {
+            pointer-events: all;
         }
 
         /* Header */
@@ -411,8 +416,8 @@
         // ===== CODE LIQUIDETHER COMPLET =====
         (function() {
             const mountRef = document.getElementById('liquidBg');
-            const mouseForce = 15;
-            const cursorSize = 80;
+            const mouseForce = 25;
+            const cursorSize = 120;
             const isViscous = false;
             const viscous = 30;
             const iterationsViscous = 32;
@@ -535,28 +540,27 @@
                 }
                 init(container) {
                     this.container = container;
-                    container.addEventListener('mousemove', this._onMouseMove, false);
-                    container.addEventListener('touchstart', this._onTouchStart, false);
-                    container.addEventListener('touchmove', this._onTouchMove, false);
-                    container.addEventListener('mouseenter', this._onMouseEnter, false);
-                    container.addEventListener('mouseleave', this._onMouseLeave, false);
-                    container.addEventListener('touchend', this._onTouchEnd, false);
+                    document.addEventListener('mousemove', this._onMouseMove, false);
+                    document.addEventListener('touchstart', this._onTouchStart, false);
+                    document.addEventListener('touchmove', this._onTouchMove, false);
+                    document.addEventListener('mouseenter', this._onMouseEnter, false);
+                    document.addEventListener('mouseleave', this._onMouseLeave, false);
+                    document.addEventListener('touchend', this._onTouchEnd, false);
                 }
                 dispose() {
                     if (!this.container) return;
-                    this.container.removeEventListener('mousemove', this._onMouseMove, false);
-                    this.container.removeEventListener('touchstart', this._onTouchStart, false);
-                    this.container.removeEventListener('touchmove', this._onTouchMove, false);
-                    this.container.removeEventListener('mouseenter', this._onMouseEnter, false);
-                    this.container.removeEventListener('mouseleave', this._onMouseLeave, false);
-                    this.container.removeEventListener('touchend', this._onTouchEnd, false);
+                    document.removeEventListener('mousemove', this._onMouseMove, false);
+                    document.removeEventListener('touchstart', this._onTouchStart, false);
+                    document.removeEventListener('touchmove', this._onTouchMove, false);
+                    document.removeEventListener('mouseenter', this._onMouseEnter, false);
+                    document.removeEventListener('mouseleave', this._onMouseLeave, false);
+                    document.removeEventListener('touchend', this._onTouchEnd, false);
                 }
                 setCoords(x, y) {
-                    if (!this.container) return;
                     if (this.timer) clearTimeout(this.timer);
-                    const rect = this.container.getBoundingClientRect();
-                    const nx = (x - rect.left) / rect.width;
-                    const ny = (y - rect.top) / rect.height;
+                    const rect = document.body.getBoundingClientRect();
+                    const nx = x / window.innerWidth;
+                    const ny = y / window.innerHeight;
                     this.coords.set(nx * 2 - 1, -(ny * 2 - 1));
                     this.mouseMoved = true;
                     this.timer = setTimeout(() => {
@@ -570,9 +574,8 @@
                 onDocumentMouseMove(event) {
                     if (this.onInteract) this.onInteract();
                     if (this.isAutoActive && !this.hasUserControl && !this.takeoverActive) {
-                        const rect = this.container.getBoundingClientRect();
-                        const nx = (event.clientX - rect.left) / rect.width;
-                        const ny = (event.clientY - rect.top) / rect.height;
+                        const nx = event.clientX / window.innerWidth;
+                        const ny = event.clientY / window.innerHeight;
                         this.takeoverFrom.copy(this.coords);
                         this.takeoverTo.set(nx * 2 - 1, -(ny * 2 - 1));
                         this.takeoverStartTime = performance.now();
@@ -780,7 +783,7 @@ float lenv = clamp(length(vel), 0.0, 1.0);
 vec3 c = texture2D(palette, vec2(lenv, 0.5)).rgb;
 vec3 outRGB = mix(bgColor.rgb, c, lenv);
 float outA = mix(bgColor.a, 1.0, lenv);
-gl_FragColor = vec4(outRGB, outA * 0.2);
+gl_FragColor = vec4(outRGB, outA * 0.5);
 }
 `;
             const divergence_frag = `
@@ -1113,11 +1116,11 @@ gl_FragColor = vec4(newv, 0.0, 0.0);
             class Simulation {
                 constructor(options) {
                     this.options = {
-                        iterations_poisson: 32,
-                        iterations_viscous: 32,
-                        mouse_force: 20,
-                        resolution: 0.5,
-                        cursor_size: 100,
+                        iterations_poisson: 30,
+                        iterations_viscous: 30,
+                        mouse_force: 10,
+                        resolution: 0.3,
+                        cursor_size: 75,
                         viscous: 30,
                         isBounce: false,
                         dt: 0.014,
