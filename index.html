@@ -1116,14 +1116,14 @@ gl_FragColor = vec4(newv, 0.0, 0.0);
             class Simulation {
                 constructor(options) {
                     this.options = {
-                        iterations_poisson: 30,
-                        iterations_viscous: 30,
+                        iterations_poisson: 25,
+                        iterations_viscous: 25,
                         mouse_force: 10,
-                        resolution: 0.3,
-                        cursor_size: 75,
+                        resolution: 0.25,
+                        cursor_size: 60,
                         viscous: 30,
                         isBounce: false,
-                        dt: 0.014,
+                        dt: 0.012,
                         isViscous: false,
                         BFECC: true,
                         ...options
