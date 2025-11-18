@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Specimen Typographique</title>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-red: #FF0033;
+        }
+
+        body {
+            font-family: 'Source Code Pro', monospace;
+            background: #1a1a1a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--primary-red);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            padding: 10px 20px;
+            border: 2px solid transparent;
+        }
+
+        .back-button:hover {
+            color: var(--primary-red);
+            border-color: var(--primary-red);
+        }
+
+        .back-button::before {
+            content: '←';
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .back-button:hover::before {
+            transform: translateX(-5px);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-red);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 180px 80px 80px;
+        }
+
+        .project-hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .project-title {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 80px;
+            font-weight: 400;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            line-height: 1.1;
+            color: var(--primary-red);
+        }
+
+        .description-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 0, 51, 0.3);
+            padding: 40px 60px;
+            margin: 60px auto;
+            max-width: 1400px;
+            transition: all 0.3s ease;
+        }
+
+        .description-box:hover {
+            border-color: var(--primary-red);
+            box-shadow: 0 10px 40px rgba(255, 0, 51, 0.2);
+        }
+
+        .description-item {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .description-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .description-label {
+            font-size: 16px;
+            color: var(--primary-red);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            min-width: 150px;
+        }
+
+        .description-value {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 80px 0;
+            max-width: 1500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .grid-item {
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            aspect-ratio: 1;
+        }
+
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .pdf-viewers {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin: 80px auto;
+            max-width: 1400px;
+        }
+
+        .pdf-viewer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pdf-viewer {
+            width: 100%;
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 0, 51, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pdf-viewer:hover {
+            border-color: var(--primary-red);
+            box-shadow: 0 10px 40px rgba(255, 0, 51, 0.3);
+        }
+
+        .pdf-viewer canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .pdf-viewer-title {
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary-red);
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .page-indicator {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--primary-red);
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid var(--primary-red);
+        }
+
+        .download-section {
+            text-align: center;
+            margin: 80px auto;
+            max-width: 800px;
+        }
+
+        .download-button {
+            display: inline-block;
+            background: transparent;
+            border: 3px solid var(--primary-red);
+            color: var(--primary-red);
+            padding: 20px 60px;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-family: 'Source Code Pro', monospace;
+            cursor: pointer;
+        }
+
+        .download-button:hover {
+            background: var(--primary-red);
+            color: #fff;
+            box-shadow: 0 10px 40px rgba(255, 0, 51, 0.5);
+            transform: translateY(-3px);
+        }
+
+        footer {
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(26, 26, 26, 0.8);
+            margin-top: 80px;
+        }
+
+        footer p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                padding: 120px 50px 60px;
+            }
+
+            .project-title {
+                font-size: 60px;
+            }
+
+            .image-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .pdf-viewers {
+                grid-template-columns: 1fr;
+                gap: 60px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 100px 20px 40px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+
+            .project-title {
+                font-size: 40px;
+            }
+
+            .image-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .description-box {
+                padding: 30px 20px;
+            }
+
+            .description-item {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .download-button {
+                padding: 15px 40px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor-dot"></div>
+    
+    <header>
+        <a href="affiche-edition.html" class="back-button">
+            <span>Retour</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">ACCUEIL</a>
+            <a href="portfolio.html">PORTFOLIO</a>
+            <a href="contact.html">CONTACT</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="project-hero">
+            <h1 class="project-title">Specimen Typographique</h1>
+        </div>
+
+        <div class="description-box">
+            <div class="description-item">
+                <span class="description-label">Date :</span>
+                <span class="description-value">2025</span>
+            </div>
+            <div class="description-item">
+                <span class="description-label">Description :</span>
+                <span class="description-value">Réalisation d'une typographie modulaire</span>
+            </div>
+        </div>
+
+        <div class="image-grid">
+            <div class="grid-item">
+                <img src="specimen-p1.jpg" alt="Specimen page 1">
+            </div>
+            <div class="grid-item">
+                <img src="specimen-p2.jpg" alt="Specimen page 2">
+            </div>
+            <div class="grid-item">
+                <img src="specimen-p3.jpg" alt="Specimen page 3">
+            </div>
+            <div class="grid-item">
+                <img src="specimen-p4.jpg" alt="Specimen page 4">
+            </div>
+            <div class="grid-item">
+                <img src="specimen-p5.jpg" alt="Specimen page 5">
+            </div>
+            <div class="grid-item">
+                <img src="specimen-p6.jpg" alt="Specimen page 6">
+            </div>
+        </div>
+
+        <div class="pdf-viewers">
+            <div class="pdf-viewer-container">
+                <div class="pdf-viewer" onclick="nextPage('light')">
+                    <canvas id="pdf-canvas-light"></canvas>
+                    <div class="page-indicator" id="page-indicator-light">1 / ?</div>
+                </div>
+                <div class="pdf-viewer-title">Light</div>
+            </div>
+
+            <div class="pdf-viewer-container">
+                <div class="pdf-viewer" onclick="nextPage('regular')">
+                    <canvas id="pdf-canvas-regular"></canvas>
+                    <div class="page-indicator" id="page-indicator-regular">1 / ?</div>
+                </div>
+                <div class="pdf-viewer-title">Regular</div>
+            </div>
+
+            <div class="pdf-viewer-container">
+                <div class="pdf-viewer" onclick="nextPage('bold')">
+                    <canvas id="pdf-canvas-bold"></canvas>
+                    <div class="page-indicator" id="page-indicator-bold">1 / ?</div>
+                </div>
+                <div class="pdf-viewer-title">Bold</div>
+            </div>
+        </div>
+
+        <div class="download-section">
+            <a href="police.otf" class="download-button" download>Télécharger la police</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Curseur personnalisé
+        const cursorDot = document.querySelector('.cursor-dot');
+        document.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+        });
+
+        // Gestion des PDFs
+        const pdfData = {
+            light: { pdf: null, currentPage: 1, totalPages: 0, url: 'Specimen-light.pdf' },
+            regular: { pdf: null, currentPage: 1, totalPages: 0, url: 'Specimen-regular.pdf' },
+            bold: { pdf: null, currentPage: 1, totalPages: 0, url: 'Specimen-bold.pdf' }
+        };
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // Charger tous les PDFs au démarrage
+        async function loadAllPDFs() {
+            for (const [key, data] of Object.entries(pdfData)) {
+                try {
+                    const loadingTask = pdfjsLib.getDocument(data.url);
+                    data.pdf = await loadingTask.promise;
+                    data.totalPages = data.pdf.numPages;
+                    await renderPage(key, 1);
+                } catch (error) {
+                    console.error(`Erreur lors du chargement du PDF ${key}:`, error);
+                }
+            }
+        }
+
+        // Render une page spécifique
+        async function renderPage(pdfType, pageNum) {
+            const data = pdfData[pdfType];
+            if (!data.pdf) return;
+
+            const page = await data.pdf.getPage(pageNum);
+            const canvas = document.getElementById(`pdf-canvas-${pdfType}`);
+            const context = canvas.getContext('2d');
+
+            const container = canvas.parentElement;
+            const containerWidth = container.clientWidth;
+            
+            const viewport = page.getViewport({ scale: 1 });
+            const scale = containerWidth / viewport.width;
+            const scaledViewport = page.getViewport({ scale: scale });
+
+            canvas.width = scaledViewport.width;
+            canvas.height = scaledViewport.height;
+
+            const renderContext = {
+                canvasContext: context,
+                viewport: scaledViewport
+            };
+
+            await page.render(renderContext).promise;
+
+            // Mettre à jour l'indicateur de page
+            document.getElementById(`page-indicator-${pdfType}`).textContent = 
+                `${pageNum} / ${data.totalPages}`;
+        }
+
+        // Passer à la page suivante
+        function nextPage(pdfType) {
+            const data = pdfData[pdfType];
+            if (!data.pdf) return;
+
+            data.currentPage++;
+            if (data.currentPage > data.totalPages) {
+                data.currentPage = 1;
+            }
+
+            renderPage(pdfType, data.currentPage);
+        }
+
+        // Charger les PDFs au chargement de la page
+        loadAllPDFs();
+
+        // Animation au scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(30px)';
+                    setTimeout(() => {
+                        entry.target.style.transition = 'all 0.8s ease';
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        });
+
+        document.querySelectorAll('.description-box, .grid-item, .pdf-viewer-container, .download-section').forEach(item => {
+            observer.observe(item);
+        });
+    </script>
+</body>
+</html>
