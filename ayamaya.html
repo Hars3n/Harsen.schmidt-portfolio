@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ayamaya - HARSEN Schmidt</title>
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@700&family=Cormorant+Garamond:ital,wght@1,700&family=Imperial+Script&display=swap" rel="stylesheet">
-    <link href="https://fonts.cdnfonts.com/css/old-london" rel="stylesheet">
+    <title>Identité visuelle - Ayamaya</title>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.cdnfonts.com/css/futura-pt');
-        
         * {
             margin: 0;
             padding: 0;
@@ -20,7 +17,7 @@
         }
 
         body {
-            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-family: 'Source Code Pro', monospace;
             background: #1a1a1a;
             color: #fff;
             overflow-x: hidden;
@@ -35,46 +32,6 @@
             pointer-events: none;
             z-index: 9999;
             transform: translate(-50%, -50%);
-            transition: width 0.2s, height 0.2s;
-        }
-
-        .halftone-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.08;
-        }
-
-        .halftone-bg::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                radial-gradient(circle, rgba(255, 255, 255, 0.4) 2px, transparent 2px),
-                radial-gradient(circle, rgba(255, 0, 51, 0.3) 1.5px, transparent 1.5px);
-            background-size: 40px 40px, 60px 60px;
-            background-position: 0 0, 30px 30px;
-            animation: halftoneFloat 40s ease-in-out infinite;
-        }
-
-        @keyframes halftoneFloat {
-            0%, 100% {
-                transform: translate(0, 0) scale(1);
-            }
-            25% {
-                transform: translate(20px, -20px) scale(1.05);
-            }
-            50% {
-                transform: translate(-10px, 30px) scale(0.95);
-            }
-            75% {
-                transform: translate(30px, 10px) scale(1.02);
-            }
         }
 
         header {
@@ -154,247 +111,198 @@
         .container {
             max-width: 1600px;
             margin: 0 auto;
-            padding: 140px 80px 80px;
-            position: relative;
-            z-index: 1;
+            padding: 180px 80px 80px;
         }
 
         .project-hero {
             text-align: center;
-            margin-bottom: 80px;
-            padding: 60px 40px;
-            background: rgba(255, 255, 255, 0.03);
-            border-left: 4px solid var(--primary-red);
-            border-right: 4px solid var(--primary-red);
-            backdrop-filter: blur(10px);
-        }
-
-        .project-category {
-            font-size: 14px;
-            color: var(--primary-red);
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-bottom: 20px;
+            margin-bottom: 60px;
         }
 
         .project-title {
-            font-family: 'Futura PT', 'Futura', sans-serif;
-            font-size: 80px;
-            font-weight: 700;
-            letter-spacing: -2px;
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 32px;
+            font-weight: 400;
+            letter-spacing: 2px;
             text-transform: uppercase;
             margin-bottom: 15px;
-            line-height: 1.1;
+            color: rgba(255, 255, 255, 0.6);
         }
 
         .project-subtitle {
-            font-size: 32px;
-            color: rgba(255, 255, 255, 0.7);
-            font-weight: 300;
-            margin-top: 20px;
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 120px;
+            font-weight: 400;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            line-height: 1.1;
+            color: var(--primary-red);
         }
 
-        /* Section Info Projet */
-        .project-info {
-            margin-bottom: 120px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 60px;
+        .hero-image {
+            width: 100%;
+            max-width: 1800px;
+            height: auto;
+            margin: 60px auto;
+            display: block;
+            transition: all 0.5s ease;
         }
 
-        .info-block {
-            padding: 50px 40px;
-            background: rgba(255, 255, 255, 0.02);
-            border-left: 4px solid var(--primary-red);
+        .hero-image:hover {
+            transform: scale(1.02);
+            filter: drop-shadow(0 20px 60px rgba(255, 0, 51, 0.4));
+        }
+
+        .description-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 0, 51, 0.3);
+            padding: 40px 60px;
+            margin: 60px auto;
+            max-width: 1400px;
             transition: all 0.3s ease;
         }
 
-        .info-block:hover {
-            background: rgba(255, 255, 255, 0.05);
-            transform: translateX(10px);
+        .description-box:hover {
+            border-color: var(--primary-red);
+            box-shadow: 0 10px 40px rgba(255, 0, 51, 0.2);
         }
 
-        .info-title {
-            font-family: 'Futura PT', 'Futura', sans-serif;
+        .description-item {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .description-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .description-label {
             font-size: 16px;
             color: var(--primary-red);
-            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-bottom: 25px;
+            letter-spacing: 2px;
+            font-weight: 700;
+            min-width: 150px;
         }
 
-        .info-content {
-            font-size: 20px;
-            line-height: 1.8;
+        .description-value {
+            font-size: 16px;
             color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
         }
 
-        /* Galerie complète */
-        .full-gallery {
-            margin-bottom: 120px;
-        }
-
-        .gallery-row {
-            margin-bottom: 40px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .carousel-row {
-            display: flex;
-            gap: 30px;
-            animation: scrollCarousel 40s linear infinite;
-            will-change: transform;
-        }
-
-        .carousel-row:hover {
-            animation-play-state: paused;
-        }
-
-        @keyframes scrollCarousel {
-            0% {
-                transform: translateX(0);
-            }
-            100% {
-                transform: translateX(-50%);
-            }
-        }
-
-        .large-image-row {
-            display: flex;
-            justify-content: center;
-            padding: 0 40px;
-        }
-
-        .grid-row {
+        .image-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 30px;
-            padding: 0 40px;
+            margin: 80px 0;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        .gallery-item {
+        .grid-item {
             position: relative;
             overflow: hidden;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 0, 51, 0.15);
-            transition: all 0.4s ease;
-            flex-shrink: 0;
-        }
-
-        .gallery-item:hover {
-            border-color: var(--primary-red);
-            box-shadow: 0 20px 60px rgba(255, 0, 51, 0.3);
-            transform: translateY(-5px);
-        }
-
-        .gallery-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-            transition: transform 0.6s ease;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .gallery-item:hover img {
-            transform: scale(1.05);
-        }
-
-        .carousel-row .gallery-item {
-            width: 400px;
-            height: 300px;
-        }
-
-        .large-image-row .gallery-item {
-            width: 90%;
-            max-width: 1200px;
-            height: auto;
-            min-height: 500px;
-        }
-
-        .grid-row .gallery-item {
-            width: 100%;
-            height: 350px;
-        }
-
-        /* Section PDF Charte Graphique */
-        .pdf-section {
-            margin-top: 100px;
-            padding: 60px;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 0, 51, 0.2);
-            backdrop-filter: blur(10px);
+            transition: all 0.5s ease;
+            aspect-ratio: 1;
         }
 
-        .pdf-section h2 {
-            font-family: 'Futura PT', 'Futura', sans-serif;
-            font-size: 42px;
+        .grid-item:hover {
+            border-color: var(--primary-red);
+            box-shadow: 0 20px 60px rgba(255, 0, 51, 0.3);
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .grid-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .research-section {
+            margin: 80px auto;
+            max-width: 1400px;
+        }
+
+        .research-toggle {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 0, 51, 0.3);
+            padding: 30px 40px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .research-toggle:hover {
+            border-color: var(--primary-red);
+            background: rgba(255, 0, 51, 0.1);
+        }
+
+        .research-toggle-text {
+            font-size: 32px;
             font-weight: 700;
-            margin-bottom: 40px;
             text-transform: uppercase;
-            letter-spacing: -1px;
-            text-align: center;
+            letter-spacing: 2px;
             color: var(--primary-red);
         }
 
-        .pdf-viewer {
-            background: rgba(20, 20, 20, 0.8);
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            padding: 30px;
+        .research-toggle-arrow {
+            font-size: 28px;
+            color: var(--primary-red);
+            transition: transform 0.3s ease;
         }
 
-        .pdf-controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 30px;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
+        .research-toggle-arrow.open {
+            transform: rotate(180deg);
         }
 
-        .pdf-controls button {
-            padding: 12px 30px;
-            background: var(--primary-red);
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            font-family: 'Helvetica', 'Arial', sans-serif;
+        .research-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
         }
 
-        .pdf-controls button:hover {
-            background: #cc0029;
-            box-shadow: 0 0 20px rgba(255, 0, 51, 0.5);
-            transform: translateY(-2px);
+        .research-content.open {
+            max-height: 50000px;
         }
 
-        .pdf-controls button:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
+        .research-inner {
+            padding: 60px 40px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid rgba(255, 0, 51, 0.2);
+            border-top: none;
         }
 
-        .page-info {
-            font-size: 16px;
-            color: #fff;
-            font-weight: bold;
-        }
-
-        #pdf-canvas {
+        .pdf-page {
             width: 100%;
+            max-width: 100%;
             height: auto;
-            display: block;
-            margin: 0 auto;
-            background: white;
-            box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .pdf-page:hover {
+            border-color: var(--primary-red);
+            box-shadow: 0 10px 30px rgba(255, 0, 51, 0.2);
+        }
+
+        .pdf-page:last-child {
+            margin-bottom: 0;
         }
 
         footer {
@@ -402,8 +310,7 @@
             text-align: center;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             background: rgba(26, 26, 26, 0.8);
-            backdrop-filter: blur(10px);
-            position: relative;
+            margin-top: 80px;
         }
 
         footer p {
@@ -418,26 +325,17 @@
                 padding: 120px 50px 60px;
             }
 
-            .project-info {
-                grid-template-columns: 1fr;
-                gap: 40px;
-            }
-
-            .carousel-row .gallery-item {
-                width: 350px;
-                height: 260px;
-            }
-
-            .grid-row {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
             .project-title {
-                font-size: 60px;
+                font-size: 28px;
             }
 
             .project-subtitle {
-                font-size: 24px;
+                font-size: 70px;
+            }
+
+            .image-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
             }
         }
 
@@ -453,47 +351,46 @@
             }
 
             .project-title {
-                font-size: 40px;
+                font-size: 24px;
             }
 
             .project-subtitle {
-                font-size: 20px;
+                font-size: 50px;
             }
 
-            .info-content {
-                font-size: 16px;
-            }
-
-            .carousel-row .gallery-item {
-                width: 280px;
-                height: 210px;
-            }
-
-            .grid-row {
+            .image-grid {
                 grid-template-columns: 1fr;
+                gap: 15px;
             }
 
-            .grid-row .gallery-item {
-                height: 280px;
-            }
-
-            .pdf-section {
+            .description-box {
                 padding: 30px 20px;
             }
 
-            .pdf-controls {
+            .description-item {
                 flex-direction: column;
-                gap: 15px;
+                gap: 8px;
+            }
+
+            .research-toggle {
+                padding: 20px;
+            }
+
+            .research-toggle-text {
+                font-size: 24px;
+            }
+
+            .research-inner {
+                padding: 30px 20px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="halftone-bg"></div>
     <div class="cursor-dot"></div>
     
     <header>
-        <a href="identite.html" class="back-button">
+        <a href="affiche-edition.html" class="back-button">
             <span>Retour</span>
         </a>
         <div class="nav-links">
@@ -505,138 +402,73 @@
 
     <div class="container">
         <div class="project-hero">
-            <div class="project-category">Identité Visuelle</div>
-            <h1 class="project-title">AYAMAYA</h1>
-            <p class="project-subtitle">Édition</p>
+            <h1 class="project-title">Identité visuelle</h1>
+            <h2 class="project-subtitle">Ayamaya</h2>
         </div>
 
-        <!-- Section Présentation du Projet -->
-        <div class="project-info">
-            <div class="info-block">
-                <h2 class="info-title">DEMANDE</h2>
-                <p class="info-content">Réalisation d'un logotype et identité visuelle complète pour la maison d'édition Ayamaya.</p>
-            </div>
+        <img src="aya10.png" alt="Logo Ayamaya" class="hero-image">
 
-            <div class="info-block">
-                <h2 class="info-title">DESCRIPTION</h2>
-                <p class="info-content">À rédiger plus tard.</p>
+        <div class="description-box">
+            <div class="description-item">
+                <span class="description-label">Date :</span>
+                <span class="description-value">2025</span>
             </div>
-        </div>
-
-        <!-- Galerie d'images dynamique -->
-        <div class="full-gallery">
-            <!-- Première ligne : Carousel défilant -->
-            <div class="gallery-row">
-                <div class="carousel-row">
-                    <div class="gallery-item">
-                        <img src="ayamaya-1.jpg" alt="Ayamaya - Logotype principal" loading="lazy">
-                    </div>
-                    <div class="gallery-item">
-                        <img src="ayamaya-2.jpg" alt="Ayamaya - Déclinaisons du logo" loading="lazy">
-                    </div>
-                    <div class="gallery-item">
-                        <img src="ayamaya-3.jpg" alt="Ayamaya - Palette de couleurs" loading="lazy">
-                    </div>
-                    <div class="gallery-item">
-                        <img src="ayamaya-4.jpg" alt="Ayamaya - Typographies" loading="lazy">
-                    </div>
-                    <!-- Duplication pour l'effet infini -->
-                    <div class="gallery-item">
-                        <img src="ayamaya-1.jpg" alt="Ayamaya - Logotype principal" loading="lazy">
-                    </div>
-                    <div class="gallery-item">
-                        <img src="ayamaya-2.jpg" alt="Ayamaya - Déclinaisons du logo" loading="lazy">
-                    </div>
-                    <div class="gallery-item">
-                        <img src="ayamaya-3.jpg" alt="Ayamaya - Palette de couleurs" loading="lazy">
-                    </div>
-                    <div class="gallery-item">
-                        <img src="ayamaya-4.jpg" alt="Ayamaya - Typographies" loading="lazy">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Deuxième ligne : Grande image centrale -->
-            <div class="gallery-row large-image-row">
-                <div class="gallery-item">
-                    <img src="ayamaya-5.jpg" alt="Ayamaya - Applications print" loading="lazy">
-                </div>
-            </div>
-
-            <!-- Troisième ligne : Grille 3 colonnes -->
-            <div class="gallery-row grid-row">
-                <div class="gallery-item">
-                    <img src="ayamaya-6.jpg" alt="Ayamaya - Papeterie" loading="lazy">
-                </div>
-                <div class="gallery-item">
-                    <img src="ayamaya-7.jpg" alt="Ayamaya - Cartes de visite" loading="lazy">
-                </div>
-                <div class="gallery-item">
-                    <img src="ayamaya-8.jpg" alt="Ayamaya - En-têtes de lettre" loading="lazy">
-                </div>
-            </div>
-
-            <!-- Quatrième ligne : Carousel défilant inverse -->
-            <div class="gallery-row">
-                <div class="carousel-row" style="animation-direction: reverse;">
-                    <div class="gallery-item">
-                        <img src="ayamaya-9.jpg" alt="Ayamaya - Mockups" loading="lazy">
-                    </div>
-                    <div class="gallery-item">
-                        <img src="ayamaya-10.jpg" alt="Ayamaya - Applications digitales" loading="lazy">
-                    </div>
-                    <div class="gallery-item">
-                        <img src="ayamaya-11.jpg" alt="Ayamaya - Signalétique" loading="lazy">
-                    </div>
-                    <div class="gallery-item">
-                        <img src="ayamaya-12.jpg" alt="Ayamaya - Supports de communication" loading="lazy">
-                    </div>
-                    <!-- Duplication pour l'effet infini -->
-                    <div class="gallery-item">
-                        <img src="ayamaya-9.jpg" alt="Ayamaya - Mockups" loading="lazy">
-                    </div>
-                    <div class="gallery-item">
-                        <img src="ayamaya-10.jpg" alt="Ayamaya - Applications digitales" loading="lazy">
-                    </div>
-                    <div class="gallery-item">
-                        <img src="ayamaya-11.jpg" alt="Ayamaya - Signalétique" loading="lazy">
-                    </div>
-                    <div class="gallery-item">
-                        <img src="ayamaya-12.jpg" alt="Ayamaya - Supports de communication" loading="lazy">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Cinquième ligne : Grande image centrale -->
-            <div class="gallery-row large-image-row">
-                <div class="gallery-item">
-                    <img src="ayamaya-13.jpg" alt="Ayamaya - Affiches" loading="lazy">
-                </div>
-            </div>
-
-            <!-- Sixième ligne : Grille 2 colonnes -->
-            <div class="gallery-row grid-row" style="grid-template-columns: repeat(2, 1fr);">
-                <div class="gallery-item">
-                    <img src="ayamaya-14.jpg" alt="Ayamaya - Packaging" loading="lazy">
-                </div>
-                <div class="gallery-item">
-                    <img src="ayamaya-15.jpg" alt="Ayamaya - Détails graphiques" loading="lazy">
-                </div>
+            <div class="description-item">
+                <span class="description-label">Description :</span>
+                <span class="description-value">Réalisation d'une identité visuelle pour la maison d'édition Ayamaya</span>
             </div>
         </div>
 
-        <!-- Section Charte Graphique avec PDF -->
-        <section class="pdf-section">
-            <h2>CHARTE GRAPHIQUE</h2>
-            <div class="pdf-viewer">
-                <div class="pdf-controls">
-                    <button id="prev-page"><span>← PRÉCÉDENT</span></button>
-                    <span class="page-info">Page <span id="page-num">1</span> / <span id="page-count">0</span></span>
-                    <button id="next-page"><span>SUIVANT →</span></button>
-                </div>
-                <canvas id="pdf-canvas"></canvas>
+        <div class="image-grid">
+            <div class="grid-item">
+                <img src="aya2.jpg" alt="Ayamaya 2">
             </div>
-        </section>
+            <div class="grid-item">
+                <img src="aya3.jpg" alt="Ayamaya 3">
+            </div>
+            <div class="grid-item">
+                <img src="aya1.jpg" alt="Ayamaya 1">
+            </div>
+            <div class="grid-item">
+                <img src="aya4.jpg" alt="Ayamaya 4">
+            </div>
+            <div class="grid-item">
+                <img src="aya9.jpg" alt="Ayamaya 9">
+            </div>
+            <div class="grid-item">
+                <img src="aya5.jpg" alt="Ayamaya 5">
+            </div>
+            <div class="grid-item">
+                <img src="aya6.jpg" alt="Ayamaya 6">
+            </div>
+            <div class="grid-item">
+                <img src="aya8.jpg" alt="Ayamaya 8">
+            </div>
+            <div class="grid-item">
+                <img src="aya7.jpg" alt="Ayamaya 7">
+            </div>
+        </div>
+
+        <div class="research-section">
+            <div class="research-toggle" onclick="toggleResearch()">
+                <span class="research-toggle-text">Recherche</span>
+                <span class="research-toggle-arrow" id="arrow">↓</span>
+            </div>
+            <div class="research-content" id="researchContent">
+                <div class="research-inner">
+                    <canvas class="pdf-page" id="pdf-canvas-1"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-2"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-3"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-4"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-5"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-6"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-7"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-8"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-9"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-10"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
     <footer>
@@ -654,12 +486,58 @@
             cursorDot.style.top = e.clientY + 'px';
         });
 
-        // Animation au scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        };
+        // Toggle recherche
+        function toggleResearch() {
+            const content = document.getElementById('researchContent');
+            const arrow = document.getElementById('arrow');
+            content.classList.toggle('open');
+            arrow.classList.toggle('open');
+            
+            // Charger le PDF uniquement lors de la première ouverture
+            if (content.classList.contains('open') && !content.dataset.loaded) {
+                loadPDF();
+                content.dataset.loaded = 'true';
+            }
+        }
 
+        // Charger et afficher le PDF
+        async function loadPDF() {
+            const url = 'oral-aya.pdf';
+            
+            try {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                
+                const loadingTask = pdfjsLib.getDocument(url);
+                const pdf = await loadingTask.promise;
+                
+                // Limiter à 10 pages maximum
+                const numPages = Math.min(pdf.numPages, 10);
+                
+                for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                    const page = await pdf.getPage(pageNum);
+                    const canvas = document.getElementById(`pdf-canvas-${pageNum}`);
+                    
+                    if (!canvas) continue;
+                    
+                    const context = canvas.getContext('2d');
+                    const viewport = page.getViewport({ scale: 1.5 });
+                    
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+                    
+                    await page.render(renderContext).promise;
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement du PDF:', error);
+            }
+        }
+
+        // Animation au scroll
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -673,75 +551,13 @@
                     observer.unobserve(entry.target);
                 }
             });
-        }, observerOptions);
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        });
 
-        document.querySelectorAll('.info-block, .gallery-item').forEach(item => {
+        document.querySelectorAll('.description-box, .grid-item, .research-section').forEach(item => {
             observer.observe(item);
-        });
-
-        // PDF.js Configuration
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-        let pdfDoc = null;
-        let pageNum = 1;
-        let pageRendering = false;
-        let pageNumPending = null;
-
-        const canvas = document.getElementById('pdf-canvas');
-        const ctx = canvas.getContext('2d');
-
-        pdfjsLib.getDocument('Charte-graphique-ayamaya.pdf').promise.then(pdf => {
-            pdfDoc = pdf;
-            document.getElementById('page-count').textContent = pdf.numPages;
-            renderPage(pageNum);
-        }).catch(error => console.error('Erreur de chargement du PDF:', error));
-
-        function renderPage(num) {
-            pageRendering = true;
-            pdfDoc.getPage(num).then(page => {
-                let scale = 0.75;
-                const viewport = page.getViewport({ scale });
-
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                const renderContext = { canvasContext: ctx, viewport };
-                page.render(renderContext).promise.then(() => {
-                    pageRendering = false;
-                    if (pageNumPending !== null) {
-                        renderPage(pageNumPending);
-                        pageNumPending = null;
-                    }
-                });
-            });
-
-            document.getElementById('page-num').textContent = num;
-            document.getElementById('prev-page').disabled = (num <= 1);
-            document.getElementById('next-page').disabled = (num >= pdfDoc.numPages);
-        }
-
-        function queueRenderPage(num) {
-            if (pageRendering) {
-                pageNumPending = num;
-            } else {
-                renderPage(num);
-            }
-        }
-
-        document.getElementById('prev-page').addEventListener('click', () => {
-            if (pageNum <= 1) return;
-            pageNum--;
-            queueRenderPage(pageNum);
-        });
-
-        document.getElementById('next-page').addEventListener('click', () => {
-            if (pageNum >= pdfDoc.numPages) return;
-            pageNum++;
-            queueRenderPage(pageNum);
-        });
-
-        window.addEventListener('resize', () => {
-            queueRenderPage(pageNum);
         });
     </script>
 </body>
