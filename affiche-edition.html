@@ -156,7 +156,6 @@
             margin-top: 30px;
         }
 
-        /* Section de catégorie */
         .category-section {
             margin-bottom: 100px;
         }
@@ -235,7 +234,6 @@
             transform: translateY(-2px);
         }
 
-        /* Grille Pinterest */
         .pinterest-grid {
             column-count: 4;
             column-gap: 25px;
@@ -346,7 +344,6 @@
             letter-spacing: 1px;
         }
 
-        /* Responsive */
         @media (max-width: 1400px) {
             .pinterest-grid {
                 column-count: 3;
@@ -478,10 +475,42 @@
             </div>
         </section>
 
-        <!-- Catégorie 3: Affiche Typo-Trames -->
+        <!-- Catégorie 3: Specimen Typographique -->
         <section class="category-section">
             <div class="category-header">
-                <div class="category-number">3 - MACRO 1</div>
+                <div class="category-number">3 - SPECIMEN TYPOGRAPHIQUE</div>
+                <h2 class="category-title">TYPOGRAPHIE MODULAIRE</h2>
+                <a href="specimen.html" class="category-btn">
+                    <span>En savoir plus</span>
+                </a>
+            </div>
+
+            <div class="pinterest-grid">
+                <div class="pinterest-item">
+                    <img src="specimen-p4.jpg" alt="Specimen Typographique - Image 4">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Specimen 4</div>
+                    </div>
+                </div>
+                <div class="pinterest-item">
+                    <img src="specimen-p5.jpg" alt="Specimen Typographique - Image 5">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Specimen 5</div>
+                    </div>
+                </div>
+                <div class="pinterest-item">
+                    <img src="specimen-p6.jpg" alt="Specimen Typographique - Image 6">
+                    <div class="pinterest-item-overlay">
+                        <div class="pinterest-item-title">Specimen 6</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Catégorie 4: Affiche Typo-Trames -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-number">4 - MACRO 1</div>
                 <h2 class="category-title">AFFICHE TYPO-TRAMES</h2>
                 <a href="macro1.html" class="category-btn">
                     <span>En savoir plus</span>
@@ -508,14 +537,12 @@
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // Curseur personnalisé
         const cursorDot = document.querySelector('.cursor-dot');
         document.addEventListener('mousemove', (e) => {
             cursorDot.style.left = e.clientX + 'px';
             cursorDot.style.top = e.clientY + 'px';
         });
 
-        // Back to top
         const backToTop = document.getElementById('backToTop');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 300) {
@@ -529,7 +556,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
-        // Animation au scroll des items Pinterest
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
