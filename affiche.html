@@ -247,30 +247,16 @@
                 inset 0 0 60px rgba(255, 0, 51, 0.1);
         }
 
-        .pinterest-item img {
+        .pinterest-item object {
             width: 100%;
-            height: auto;
+            height: 600px;
             display: block;
             transition: transform 0.4s ease;
+            pointer-events: none;
         }
 
-        .pinterest-item:hover img {
+        .pinterest-item:hover object {
             transform: scale(1.05);
-        }
-
-        .pinterest-item-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 20px;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .pinterest-item:hover .pinterest-item-overlay {
-            opacity: 1;
         }
 
         .back-to-top {
@@ -399,19 +385,13 @@
 
             <div class="pinterest-grid">
                 <div class="pinterest-item">
-                    <img src="Test-croo7.pdf" alt="Larmes de crocodile - Affiche 1">
-                    <div class="pinterest-item-overlay">
-                    </div>
+                    <object data="Test-croo7.pdf" type="application/pdf"></object>
                 </div>
                 <div class="pinterest-item">
-                    <img src="Test-croo8.pdf" alt="Larmes de crocodile - Affiche 2">
-                    <div class="pinterest-item-overlay">
-                    </div>
+                    <object data="Test-croo8.pdf" type="application/pdf"></object>
                 </div>
                 <div class="pinterest-item">
-                    <img src="Test-croo9.pdf" alt="Larmes de crocodile - Affiche 3">
-                    <div class="pinterest-item-overlay">
-                    </div>
+                    <object data="Test-croo9.pdf" type="application/pdf"></object>
                 </div>
             </div>
         </section>
@@ -428,9 +408,7 @@
 
             <div class="pinterest-grid">
                 <div class="pinterest-item">
-                    <img src="affichem1.pdf" alt="Typographisme - Affiche">
-                    <div class="pinterest-item-overlay">
-                    </div>
+                    <object data="affichem1.pdf" type="application/pdf"></object>
                 </div>
             </div>
         </section>
