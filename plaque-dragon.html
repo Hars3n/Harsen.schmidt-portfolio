@@ -312,7 +312,7 @@
 
         .pdf-page {
             width: 100%;
-            max-width: 800px;
+            max-width: 400px;
             height: auto;
             margin: 0 auto 40px auto;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -553,7 +553,7 @@
                     if (!canvas) continue;
                     
                     const context = canvas.getContext('2d');
-                    const viewport = page.getViewport({ scale: 1.5 });
+                    const viewport = page.getViewport({ scale: 0.75 });
                     
                     canvas.height = viewport.height;
                     canvas.width = viewport.width;
