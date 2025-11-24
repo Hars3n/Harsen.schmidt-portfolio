@@ -253,94 +253,74 @@
             letter-spacing: 1px;
         }
 
-        .pdf-section {
-            margin-top: 80px;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 0, 51, 0.2);
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .research-section {
+            margin: 80px auto;
+            max-width: 1400px;
         }
 
-        .pdf-section:hover {
-            border-color: var(--primary-red);
-            box-shadow: 0 10px 40px rgba(255, 0, 51, 0.2);
-        }
-
-        .pdf-section h3 {
-            font-size: 24px;
-            color: var(--primary-red);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 30px;
-            font-weight: 700;
-            text-align: center;
-        }
-
-        .pdf-wrapper {
-            max-width: 400px;
-            width: 100%;
-        }
-
-        .pdf-container {
-            width: 400px;
-            height: 565px;
-            border: 2px solid var(--primary-red);
-            background: rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .pdf-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .pdf-controls {
+        .research-toggle {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 0, 51, 0.3);
+            padding: 30px 40px;
+            cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 15px;
-            width: 100%;
-        }
-
-        .pdf-button {
-            background: rgba(255, 0, 51, 0.1);
-            border: 2px solid var(--primary-red);
-            color: #fff;
-            padding: 10px 20px;
-            font-family: 'Source Code Pro', monospace;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
             transition: all 0.3s ease;
-            flex: 1;
+            user-select: none;
         }
 
-        .pdf-button:hover {
-            background: var(--primary-red);
-            transform: scale(1.05);
+        .research-toggle:hover {
+            border-color: var(--primary-red);
+            background: rgba(255, 0, 51, 0.1);
         }
 
-        .pdf-button:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            transform: scale(1);
+        .research-toggle-text {
+            font-size: 32px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary-red);
         }
 
-        .pdf-page-info {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 12px;
-            letter-spacing: 1px;
-            white-space: nowrap;
-            text-align: center;
-            min-width: 80px;
+        .research-toggle-arrow {
+            font-size: 28px;
+            color: var(--primary-red);
+            transition: transform 0.3s ease;
+        }
+
+        .research-toggle-arrow.open {
+            transform: rotate(180deg);
+        }
+
+        .research-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .research-content.open {
+            max-height: 50000px;
+        }
+
+        .research-inner {
+            padding: 60px 40px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid rgba(255, 0, 51, 0.2);
+            border-top: none;
+        }
+
+        .pdf-page {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            margin: 0 auto 40px auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: block;
+        }
+
+        .pdf-page:last-child {
+            margin-bottom: 0;
         }
 
         footer {
@@ -403,20 +383,16 @@
                 font-size: 16px;
             }
 
-            .pdf-wrapper {
-                max-width: 100%;
+            .research-toggle {
+                padding: 20px;
             }
 
-            .pdf-container {
-                width: 100%;
-                max-width: 400px;
-                height: 565px;
-                margin: 0 auto 20px;
+            .research-toggle-text {
+                font-size: 24px;
             }
 
-            .pdf-button {
-                font-size: 11px;
-                padding: 8px 15px;
+            .research-inner {
+                padding: 30px 20px;
             }
         }
     </style>
@@ -506,16 +482,23 @@
             </div>
         </div>
 
-        <div class="pdf-section">
-            <h3>Livret de recherche</h3>
-            <div class="pdf-wrapper">
-                <div class="pdf-container">
-                    <iframe id="pdf-viewer" src="Livret-recherche-dragon.pdf#page=1&toolbar=0&navpanes=0&scrollbar=0&view=Fit"></iframe>
-                </div>
-                <div class="pdf-controls">
-                    <button class="pdf-button" id="prev-page">← Précédent</button>
-                    <span class="pdf-page-info">Page <span id="current-page">1</span></span>
-                    <button class="pdf-button" id="next-page">Suivant →</button>
+        <div class="research-section">
+            <div class="research-toggle" onclick="toggleResearch()">
+                <span class="research-toggle-text">Livret de recherche</span>
+                <span class="research-toggle-arrow" id="arrow">↓</span>
+            </div>
+            <div class="research-content" id="researchContent">
+                <div class="research-inner">
+                    <canvas class="pdf-page" id="pdf-canvas-1"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-2"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-3"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-4"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-5"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-6"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-7"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-8"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-9"></canvas>
+                    <canvas class="pdf-page" id="pdf-canvas-10"></canvas>
                 </div>
             </div>
         </div>
@@ -525,6 +508,7 @@
         <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -535,34 +519,56 @@
             cursorDot.style.top = e.clientY + 'px';
         });
 
-        // Navigation PDF
-        let currentPage = 1;
-        const pdfViewer = document.getElementById('pdf-viewer');
-        const currentPageSpan = document.getElementById('current-page');
-        const prevButton = document.getElementById('prev-page');
-        const nextButton = document.getElementById('next-page');
-
-        function updatePDF() {
-            const newSrc = `Livret-recherche-dragon.pdf#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0&view=Fit`;
-            pdfViewer.src = newSrc;
-            currentPageSpan.textContent = currentPage;
-            prevButton.disabled = currentPage === 1;
+        // Toggle recherche
+        function toggleResearch() {
+            const content = document.getElementById('researchContent');
+            const arrow = document.getElementById('arrow');
+            content.classList.toggle('open');
+            arrow.classList.toggle('open');
+            
+            // Charger le PDF uniquement lors de la première ouverture
+            if (content.classList.contains('open') && !content.dataset.loaded) {
+                loadPDF();
+                content.dataset.loaded = 'true';
+            }
         }
 
-        prevButton.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                updatePDF();
+        // Charger et afficher le PDF de recherche
+        async function loadPDF() {
+            const url = 'Livret-recherche-dragon.pdf';
+            
+            try {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                
+                const loadingTask = pdfjsLib.getDocument(url);
+                const pdf = await loadingTask.promise;
+                
+                // Limiter à 10 pages maximum
+                const numPages = Math.min(pdf.numPages, 10);
+                
+                for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                    const page = await pdf.getPage(pageNum);
+                    const canvas = document.getElementById(`pdf-canvas-${pageNum}`);
+                    
+                    if (!canvas) continue;
+                    
+                    const context = canvas.getContext('2d');
+                    const viewport = page.getViewport({ scale: 1.5 });
+                    
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+                    
+                    await page.render(renderContext).promise;
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement du PDF:', error);
             }
-        });
-
-        nextButton.addEventListener('click', () => {
-            currentPage++;
-            updatePDF();
-        });
-
-        // Désactiver le bouton précédent au chargement
-        prevButton.disabled = true;
+        }
 
         // Animation au scroll
         const observer = new IntersectionObserver((entries) => {
@@ -583,7 +589,7 @@
             rootMargin: '0px 0px -100px 0px'
         });
 
-        document.querySelectorAll('.info-card, .gallery-item, .pdf-section').forEach(item => {
+        document.querySelectorAll('.info-card, .gallery-item, .research-section').forEach(item => {
             observer.observe(item);
         });
     </script>
