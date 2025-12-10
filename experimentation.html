@@ -456,6 +456,27 @@
             // Si on clique sur l'item déjà sélectionné, on le désélectionne
             if (selectedItem === item) {
                 item.classList.remove('selected');
+                
+                // Retour à la position d'origine
+                const data = movedItems.get(item);
+                if (data) {
+                    item.style.transition = 'all 0.4s ease';
+                    item.style.left = data.rect.left + 'px';
+                    item.style.top = data.rect.top + 'px';
+                    item.style.width = data.rect.width + 'px';
+                    
+                    // Après l'animation, supprimer le placeholder et réinitialiser
+                    setTimeout(() => {
+                        if (data.placeholder && data.placeholder.parentNode) {
+                            data.placeholder.remove();
+                        }
+                        item.style.cssText = '';
+                        item.style.transition = '';
+                        movedItems.delete(item);
+                        scales.delete(item);
+                    }, 400);
+                }
+                
                 selectedItem = null;
                 return;
             }
@@ -535,26 +556,38 @@
             e.preventDefault();
 
             let scale = scales.get(selectedItem) || 1;
-            const delta = e.deltaY > 0 ? -0.15 : 0.15;
+            const delta = e.deltaY > 0 ? -0.08 : 0.08; // Zoom plus lent
             scale = Math.min(Math.max(0.3, scale + delta), 4);
             scales.set(selectedItem, scale);
 
             const data = movedItems.get(selectedItem);
             if (data) {
+                // Garder la position actuelle lors du zoom
+                const currentLeft = parseFloat(selectedItem.style.left);
+                const currentTop = parseFloat(selectedItem.style.top);
+                const currentWidth = parseFloat(selectedItem.style.width);
+                const currentHeight = parseFloat(selectedItem.style.height);
+                
                 const newW = data.rect.width * scale;
                 const newH = data.rect.height * scale;
-                const rect = selectedItem.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
+                
+                // Calculer le décalage pour garder le centre au même endroit
+                const offsetX = (newW - currentWidth) / 2;
+                const offsetY = (newH - currentHeight) / 2;
                 
                 selectedItem.style.width = newW + 'px';
                 selectedItem.style.height = newH + 'px';
-                selectedItem.style.left = (centerX - newW / 2) + 'px';
-                selectedItem.style.top = (centerY - newH / 2) + 'px';
+                selectedItem.style.left = (currentLeft - offsetX) + 'px';
+                selectedItem.style.top = (currentTop - offsetY) + 'px';
             }
         }
 
-        document.addEventListener('wheel', handleZoom, { passive: false });
+        // Empêcher le scroll de la page uniquement si une image est sélectionnée
+        document.addEventListener('wheel', (e) => {
+            if (interactiveMode && selectedItem) {
+                handleZoom(e);
+            }
+        }, { passive: false });
         
         // Support pavé tactile (pinch-to-zoom)
         let lastPinchDist = null;
@@ -573,8 +606,33 @@
                     return;
                 }
                 
-                const delta = dist - lastPinchDist;
-                handleZoom({ deltaY: -delta, preventDefault: () => {} });
+                const delta = (dist - lastPinchDist) * 0.5; // Réduire la vitesse
+                
+                // Utiliser la même logique que handleZoom
+                let scale = scales.get(selectedItem) || 1;
+                const scaleChange = delta > 0 ? 0.08 : -0.08;
+                scale = Math.min(Math.max(0.3, scale + scaleChange), 4);
+                scales.set(selectedItem, scale);
+
+                const data = movedItems.get(selectedItem);
+                if (data) {
+                    const currentLeft = parseFloat(selectedItem.style.left);
+                    const currentTop = parseFloat(selectedItem.style.top);
+                    const currentWidth = parseFloat(selectedItem.style.width);
+                    const currentHeight = parseFloat(selectedItem.style.height);
+                    
+                    const newW = data.rect.width * scale;
+                    const newH = data.rect.height * scale;
+                    
+                    const offsetX = (newW - currentWidth) / 2;
+                    const offsetY = (newH - currentHeight) / 2;
+                    
+                    selectedItem.style.width = newW + 'px';
+                    selectedItem.style.height = newH + 'px';
+                    selectedItem.style.left = (currentLeft - offsetX) + 'px';
+                    selectedItem.style.top = (currentTop - offsetY) + 'px';
+                }
+                
                 lastPinchDist = dist;
             }
         }, { passive: false });
