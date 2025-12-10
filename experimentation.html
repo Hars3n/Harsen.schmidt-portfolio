@@ -21,6 +21,10 @@
             background: #1a1a1a;
             color: #fff;
             overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
 
         .cursor-dot {
@@ -344,7 +348,7 @@
                 <div class="toggle-slider"></div>
             </div>
             <div class="toggle-help" id="toggleHelp">
-                Vous pouvez déplacer les images et les zoomer grâce à ce mode
+                Clic simple pour sélectionner et zoomer · Double-clic pour désélectionner
             </div>
         </div>
 
@@ -445,39 +449,16 @@
             }
         });
 
-        // Sélection d'image
+        // Sélection d'image avec simple clic
         gallery.addEventListener('click', (e) => {
             if (!interactiveMode) return;
-            if (isDragging) return; // Ne pas sélectionner si on est en train de drag
+            if (isDragging) return;
             
             const item = e.target.closest('.pinterest-item');
             if (!item || item.classList.contains('placeholder')) return;
 
-            // Si on clique sur l'item déjà sélectionné, on le désélectionne
+            // Si c'est déjà sélectionné, ne rien faire (attendre le double-clic)
             if (selectedItem === item) {
-                item.classList.remove('selected');
-                
-                // Retour à la position d'origine
-                const data = movedItems.get(item);
-                if (data) {
-                    item.style.transition = 'all 0.4s ease';
-                    item.style.left = data.rect.left + 'px';
-                    item.style.top = data.rect.top + 'px';
-                    item.style.width = data.rect.width + 'px';
-                    
-                    // Après l'animation, supprimer le placeholder et réinitialiser
-                    setTimeout(() => {
-                        if (data.placeholder && data.placeholder.parentNode) {
-                            data.placeholder.remove();
-                        }
-                        item.style.cssText = '';
-                        item.style.transition = '';
-                        movedItems.delete(item);
-                        scales.delete(item);
-                    }, 400);
-                }
-                
-                selectedItem = null;
                 return;
             }
 
@@ -512,6 +493,38 @@
                 item.style.width = rect.width + 'px';
                 item.style.zIndex = '100';
             }
+        });
+
+        // Désélection avec double-clic
+        gallery.addEventListener('dblclick', (e) => {
+            if (!interactiveMode || !selectedItem) return;
+            
+            const item = e.target.closest('.pinterest-item');
+            if (item !== selectedItem) return;
+
+            item.classList.remove('selected');
+            
+            // Retour à la position d'origine
+            const data = movedItems.get(item);
+            if (data) {
+                item.style.transition = 'all 0.4s ease';
+                item.style.left = data.rect.left + 'px';
+                item.style.top = data.rect.top + 'px';
+                item.style.width = data.rect.width + 'px';
+                
+                // Après l'animation, supprimer le placeholder et réinitialiser
+                setTimeout(() => {
+                    if (data.placeholder && data.placeholder.parentNode) {
+                        data.placeholder.remove();
+                    }
+                    item.style.cssText = '';
+                    item.style.transition = '';
+                    movedItems.delete(item);
+                    scales.delete(item);
+                }, 400);
+            }
+            
+            selectedItem = null;
         });
 
         // Drag avec mousedown/move/up
