@@ -18,7 +18,6 @@
 
         body {
             font-family: 'Source Code Pro', monospace;
-            font-variation-settings: 'wght' 400;
             background: #1a1a1a;
             color: #fff;
             overflow-x: hidden;
@@ -33,11 +32,6 @@
             pointer-events: none;
             z-index: 9999;
             transform: translate(-50%, -50%);
-            transition: width 0.2s, height 0.2s;
-        }
-
-        .halftone-bg {
-            display: none;
         }
 
         header {
@@ -125,9 +119,10 @@
 
         .toggle-container {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             margin: 30px 0 50px;
+            gap: 15px;
         }
 
         .toggle-switch {
@@ -166,17 +161,27 @@
 
         .toggle-switch.active .toggle-slider {
             transform: translateX(36px);
-            background: #fff;
+        }
+
+        .toggle-help {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            max-width: 400px;
+            line-height: 1.6;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.4s ease;
+        }
+
+        .toggle-help.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .pinterest-grid {
             column-count: 4;
             column-gap: 25px;
-            position: relative;
-        }
-
-        .pinterest-grid.frozen {
-            pointer-events: none;
         }
 
         .pinterest-item {
@@ -197,7 +202,6 @@
 
         .pinterest-item.draggable {
             cursor: grab;
-            pointer-events: auto;
         }
 
         .pinterest-item.dragging {
@@ -206,28 +210,18 @@
             z-index: 1000 !important;
             box-shadow: 0 20px 60px rgba(255, 0, 51, 0.5);
             border-color: var(--primary-red);
-            pointer-events: auto;
-        }
-
-        .pinterest-item.moved {
-            position: fixed !important;
-            z-index: 100;
         }
 
         .pinterest-item:not(.draggable):hover {
             transform: translateY(-5px);
             border-color: var(--primary-red);
-            box-shadow: 
-                0 10px 40px rgba(255, 0, 51, 0.3),
-                inset 0 0 60px rgba(255, 0, 51, 0.1);
+            box-shadow: 0 10px 40px rgba(255, 0, 51, 0.3);
         }
 
         .pinterest-item img {
             width: 100%;
             height: auto;
             display: block;
-            transition: none;
-            transform-origin: center center;
         }
 
         .pinterest-item:not(.draggable):hover img {
@@ -285,6 +279,14 @@
             font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .footer-note {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 12px;
+            font-style: italic;
+            letter-spacing: 0.5px;
         }
 
         @media (max-width: 1400px) {
@@ -305,13 +307,6 @@
             .page-header h1 {
                 font-size: 70px;
             }
-
-            .control-btn {
-                top: 90px;
-                right: 20px;
-                padding: 12px 25px;
-                font-size: 12px;
-            }
         }
 
         @media (max-width: 768px) {
@@ -326,21 +321,10 @@
             .page-header h1 {
                 font-size: 50px;
             }
-
-            .control-btn {
-                position: static;
-                margin: 0 auto 30px;
-                display: block;
-            }
-
-            .toggle-container {
-                margin: 20px 0 40px;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="halftone-bg"></div>
     <div class="cursor-dot"></div>
     
     <header>
@@ -348,8 +332,6 @@
         <a href="portfolio.html">PORTFOLIO</a>
         <a href="contact.html">CONTACT</a>
     </header>
-
-    <button class="control-btn" id="controlBtn">Mode Interactif OFF</button>
 
     <div class="container">
         <div class="page-header">
@@ -361,6 +343,9 @@
             <div class="toggle-switch" id="toggleSwitch">
                 <div class="toggle-slider"></div>
             </div>
+            <div class="toggle-help" id="toggleHelp">
+                Vous pouvez déplacer les images et les zoomer grâce à ce mode
+            </div>
         </div>
 
         <div class="pinterest-grid" id="gallery"></div>
@@ -368,6 +353,7 @@
 
     <footer>
         <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
+        <p class="footer-note">Galerie d'expérimentation interactive aléatoire</p>
     </footer>
 
     <div class="back-to-top" id="backToTop"></div>
@@ -375,59 +361,51 @@
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // Curseur personnalisé
         const cursorDot = document.querySelector('.cursor-dot');
         document.addEventListener('mousemove', (e) => {
             cursorDot.style.left = e.clientX + 'px';
             cursorDot.style.top = e.clientY + 'px';
         });
 
-        // Back to top
         const backToTop = document.getElementById('backToTop');
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 300) {
-                backToTop.classList.add('visible');
-            } else {
-                backToTop.classList.remove('visible');
-            }
+            backToTop.classList.toggle('visible', window.scrollY > 300);
         });
 
         backToTop.addEventListener('click', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
-        // Génération de la galerie
+        // Galerie optimisée
         const gallery = document.getElementById('gallery');
         const imageCount = 30;
-        let imageOrder = [];
 
-        // Créer un ordre aléatoire des images
-        function shuffleArray(array) {
-            const newArray = [...array];
-            for (let i = newArray.length - 1; i > 0; i--) {
+        function shuffleArray(arr) {
+            const result = [...arr];
+            for (let i = result.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                [result[i], result[j]] = [result[j], result[i]];
             }
-            return newArray;
+            return result;
         }
 
         function initGallery() {
-            imageOrder = shuffleArray([...Array(imageCount).keys()].map(i => i + 1));
-            gallery.innerHTML = '';
+            const order = shuffleArray([...Array(imageCount).keys()].map(i => i + 1));
+            const fragment = document.createDocumentFragment();
             
-            imageOrder.forEach(num => {
+            order.forEach(num => {
                 const item = document.createElement('div');
                 item.className = 'pinterest-item';
-                
                 const img = document.createElement('img');
                 img.src = `expe-${num}.jpg`;
                 img.alt = `Expérimentation ${num}`;
-                img.style.width = '100%';
-                img.style.height = 'auto';
-                
+                img.loading = 'lazy';
                 item.appendChild(img);
-                gallery.appendChild(item);
+                fragment.appendChild(item);
             });
+            
+            gallery.innerHTML = '';
+            gallery.appendChild(fragment);
         }
 
         initGallery();
@@ -435,178 +413,133 @@
         // Mode interactif
         let interactiveMode = false;
         let isDragging = false;
-        let currentDraggedItem = null;
+        let currentItem = null;
         let startX, startY;
         let movedItems = new Map();
-        let placeholders = new Map();
+        let scales = new Map();
 
         const toggleSwitch = document.getElementById('toggleSwitch');
+        const toggleHelp = document.getElementById('toggleHelp');
 
         toggleSwitch.addEventListener('click', () => {
             interactiveMode = !interactiveMode;
             toggleSwitch.classList.toggle('active');
+            toggleHelp.classList.toggle('visible', interactiveMode);
             
             const items = document.querySelectorAll('.pinterest-item');
             
             if (interactiveMode) {
-                // Mode activé: figer la galerie
-                gallery.classList.add('frozen');
                 items.forEach(item => {
                     if (!movedItems.has(item)) {
-                        item.classList.add('draggable');
-                    } else {
-                        // Les items déjà déplacés restent déplacés
                         item.classList.add('draggable');
                     }
                 });
             } else {
-                // Mode désactivé: tout revient à la normale
-                gallery.classList.remove('frozen');
                 movedItems.clear();
                 scales.clear();
-                
                 items.forEach(item => {
-                    item.classList.remove('draggable', 'moved', 'placeholder');
-                    item.style.position = '';
-                    item.style.left = '';
-                    item.style.top = '';
-                    item.style.zIndex = '';
-                    item.style.width = '';
-                    item.style.opacity = '';
-                    item.style.pointerEvents = '';
-                    
+                    item.className = 'pinterest-item';
+                    item.style.cssText = '';
                     const img = item.querySelector('img');
-                    if (img) {
-                        img.style.transform = '';
-                        img.style.width = '100%';
-                    }
+                    if (img) img.style.cssText = '';
                 });
-                
-                // Réinitialiser la galerie
                 initGallery();
             }
         });
 
-        // Gestion du drag & drop et zoom
-        let scales = new Map();
-        let itemSizes = new Map();
-
+        // Drag & Drop
         gallery.addEventListener('mousedown', (e) => {
             if (!interactiveMode) return;
-            
             const item = e.target.closest('.pinterest-item');
             if (!item || item.classList.contains('placeholder')) return;
 
             isDragging = true;
-            currentDraggedItem = item;
+            currentItem = item;
             
             const rect = item.getBoundingClientRect();
             startX = e.clientX - rect.left;
             startY = e.clientY - rect.top;
 
-            // Si c'est la première fois qu'on déplace cet item
             if (!movedItems.has(item)) {
-                // Créer un placeholder à sa place d'origine
                 const placeholder = item.cloneNode(true);
-                placeholder.classList.add('placeholder');
-                placeholder.classList.remove('draggable');
+                placeholder.className = 'pinterest-item placeholder';
                 item.parentNode.insertBefore(placeholder, item);
-                placeholders.set(item, placeholder);
-                
-                movedItems.set(item, {
-                    placeholder: placeholder,
-                    originalRect: rect
-                });
-                
-                // Initialiser la taille et l'échelle
-                itemSizes.set(item, {
-                    width: rect.width,
-                    height: rect.height
-                });
+                movedItems.set(item, { rect, scale: 1 });
                 scales.set(item, 1);
             }
 
-            item.classList.add('dragging', 'moved');
-            item.style.position = 'fixed';
-            item.style.left = rect.left + 'px';
-            item.style.top = rect.top + 'px';
-            item.style.width = rect.width + 'px';
-            item.style.height = rect.height + 'px';
-            item.style.zIndex = '1000';
-
+            item.classList.add('dragging');
+            item.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;z-index:1000`;
             e.preventDefault();
         });
 
         document.addEventListener('mousemove', (e) => {
-            if (!isDragging || !currentDraggedItem) return;
-
-            const currentSize = itemSizes.get(currentDraggedItem);
-            if (currentSize) {
-                const newX = e.clientX - (startX * (scales.get(currentDraggedItem) || 1));
-                const newY = e.clientY - (startY * (scales.get(currentDraggedItem) || 1));
-
-                currentDraggedItem.style.left = newX + 'px';
-                currentDraggedItem.style.top = newY + 'px';
-            }
+            if (!isDragging || !currentItem) return;
+            const scale = scales.get(currentItem) || 1;
+            currentItem.style.left = (e.clientX - startX * scale) + 'px';
+            currentItem.style.top = (e.clientY - startY * scale) + 'px';
         });
 
         document.addEventListener('mouseup', () => {
-            if (currentDraggedItem) {
-                currentDraggedItem.classList.remove('dragging');
-                currentDraggedItem.style.zIndex = '100';
+            if (currentItem) {
+                currentItem.classList.remove('dragging');
+                currentItem.style.zIndex = '100';
             }
             isDragging = false;
-            currentDraggedItem = null;
+            currentItem = null;
         });
 
-        // Zoom avec la molette - seulement quand l'image est tenue
-        document.addEventListener('wheel', (e) => {
-            if (!interactiveMode || !isDragging || !currentDraggedItem) return;
-
+        // Zoom - molette + pavé tactile
+        function handleZoom(e, item) {
+            if (!interactiveMode || !isDragging || !item) return;
             e.preventDefault();
 
-            const item = currentDraggedItem;
             const img = item.querySelector('img');
             if (!img) return;
 
-            let currentScale = scales.get(item) || 1;
+            let scale = scales.get(item) || 1;
             const delta = e.deltaY > 0 ? -0.15 : 0.15;
-            const newScale = Math.min(Math.max(0.3, currentScale + delta), 4);
-            
-            scales.set(item, newScale);
+            scale = Math.min(Math.max(0.3, scale + delta), 4);
+            scales.set(item, scale);
 
-            // Obtenir la taille originale
-            const originalSize = movedItems.get(item)?.originalRect || itemSizes.get(item);
-            if (originalSize) {
-                const newWidth = originalSize.width * newScale;
-                const newHeight = originalSize.height * newScale;
-                
-                // Mettre à jour la taille du conteneur
-                item.style.width = newWidth + 'px';
-                item.style.height = newHeight + 'px';
-                
-                // Stocker la nouvelle taille
-                itemSizes.set(item, {
-                    width: newWidth,
-                    height: newHeight
-                });
-
-                // Ajuster la position pour que le zoom se fasse depuis le centre
+            const data = movedItems.get(item);
+            if (data) {
+                const newW = data.rect.width * scale;
+                const newH = data.rect.height * scale;
                 const rect = item.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
                 
-                const newX = centerX - (newWidth / 2);
-                const newY = centerY - (newHeight / 2);
+                item.style.width = newW + 'px';
+                item.style.height = newH + 'px';
+                item.style.left = (centerX - newW / 2) + 'px';
+                item.style.top = (centerY - newH / 2) + 'px';
+            }
+        }
+
+        document.addEventListener('wheel', (e) => handleZoom(e, currentItem), { passive: false });
+        
+        // Support pavé tactile
+        document.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2 && currentItem) {
+                e.preventDefault();
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const dist = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
                 
-                item.style.left = newX + 'px';
-                item.style.top = newY + 'px';
+                if (!currentItem.lastPinchDist) {
+                    currentItem.lastPinchDist = dist;
+                    return;
+                }
+                
+                const delta = dist - currentItem.lastPinchDist;
+                handleZoom({ deltaY: -delta, preventDefault: () => {} }, currentItem);
+                currentItem.lastPinchDist = dist;
             }
         }, { passive: false });
 
-        // Réinitialiser l'ordre à chaque chargement
-        window.addEventListener('load', () => {
-            initGallery();
+        document.addEventListener('touchend', () => {
+            if (currentItem) currentItem.lastPinchDist = null;
         });
     </script>
 </body>
