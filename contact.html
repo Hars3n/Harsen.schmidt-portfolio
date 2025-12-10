@@ -133,7 +133,7 @@
             width: 100%;
         }
 
-        /* Main container */
+        /* Main container - Adaptatif selon la taille d'écran */
         main {
             display: flex;
             flex-wrap: wrap;
@@ -357,25 +357,14 @@
             margin-bottom: 10px;
         }
 
-        /* Liens avec effet de scratch */
+        /* Liens SANS effet barré - affichage normal avec soulignement au hover */
         .contact-info a {
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--primary-red);
             text-decoration: none;
             position: relative;
             display: inline-block;
             transition: all 0.3s ease;
-        }
-
-        .contact-info a::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-50%);
-            transition: all 0.3s ease;
+            font-weight: bold;
         }
 
         .contact-info a::after {
@@ -385,16 +374,12 @@
             left: 0;
             width: 0;
             height: 2px;
-            background: linear-gradient(90deg, var(--primary-red), transparent);
+            background: var(--primary-red);
             transition: width 0.4s ease;
         }
 
         .contact-info a:hover {
             color: #fff;
-        }
-
-        .contact-info a:hover::before {
-            width: 0;
         }
 
         .contact-info a:hover::after {
@@ -463,6 +448,76 @@
             letter-spacing: 1px;
         }
 
+        /* RESPONSIVE - Grands écrans (1920px+) */
+        @media (min-width: 1920px) {
+            main {
+                padding: 160px 120px 100px;
+                gap: 120px;
+            }
+
+            .cv-container {
+                width: 550px;
+                height: 775px;
+            }
+
+            .contact-info {
+                max-width: 700px;
+            }
+
+            .contact-info h2 {
+                font-size: 100px;
+            }
+
+            .contact-info h3 {
+                font-size: 28px;
+            }
+
+            .contact-info p {
+                font-size: 18px;
+                line-height: 2.2;
+            }
+
+            .stage-info {
+                font-size: 16px;
+                padding: 18px 35px;
+            }
+
+            .download-cv-btn {
+                font-size: 18px;
+                padding: 18px 50px;
+            }
+        }
+
+        /* Écrans moyens-grands (1440px - 1919px) */
+        @media (min-width: 1440px) and (max-width: 1919px) {
+            main {
+                padding: 150px 100px 90px;
+                gap: 100px;
+            }
+
+            .cv-container {
+                width: 500px;
+                height: 705px;
+            }
+
+            .contact-info {
+                max-width: 650px;
+            }
+
+            .contact-info h2 {
+                font-size: 90px;
+            }
+
+            .contact-info h3 {
+                font-size: 26px;
+            }
+
+            .contact-info p {
+                font-size: 17px;
+            }
+        }
+
+        /* Tablettes et petits écrans */
         @media (max-width: 1024px) {
             main {
                 flex-direction: column;
@@ -491,6 +546,38 @@
 
             .contact-info h2 {
                 font-size: 50px;
+            }
+
+            header {
+                padding: 15px 20px;
+                gap: 20px;
+            }
+
+            header a {
+                font-size: 14px;
+            }
+
+            .stage-info {
+                font-size: 12px;
+                padding: 12px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .contact-info h2 {
+                font-size: 40px;
+            }
+
+            .contact-info h3 {
+                font-size: 20px;
+            }
+
+            .contact-info p {
+                font-size: 14px;
+            }
+
+            .cv-container {
+                height: 520px;
             }
         }
     </style>
@@ -559,14 +646,16 @@
         const flipBtn = document.getElementById('flipBtn');
         const cvCard = document.querySelector('.cv-card');
         
-        flipBtn.addEventListener('click', () => {
-            cvCard.classList.toggle('flipped');
-            if (cvCard.classList.contains('flipped')) {
-                flipBtn.textContent = 'Voir le CV';
-            } else {
-                flipBtn.textContent = 'Retourner la carte';
-            }
-        });
+        if (flipBtn) {
+            flipBtn.addEventListener('click', () => {
+                cvCard.classList.toggle('flipped');
+                if (cvCard.classList.contains('flipped')) {
+                    flipBtn.textContent = 'Voir le CV';
+                } else {
+                    flipBtn.textContent = 'Retourner la carte';
+                }
+            });
+        }
 
         // Mini-jeu: Cliquer 5 fois sur stage-info pour mode party
         const stageInfo = document.getElementById('stageInfo');
