@@ -190,7 +190,7 @@
             position: relative;
             overflow: hidden;
             background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 0, 51, 0.2);
+            border: 2px solid rgba(255, 0, 51, 0.2);
             transition: all 0.4s ease;
             cursor: pointer;
         }
@@ -201,15 +201,14 @@
         }
 
         .pinterest-item.draggable {
-            cursor: grab;
+            cursor: pointer;
         }
 
-        .pinterest-item.dragging {
-            cursor: grabbing;
-            position: fixed !important;
-            z-index: 1000 !important;
-            box-shadow: 0 20px 60px rgba(255, 0, 51, 0.5);
-            border-color: var(--primary-red);
+        .pinterest-item.selected {
+            border: 3px solid var(--primary-red);
+            box-shadow: 0 0 30px rgba(255, 0, 51, 0.6);
+            cursor: move;
+            z-index: 100;
         }
 
         .pinterest-item:not(.draggable):hover {
@@ -222,6 +221,7 @@
             width: 100%;
             height: auto;
             display: block;
+            user-select: none;
         }
 
         .pinterest-item:not(.draggable):hover img {
@@ -412,8 +412,8 @@
 
         // Mode interactif
         let interactiveMode = false;
+        let selectedItem = null;
         let isDragging = false;
-        let currentItem = null;
         let startX, startY;
         let movedItems = new Map();
         let scales = new Map();
@@ -429,12 +429,10 @@
             const items = document.querySelectorAll('.pinterest-item');
             
             if (interactiveMode) {
-                items.forEach(item => {
-                    if (!movedItems.has(item)) {
-                        item.classList.add('draggable');
-                    }
-                });
+                items.forEach(item => item.classList.add('draggable'));
             } else {
+                // Réinitialiser tout
+                selectedItem = null;
                 movedItems.clear();
                 scales.clear();
                 items.forEach(item => {
@@ -447,99 +445,142 @@
             }
         });
 
-        // Drag & Drop
-        gallery.addEventListener('mousedown', (e) => {
+        // Sélection d'image
+        gallery.addEventListener('click', (e) => {
             if (!interactiveMode) return;
+            if (isDragging) return; // Ne pas sélectionner si on est en train de drag
+            
             const item = e.target.closest('.pinterest-item');
             if (!item || item.classList.contains('placeholder')) return;
 
+            // Si on clique sur l'item déjà sélectionné, on le désélectionne
+            if (selectedItem === item) {
+                item.classList.remove('selected');
+                selectedItem = null;
+                return;
+            }
+
+            // Désélectionner l'ancien item
+            if (selectedItem) {
+                selectedItem.classList.remove('selected');
+            }
+
+            // Sélectionner le nouveau
+            selectedItem = item;
+            item.classList.add('selected');
+
+            // Initialiser les données si première fois
+            if (!movedItems.has(item)) {
+                const rect = item.getBoundingClientRect();
+                
+                // Créer placeholder
+                const placeholder = item.cloneNode(true);
+                placeholder.className = 'pinterest-item placeholder';
+                item.parentNode.insertBefore(placeholder, item);
+                
+                movedItems.set(item, { 
+                    rect,
+                    placeholder
+                });
+                scales.set(item, 1);
+
+                // Positionner en fixed
+                item.style.position = 'fixed';
+                item.style.left = rect.left + 'px';
+                item.style.top = rect.top + 'px';
+                item.style.width = rect.width + 'px';
+                item.style.zIndex = '100';
+            }
+        });
+
+        // Drag avec mousedown/move/up
+        let dragStarted = false;
+
+        gallery.addEventListener('mousedown', (e) => {
+            if (!interactiveMode || !selectedItem) return;
+            
+            const item = e.target.closest('.pinterest-item');
+            if (item !== selectedItem) return;
+
             isDragging = true;
-            currentItem = item;
+            dragStarted = false;
             
             const rect = item.getBoundingClientRect();
             startX = e.clientX - rect.left;
             startY = e.clientY - rect.top;
 
-            if (!movedItems.has(item)) {
-                const placeholder = item.cloneNode(true);
-                placeholder.className = 'pinterest-item placeholder';
-                item.parentNode.insertBefore(placeholder, item);
-                movedItems.set(item, { rect, scale: 1 });
-                scales.set(item, 1);
-            }
-
-            item.classList.add('dragging');
-            item.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;z-index:1000`;
             e.preventDefault();
         });
 
         document.addEventListener('mousemove', (e) => {
-            if (!isDragging || !currentItem) return;
-            const scale = scales.get(currentItem) || 1;
-            currentItem.style.left = (e.clientX - startX * scale) + 'px';
-            currentItem.style.top = (e.clientY - startY * scale) + 'px';
+            if (!isDragging || !selectedItem) return;
+            
+            dragStarted = true;
+            const scale = scales.get(selectedItem) || 1;
+            selectedItem.style.left = (e.clientX - startX * scale) + 'px';
+            selectedItem.style.top = (e.clientY - startY * scale) + 'px';
         });
 
         document.addEventListener('mouseup', () => {
-            if (currentItem) {
-                currentItem.classList.remove('dragging');
-                currentItem.style.zIndex = '100';
-            }
             isDragging = false;
-            currentItem = null;
+            // Petit délai pour éviter que le clic de mouseup ne déclenche la désélection
+            setTimeout(() => {
+                dragStarted = false;
+            }, 10);
         });
 
-        // Zoom - molette + pavé tactile
-        function handleZoom(e, item) {
-            if (!interactiveMode || !isDragging || !item) return;
+        // Zoom - uniquement sur l'item sélectionné
+        function handleZoom(e) {
+            if (!interactiveMode || !selectedItem) return;
             e.preventDefault();
 
-            const img = item.querySelector('img');
-            if (!img) return;
-
-            let scale = scales.get(item) || 1;
+            let scale = scales.get(selectedItem) || 1;
             const delta = e.deltaY > 0 ? -0.15 : 0.15;
             scale = Math.min(Math.max(0.3, scale + delta), 4);
-            scales.set(item, scale);
+            scales.set(selectedItem, scale);
 
-            const data = movedItems.get(item);
+            const data = movedItems.get(selectedItem);
             if (data) {
                 const newW = data.rect.width * scale;
                 const newH = data.rect.height * scale;
-                const rect = item.getBoundingClientRect();
+                const rect = selectedItem.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
                 
-                item.style.width = newW + 'px';
-                item.style.height = newH + 'px';
-                item.style.left = (centerX - newW / 2) + 'px';
-                item.style.top = (centerY - newH / 2) + 'px';
+                selectedItem.style.width = newW + 'px';
+                selectedItem.style.height = newH + 'px';
+                selectedItem.style.left = (centerX - newW / 2) + 'px';
+                selectedItem.style.top = (centerY - newH / 2) + 'px';
             }
         }
 
-        document.addEventListener('wheel', (e) => handleZoom(e, currentItem), { passive: false });
+        document.addEventListener('wheel', handleZoom, { passive: false });
         
-        // Support pavé tactile
+        // Support pavé tactile (pinch-to-zoom)
+        let lastPinchDist = null;
+
         document.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 2 && currentItem) {
+            if (!interactiveMode || !selectedItem) return;
+            
+            if (e.touches.length === 2) {
                 e.preventDefault();
                 const touch1 = e.touches[0];
                 const touch2 = e.touches[1];
                 const dist = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
                 
-                if (!currentItem.lastPinchDist) {
-                    currentItem.lastPinchDist = dist;
+                if (!lastPinchDist) {
+                    lastPinchDist = dist;
                     return;
                 }
                 
-                const delta = dist - currentItem.lastPinchDist;
-                handleZoom({ deltaY: -delta, preventDefault: () => {} }, currentItem);
-                currentItem.lastPinchDist = dist;
+                const delta = dist - lastPinchDist;
+                handleZoom({ deltaY: -delta, preventDefault: () => {} });
+                lastPinchDist = dist;
             }
         }, { passive: false });
 
         document.addEventListener('touchend', () => {
-            if (currentItem) currentItem.lastPinchDist = null;
+            lastPinchDist = null;
         });
     </script>
 </body>
