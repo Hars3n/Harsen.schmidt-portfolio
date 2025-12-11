@@ -256,9 +256,17 @@
             visibility: visible;
         }
 
-        .poster-overlay img {
+        .poster-overlay-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
             max-width: 90%;
-            max-height: 90vh;
+        }
+
+        .poster-overlay img {
+            max-width: 100%;
+            max-height: 80vh;
             object-fit: contain;
             transform: scale(0.8);
             transition: transform 0.4s ease;
@@ -268,6 +276,33 @@
 
         .poster-overlay.active img {
             transform: scale(1);
+        }
+
+        .poster-caption {
+            color: #fff;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.6;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease 0.2s;
+            max-width: 600px;
+        }
+
+        .poster-overlay.active .poster-caption {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .poster-caption-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--primary-red);
+        }
+
+        .poster-caption-subtitle {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .slider-section {
@@ -577,13 +612,13 @@
 
             <div class="posters-gallery">
                 <div class="posters-grid">
-                    <div class="poster-item" onclick="openPoster('affiche-croco1.jpg')">
+                    <div class="poster-item" onclick="openPoster('affiche-croco1.jpg', 'Acte II - Le bal / le spectacle', 'Le trauma, la mise en scène, la révolte')">
                         <img src="affiche-croco1.jpg" alt="Larmes de Crocodile - Affiche 1">
                     </div>
-                    <div class="poster-item" onclick="openPoster('affiche-croco2.jpg')">
+                    <div class="poster-item" onclick="openPoster('affiche-croco2.jpg', 'Acte I - Le lit', 'Le déni, la mémoire fragmentée, la confrontation')">
                         <img src="affiche-croco2.jpg" alt="Larmes de Crocodile - Affiche 2">
                     </div>
-                    <div class="poster-item" onclick="openPoster('affiche-croco3.jpg')">
+                    <div class="poster-item" onclick="openPoster('affiche-croco3.jpg', 'Acte III - La tour / le royaume', 'La vérité, la peur, le choix de vivre')">
                         <img src="affiche-croco3.jpg" alt="Larmes de Crocodile - Affiche 3">
                     </div>
                 </div>
@@ -645,7 +680,13 @@
     </div>
 
     <div class="poster-overlay" id="posterOverlay" onclick="closePoster()">
-        <img id="overlayImage" src="" alt="Affiche agrandie">
+        <div class="poster-overlay-content">
+            <img id="overlayImage" src="" alt="Affiche agrandie">
+            <div class="poster-caption" id="posterCaption">
+                <div class="poster-caption-title" id="captionTitle"></div>
+                <div class="poster-caption-subtitle" id="captionSubtitle"></div>
+            </div>
+        </div>
     </div>
 
     <footer>
@@ -664,10 +705,22 @@
         });
 
         // Gestion des affiches en overlay
-        function openPoster(imageSrc) {
+        function openPoster(imageSrc, title, subtitle) {
             const overlay = document.getElementById('posterOverlay');
             const overlayImage = document.getElementById('overlayImage');
+            const captionTitle = document.getElementById('captionTitle');
+            const captionSubtitle = document.getElementById('captionSubtitle');
+            
             overlayImage.src = imageSrc;
+            
+            if (title && subtitle) {
+                captionTitle.textContent = title;
+                captionSubtitle.textContent = subtitle;
+                document.getElementById('posterCaption').style.display = 'block';
+            } else {
+                document.getElementById('posterCaption').style.display = 'none';
+            }
+            
             overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -678,8 +731,12 @@
             document.body.style.overflow = 'auto';
         }
 
-        // Empêcher la fermeture lors du clic sur l'image
+        // Empêcher la fermeture lors du clic sur l'image ou la légende
         document.getElementById('overlayImage').addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        document.getElementById('posterCaption').addEventListener('click', (e) => {
             e.stopPropagation();
         });
 
