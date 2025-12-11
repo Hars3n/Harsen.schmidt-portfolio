@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Larmes de Crocodile - HARSEN Schmidt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-red: #FF0033;
+        }
+
+        body {
+            font-family: 'Source Code Pro', monospace;
+            background: #1a1a1a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--primary-red);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            padding: 10px 20px;
+            border: 2px solid transparent;
+        }
+
+        .back-button:hover {
+            color: var(--primary-red);
+            border-color: var(--primary-red);
+        }
+
+        .back-button::before {
+            content: '←';
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .back-button:hover::before {
+            transform: translateX(-5px);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-red);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 140px 80px 80px;
+        }
+
+        .project-hero {
+            text-align: center;
+            margin-bottom: 80px;
+            padding: 60px 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid var(--primary-red);
+            border-right: 4px solid var(--primary-red);
+        }
+
+        .project-category {
+            font-size: 14px;
+            color: var(--primary-red);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+        }
+
+        .project-title {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 80px;
+            font-weight: 400;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            line-height: 1.1;
+        }
+
+        .project-subtitle {
+            font-size: 32px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
+            margin-top: 20px;
+        }
+
+        .content-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            margin-bottom: 100px;
+        }
+
+        .text-content {
+            position: sticky;
+            top: 140px;
+            align-self: start;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 0, 51, 0.3);
+            padding: 40px;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            border-color: var(--primary-red);
+            box-shadow: 0 10px 40px rgba(255, 0, 51, 0.2);
+        }
+
+        .info-item {
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .info-value {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .posters-gallery {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 60px;
+        }
+
+        .posters-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            width: 100%;
+        }
+
+        .poster-item {
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            cursor: pointer;
+            transition: all 0.5s ease;
+            aspect-ratio: 1/1.414;
+        }
+
+        .poster-item:hover {
+            border-color: var(--primary-red);
+            box-shadow: 0 20px 60px rgba(255, 0, 51, 0.3);
+            transform: scale(1.05);
+        }
+
+        .poster-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .poster-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .poster-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .poster-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .poster-overlay img {
+            max-width: 90%;
+            max-height: 90vh;
+            object-fit: contain;
+            transform: scale(0.8);
+            transition: transform 0.4s ease;
+            box-shadow: 0 30px 80px rgba(255, 0, 51, 0.4);
+            border: 2px solid var(--primary-red);
+        }
+
+        .poster-overlay.active img {
+            transform: scale(1);
+        }
+
+        .slider-section {
+            margin: 100px 0;
+        }
+
+        .section-title {
+            font-size: 48px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary-red);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .slider-container {
+            overflow: hidden;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border-top: 2px solid rgba(255, 0, 51, 0.2);
+            border-bottom: 2px solid rgba(255, 0, 51, 0.2);
+            padding: 40px 0;
+        }
+
+        .slider-track {
+            display: flex;
+            gap: 30px;
+            animation: scroll 60s linear infinite;
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .slider-item {
+            flex-shrink: 0;
+            height: 400px;
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .slider-item:hover {
+            border-color: var(--primary-red);
+            transform: scale(1.05);
+        }
+
+        .slider-item img {
+            height: 100%;
+            width: auto;
+            object-fit: cover;
+            display: block;
+        }
+
+        .research-section {
+            margin: 80px auto;
+            max-width: 1400px;
+        }
+
+        .research-button {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 0, 51, 0.3);
+            padding: 30px 40px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--primary-red);
+        }
+
+        .research-button:hover {
+            border-color: var(--primary-red);
+            background: rgba(255, 0, 51, 0.1);
+            box-shadow: 0 10px 40px rgba(255, 0, 51, 0.2);
+        }
+
+        .research-button-text {
+            font-size: 32px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .research-button-icon {
+            font-size: 28px;
+        }
+
+        footer {
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(26, 26, 26, 0.8);
+        }
+
+        footer p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                padding: 120px 50px 60px;
+            }
+
+            .content-section {
+                grid-template-columns: 1fr;
+                gap: 60px;
+            }
+
+            .text-content {
+                position: static;
+            }
+
+            .project-title {
+                font-size: 60px;
+            }
+
+            .project-subtitle {
+                font-size: 24px;
+            }
+
+            .posters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 100px 20px 40px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+
+            .project-title {
+                font-size: 40px;
+            }
+
+            .project-subtitle {
+                font-size: 20px;
+            }
+
+            .section-title {
+                font-size: 32px;
+            }
+
+            .slider-item {
+                height: 300px;
+            }
+
+            .research-button {
+                padding: 20px;
+            }
+
+            .research-button-text {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor-dot"></div>
+    
+    <header>
+        <a href="affiche-edition.html" class="back-button">
+            <span>Retour</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">ACCUEIL</a>
+            <a href="portfolio.html">PORTFOLIO</a>
+            <a href="contact.html">CONTACT</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="project-hero">
+            <div class="project-category">Projet graphique</div>
+            <h1 class="project-title">LARMES DE CROCODILE</h1>
+            <p class="project-subtitle">Affiche de Théâtre</p>
+        </div>
+
+        <div class="content-section">
+            <div class="text-content">
+                <div class="info-card">
+                    <div class="info-item">
+                        <span class="info-label">Demande :</span>
+                        <span class="info-value">Réalisation d'une Affiche pour la pièce de théâtre "Larmes de crocodile" par Jane Beuvier et le collectif Sost</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Type de projet :</span>
+                        <span class="info-value">Affiche</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Format :</span>
+                        <span class="info-value">A2</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Impression :</span>
+                        <span class="info-value">Impression numérique laser</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="posters-gallery">
+                <div class="posters-grid">
+                    <div class="poster-item" onclick="openPoster('affiche-croco1.jpg')">
+                        <img src="affiche-croco1.jpg" alt="Larmes de Crocodile - Affiche 1">
+                    </div>
+                    <div class="poster-item" onclick="openPoster('affiche-croco2.jpg')">
+                        <img src="affiche-croco2.jpg" alt="Larmes de Crocodile - Affiche 2">
+                    </div>
+                    <div class="poster-item" onclick="openPoster('affiche-croco3.jpg')">
+                        <img src="affiche-croco3.jpg" alt="Larmes de Crocodile - Affiche 3">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slider-section">
+            <h2 class="section-title">Mise en situations</h2>
+            <div class="slider-container">
+                <div class="slider-track">
+                    <div class="slider-item"><img src="ms1.jpg" alt="Mise en situation 1"></div>
+                    <div class="slider-item"><img src="ms2.jpg" alt="Mise en situation 2"></div>
+                    <div class="slider-item"><img src="ms3.jpg" alt="Mise en situation 3"></div>
+                    <div class="slider-item"><img src="ms4.jpg" alt="Mise en situation 4"></div>
+                    <div class="slider-item"><img src="ms5.jpg" alt="Mise en situation 5"></div>
+                    <div class="slider-item"><img src="ms6.jpg" alt="Mise en situation 6"></div>
+                    <div class="slider-item"><img src="ms7.jpg" alt="Mise en situation 7"></div>
+                    <div class="slider-item"><img src="ms8.jpg" alt="Mise en situation 8"></div>
+                    <div class="slider-item"><img src="ms9.jpg" alt="Mise en situation 9"></div>
+                    <div class="slider-item"><img src="ms10.jpg" alt="Mise en situation 10"></div>
+                    <!-- Duplicate pour boucle infinie -->
+                    <div class="slider-item"><img src="ms1.jpg" alt="Mise en situation 1"></div>
+                    <div class="slider-item"><img src="ms2.jpg" alt="Mise en situation 2"></div>
+                    <div class="slider-item"><img src="ms3.jpg" alt="Mise en situation 3"></div>
+                    <div class="slider-item"><img src="ms4.jpg" alt="Mise en situation 4"></div>
+                    <div class="slider-item"><img src="ms5.jpg" alt="Mise en situation 5"></div>
+                    <div class="slider-item"><img src="ms6.jpg" alt="Mise en situation 6"></div>
+                    <div class="slider-item"><img src="ms7.jpg" alt="Mise en situation 7"></div>
+                    <div class="slider-item"><img src="ms8.jpg" alt="Mise en situation 8"></div>
+                    <div class="slider-item"><img src="ms9.jpg" alt="Mise en situation 9"></div>
+                    <div class="slider-item"><img src="ms10.jpg" alt="Mise en situation 10"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="research-section">
+            <a href="livret-recherche-ldc.pdf" target="_blank" class="research-button">
+                <span class="research-button-text">Recherches</span>
+                <span class="research-button-icon">📄</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="poster-overlay" id="posterOverlay" onclick="closePoster()">
+        <img id="overlayImage" src="" alt="Affiche agrandie">
+    </div>
+
+    <footer>
+        <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Curseur personnalisé
+        const cursorDot = document.querySelector('.cursor-dot');
+        document.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+        });
+
+        // Gestion des affiches en overlay
+        function openPoster(imageSrc) {
+            const overlay = document.getElementById('posterOverlay');
+            const overlayImage = document.getElementById('overlayImage');
+            overlayImage.src = imageSrc;
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePoster() {
+            const overlay = document.getElementById('posterOverlay');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Empêcher la fermeture lors du clic sur l'image
+        document.getElementById('overlayImage').addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Animation au scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(30px)';
+                    setTimeout(() => {
+                        entry.target.style.transition = 'all 0.8s ease';
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        });
+
+        document.querySelectorAll('.info-card, .posters-grid, .slider-section, .research-section').forEach(item => {
+            observer.observe(item);
+        });
+    </script>
+</body>
+</html>
