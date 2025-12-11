@@ -387,7 +387,7 @@
 
         .pdf-viewer {
             width: 100%;
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 0, 51, 0.2);
@@ -445,6 +445,10 @@
             height: auto;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .pdf-page-canvas.single {
+            max-width: 50%;
         }
 
         footer {
@@ -665,8 +669,8 @@
 
         // Variables pour le lecteur PDF
         let pdfDoc = null;
-        let currentSpread = 0; // Double page actuelle (0 = pages 1-2, 1 = pages 3-4, etc.)
-        let totalSpreads = 0;
+        let currentSpread = 0; // Index de la vue actuelle
+        let totalPages = 0;
 
         // Toggle recherche
         function toggleResearch() {
@@ -691,8 +695,14 @@
                 const loadingTask = pdfjsLib.getDocument(url);
                 pdfDoc = await loadingTask.promise;
                 
-                totalSpreads = Math.ceil(pdfDoc.numPages / 2);
-                document.getElementById('totalPages').textContent = totalSpreads;
+                totalPages = pdfDoc.numPages;
+                
+                // Calculer le nombre total de vues (spreads)
+                // Vue 0 : page 1 seule
+                // Vue 1 : pages 2-3
+                // Vue 2 : pages 4-5
+                // ...
+                // Dernière vue : dernière page seule si nombre impair
                 
                 renderSpread();
             } catch (error) {
@@ -700,25 +710,51 @@
             }
         }
 
-        // Afficher une double page
+        // Obtenir les numéros de pages pour la vue actuelle
+        function getPagesForSpread(spreadIndex) {
+            if (spreadIndex === 0) {
+                // Première vue : page 1 seule
+                return [1];
+            } else {
+                const leftPage = spreadIndex * 2;
+                const rightPage = leftPage + 1;
+                
+                if (rightPage > totalPages) {
+                    // Dernière page seule
+                    return [leftPage];
+                } else {
+                    // Double page
+                    return [leftPage, rightPage];
+                }
+            }
+        }
+
+        // Calculer le nombre total de vues
+        function getTotalSpreads() {
+            if (totalPages === 1) return 1;
+            // 1 vue pour la page 1 + vues pour les pages suivantes
+            return 1 + Math.ceil((totalPages - 1) / 2);
+        }
+
+        // Afficher une double page ou page simple
         async function renderSpread() {
             if (!pdfDoc) return;
 
-            const leftPageNum = currentSpread * 2 + 1;
-            const rightPageNum = currentSpread * 2 + 2;
+            const pages = getPagesForSpread(currentSpread);
+            const canvasLeft = document.getElementById('pdf-canvas-left');
+            const canvasRight = document.getElementById('pdf-canvas-right');
 
-            // Page de gauche
-            if (leftPageNum <= pdfDoc.numPages) {
-                await renderPage(leftPageNum, 'pdf-canvas-left');
-            } else {
-                clearCanvas('pdf-canvas-left');
-            }
-
-            // Page de droite
-            if (rightPageNum <= pdfDoc.numPages) {
-                await renderPage(rightPageNum, 'pdf-canvas-right');
-            } else {
+            if (pages.length === 1) {
+                // Page simple (première ou dernière)
+                await renderPage(pages[0], 'pdf-canvas-left');
+                canvasLeft.classList.add('single');
                 clearCanvas('pdf-canvas-right');
+            } else {
+                // Double page
+                await renderPage(pages[0], 'pdf-canvas-left');
+                await renderPage(pages[1], 'pdf-canvas-right');
+                canvasLeft.classList.remove('single');
+                canvasRight.classList.remove('single');
             }
 
             // Mise à jour des contrôles
@@ -731,7 +767,7 @@
             const canvas = document.getElementById(canvasId);
             const context = canvas.getContext('2d');
             
-            const viewport = page.getViewport({ scale: 1.5 });
+            const viewport = page.getViewport({ scale: 1.2 });
             
             canvas.height = viewport.height;
             canvas.width = viewport.width;
@@ -753,11 +789,16 @@
 
         // Mise à jour des contrôles
         function updateControls() {
-            const leftPageNum = currentSpread * 2 + 1;
-            const rightPageNum = currentSpread * 2 + 2;
+            const pages = getPagesForSpread(currentSpread);
+            const totalSpreads = getTotalSpreads();
             
-            document.getElementById('currentPage').textContent = 
-                rightPageNum <= pdfDoc.numPages ? `${leftPageNum}-${rightPageNum}` : `${leftPageNum}`;
+            if (pages.length === 1) {
+                document.getElementById('currentPage').textContent = `${pages[0]}`;
+            } else {
+                document.getElementById('currentPage').textContent = `${pages[0]}-${pages[1]}`;
+            }
+            
+            document.getElementById('totalPages').textContent = totalSpreads;
             
             document.getElementById('prevBtn').disabled = currentSpread === 0;
             document.getElementById('nextBtn').disabled = currentSpread >= totalSpreads - 1;
@@ -772,6 +813,7 @@
         }
 
         function nextPage() {
+            const totalSpreads = getTotalSpreads();
             if (currentSpread < totalSpreads - 1) {
                 currentSpread++;
                 renderSpread();
