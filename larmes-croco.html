@@ -150,16 +150,14 @@
         }
 
         .content-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 80px;
             margin-bottom: 100px;
         }
 
         .text-content {
-            position: sticky;
-            top: 140px;
-            align-self: start;
+            width: 100%;
         }
 
         .info-card {
@@ -204,6 +202,7 @@
             flex-direction: column;
             align-items: center;
             gap: 60px;
+            width: 100%;
         }
 
         .posters-grid {
@@ -211,6 +210,7 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 40px;
             width: 100%;
+            max-width: 1600px;
         }
 
         .poster-item {
@@ -219,14 +219,12 @@
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 0, 51, 0.2);
             cursor: pointer;
-            transition: all 0.5s ease;
+            transition: border-color 0.3s ease;
             aspect-ratio: 1/1.414;
         }
 
         .poster-item:hover {
             border-color: var(--primary-red);
-            box-shadow: 0 20px 60px rgba(255, 0, 51, 0.3);
-            transform: scale(1.05);
         }
 
         .poster-item img {
@@ -234,11 +232,6 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            transition: transform 0.5s ease;
-        }
-
-        .poster-item:hover img {
-            transform: scale(1.1);
         }
 
         .poster-overlay {
@@ -340,35 +333,118 @@
             max-width: 1400px;
         }
 
-        .research-button {
+        .research-toggle {
             background: rgba(255, 255, 255, 0.03);
             border: 2px solid rgba(255, 0, 51, 0.3);
             padding: 30px 40px;
             cursor: pointer;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            gap: 20px;
             transition: all 0.3s ease;
-            text-decoration: none;
-            color: var(--primary-red);
+            user-select: none;
         }
 
-        .research-button:hover {
+        .research-toggle:hover {
             border-color: var(--primary-red);
             background: rgba(255, 0, 51, 0.1);
-            box-shadow: 0 10px 40px rgba(255, 0, 51, 0.2);
         }
 
-        .research-button-text {
+        .research-toggle-text {
             font-size: 32px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 2px;
+            color: var(--primary-red);
         }
 
-        .research-button-icon {
+        .research-toggle-arrow {
             font-size: 28px;
+            color: var(--primary-red);
+            transition: transform 0.3s ease;
+        }
+
+        .research-toggle-arrow.open {
+            transform: rotate(180deg);
+        }
+
+        .research-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .research-content.open {
+            max-height: 10000px;
+        }
+
+        .research-inner {
+            padding: 60px 40px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid rgba(255, 0, 51, 0.2);
+            border-top: none;
+        }
+
+        .pdf-viewer {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+        }
+
+        .pdf-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 0, 51, 0.2);
+        }
+
+        .pdf-control-btn {
+            background: var(--primary-red);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Source Code Pro', monospace;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pdf-control-btn:hover {
+            background: #cc0029;
+            box-shadow: 0 0 20px rgba(255, 0, 51, 0.5);
+        }
+
+        .pdf-control-btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.3);
+            cursor: not-allowed;
+        }
+
+        .pdf-page-info {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: bold;
+        }
+
+        .pdf-canvas-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .pdf-page-canvas {
+            max-width: 48%;
+            height: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         footer {
@@ -391,20 +467,7 @@
             }
 
             .content-section {
-                grid-template-columns: 1fr;
                 gap: 60px;
-            }
-
-            .text-content {
-                position: static;
-            }
-
-            .project-title {
-                font-size: 60px;
-            }
-
-            .project-subtitle {
-                font-size: 24px;
             }
 
             .posters-grid {
@@ -537,10 +600,27 @@
         </div>
 
         <div class="research-section">
-            <a href="livret-recherche-ldc.pdf" target="_blank" class="research-button">
-                <span class="research-button-text">Recherches</span>
-                <span class="research-button-icon">📄</span>
-            </a>
+            <div class="research-toggle" onclick="toggleResearch()">
+                <span class="research-toggle-text">Livret de recherche</span>
+                <span class="research-toggle-arrow" id="arrow">↓</span>
+            </div>
+            <div class="research-content" id="researchContent">
+                <div class="research-inner">
+                    <div class="pdf-viewer">
+                        <div class="pdf-controls">
+                            <button class="pdf-control-btn" id="prevBtn" onclick="previousPage()">← Précédent</button>
+                            <span class="pdf-page-info">
+                                Page <span id="currentPage">1-2</span> / <span id="totalPages">-</span>
+                            </span>
+                            <button class="pdf-control-btn" id="nextBtn" onclick="nextPage()">Suivant →</button>
+                        </div>
+                        <div class="pdf-canvas-container">
+                            <canvas id="pdf-canvas-left"></canvas>
+                            <canvas id="pdf-canvas-right"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -552,6 +632,7 @@
         <p>&copy; <span id="year"></span> Harsen Schmidt — Designer Graphique</p>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -581,6 +662,121 @@
         document.getElementById('overlayImage').addEventListener('click', (e) => {
             e.stopPropagation();
         });
+
+        // Variables pour le lecteur PDF
+        let pdfDoc = null;
+        let currentSpread = 0; // Double page actuelle (0 = pages 1-2, 1 = pages 3-4, etc.)
+        let totalSpreads = 0;
+
+        // Toggle recherche
+        function toggleResearch() {
+            const content = document.getElementById('researchContent');
+            const arrow = document.getElementById('arrow');
+            content.classList.toggle('open');
+            arrow.classList.toggle('open');
+            
+            if (content.classList.contains('open') && !content.dataset.loaded) {
+                loadPDF();
+                content.dataset.loaded = 'true';
+            }
+        }
+
+        // Charger le PDF
+        async function loadPDF() {
+            const url = 'livret-recherche-ldc.pdf';
+            
+            try {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                
+                const loadingTask = pdfjsLib.getDocument(url);
+                pdfDoc = await loadingTask.promise;
+                
+                totalSpreads = Math.ceil(pdfDoc.numPages / 2);
+                document.getElementById('totalPages').textContent = totalSpreads;
+                
+                renderSpread();
+            } catch (error) {
+                console.error('Erreur lors du chargement du PDF:', error);
+            }
+        }
+
+        // Afficher une double page
+        async function renderSpread() {
+            if (!pdfDoc) return;
+
+            const leftPageNum = currentSpread * 2 + 1;
+            const rightPageNum = currentSpread * 2 + 2;
+
+            // Page de gauche
+            if (leftPageNum <= pdfDoc.numPages) {
+                await renderPage(leftPageNum, 'pdf-canvas-left');
+            } else {
+                clearCanvas('pdf-canvas-left');
+            }
+
+            // Page de droite
+            if (rightPageNum <= pdfDoc.numPages) {
+                await renderPage(rightPageNum, 'pdf-canvas-right');
+            } else {
+                clearCanvas('pdf-canvas-right');
+            }
+
+            // Mise à jour des contrôles
+            updateControls();
+        }
+
+        // Afficher une page spécifique
+        async function renderPage(pageNum, canvasId) {
+            const page = await pdfDoc.getPage(pageNum);
+            const canvas = document.getElementById(canvasId);
+            const context = canvas.getContext('2d');
+            
+            const viewport = page.getViewport({ scale: 1.5 });
+            
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            canvas.style.display = 'block';
+            
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+            
+            await page.render(renderContext).promise;
+        }
+
+        // Effacer un canvas
+        function clearCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            canvas.style.display = 'none';
+        }
+
+        // Mise à jour des contrôles
+        function updateControls() {
+            const leftPageNum = currentSpread * 2 + 1;
+            const rightPageNum = currentSpread * 2 + 2;
+            
+            document.getElementById('currentPage').textContent = 
+                rightPageNum <= pdfDoc.numPages ? `${leftPageNum}-${rightPageNum}` : `${leftPageNum}`;
+            
+            document.getElementById('prevBtn').disabled = currentSpread === 0;
+            document.getElementById('nextBtn').disabled = currentSpread >= totalSpreads - 1;
+        }
+
+        // Navigation
+        function previousPage() {
+            if (currentSpread > 0) {
+                currentSpread--;
+                renderSpread();
+            }
+        }
+
+        function nextPage() {
+            if (currentSpread < totalSpreads - 1) {
+                currentSpread++;
+                renderSpread();
+            }
+        }
 
         // Animation au scroll
         const observer = new IntersectionObserver((entries) => {
