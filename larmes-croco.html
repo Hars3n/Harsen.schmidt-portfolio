@@ -421,46 +421,43 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(255, 0, 51, 0.8);
-            color: #fff;
+            background: transparent;
+            color: var(--primary-red);
             border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
             cursor: pointer;
-            font-size: 24px;
+            font-size: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
             z-index: 10;
-            backdrop-filter: blur(10px);
+            opacity: 0.5;
+            padding: 10px;
         }
 
         .pdf-nav-btn:hover {
-            background: var(--primary-red);
-            box-shadow: 0 0 30px rgba(255, 0, 51, 0.6);
-            transform: translateY(-50%) scale(1.1);
+            opacity: 1;
+            transform: translateY(-50%) scale(1.2);
+            text-shadow: 0 0 10px rgba(255, 0, 51, 0.8);
         }
 
         .pdf-nav-btn:disabled {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.2);
             cursor: not-allowed;
-            opacity: 0.5;
+            opacity: 0.3;
         }
 
         .pdf-nav-btn:disabled:hover {
             transform: translateY(-50%) scale(1);
-            box-shadow: none;
+            text-shadow: none;
         }
 
         .pdf-nav-btn.prev {
-            left: 20px;
+            left: 5px;
         }
 
         .pdf-nav-btn.next {
-            right: 20px;
+            right: 5px;
         }
 
         .pdf-page-canvas {
