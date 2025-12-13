@@ -4,7 +4,7 @@
     if (!mountRef) return;
 
     const mouseForce = 6;
-    const cursorSize = 50;
+    const cursorSize = 60;
     const isViscous = false;
     const viscous = 30;
     const iterationsViscous = 25;
