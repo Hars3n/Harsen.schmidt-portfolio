@@ -13,7 +13,7 @@
     const BFECC = true;
     const resolution = 0.5;
     const isBounce = false;
-    const colors = ['#FF073A', '#FF0033', '#DC143C'];
+    const colors = ['#FF073A', '#FF0033', '#5c0516'];
     const autoDemo = true;
     const autoSpeed = 0.15;
     const autoIntensity = 0.8;
