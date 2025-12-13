@@ -310,17 +310,86 @@
             border-top: none;
         }
 
-        .pdf-page {
+        .pdf-viewer {
             width: 100%;
-            max-width: 400px;
-            height: auto;
-            margin: 0 auto 40px auto;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: block;
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 0, 51, 0.2);
         }
 
-        .pdf-page:last-child {
-            margin-bottom: 0;
+        .pdf-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 0, 51, 0.2);
+        }
+
+        .pdf-page-info {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: bold;
+        }
+
+        .pdf-canvas-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .pdf-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            color: var(--primary-red);
+            border: none;
+            cursor: pointer;
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+            opacity: 0.5;
+            padding: 10px;
+        }
+
+        .pdf-nav-btn:hover {
+            opacity: 1;
+            transform: translateY(-50%) scale(1.2);
+            text-shadow: 0 0 10px rgba(255, 0, 51, 0.8);
+        }
+
+        .pdf-nav-btn:disabled {
+            color: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+            opacity: 0.3;
+        }
+
+        .pdf-nav-btn:disabled:hover {
+            transform: translateY(-50%) scale(1);
+            text-shadow: none;
+        }
+
+        .pdf-nav-btn.prev {
+            left: 5px;
+        }
+
+        .pdf-nav-btn.next {
+            right: 5px;
+        }
+
+        .pdf-page-canvas {
+            max-width: 400px;
+            width: 100%;
+            height: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         footer {
@@ -489,16 +558,19 @@
             </div>
             <div class="research-content" id="researchContent">
                 <div class="research-inner">
-                    <canvas class="pdf-page" id="pdf-canvas-1"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-2"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-3"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-4"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-5"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-6"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-7"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-8"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-9"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-10"></canvas>
+                    <div class="pdf-viewer">
+                        <div class="pdf-controls">
+                            <span class="pdf-page-info">
+                                Page <span id="currentPage">1-2</span> / <span id="totalPages">-</span>
+                            </span>
+                        </div>
+                        <div class="pdf-canvas-container">
+                            <button class="pdf-nav-btn prev" id="prevBtn" onclick="previousPage()">←</button>
+                            <canvas id="pdf-canvas-left" class="pdf-page-canvas"></canvas>
+                            <canvas id="pdf-canvas-right" class="pdf-page-canvas"></canvas>
+                            <button class="pdf-nav-btn next" id="nextBtn" onclick="nextPage()">→</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -512,28 +584,28 @@
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // Curseur personnalisé
         const cursorDot = document.querySelector('.cursor-dot');
         document.addEventListener('mousemove', (e) => {
             cursorDot.style.left = e.clientX + 'px';
             cursorDot.style.top = e.clientY + 'px';
         });
 
-        // Toggle recherche
+        let pdfDoc = null;
+        let currentSpread = 0;
+        let totalPages = 0;
+
         function toggleResearch() {
             const content = document.getElementById('researchContent');
             const arrow = document.getElementById('arrow');
             content.classList.toggle('open');
             arrow.classList.toggle('open');
             
-            // Charger le PDF uniquement lors de la première ouverture
             if (content.classList.contains('open') && !content.dataset.loaded) {
                 loadPDF();
                 content.dataset.loaded = 'true';
             }
         }
 
-        // Charger et afficher le PDF de recherche
         async function loadPDF() {
             const url = 'Livret-recherche-dragon.pdf';
             
@@ -541,36 +613,111 @@
                 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
                 
                 const loadingTask = pdfjsLib.getDocument(url);
-                const pdf = await loadingTask.promise;
+                pdfDoc = await loadingTask.promise;
+                totalPages = pdfDoc.numPages;
                 
-                // Limiter à 10 pages maximum
-                const numPages = Math.min(pdf.numPages, 10);
-                
-                for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-                    const page = await pdf.getPage(pageNum);
-                    const canvas = document.getElementById(`pdf-canvas-${pageNum}`);
-                    
-                    if (!canvas) continue;
-                    
-                    const context = canvas.getContext('2d');
-                    const viewport = page.getViewport({ scale: 0.75 });
-                    
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
-                    
-                    const renderContext = {
-                        canvasContext: context,
-                        viewport: viewport
-                    };
-                    
-                    await page.render(renderContext).promise;
-                }
+                renderSpread();
             } catch (error) {
                 console.error('Erreur lors du chargement du PDF:', error);
             }
         }
 
-        // Animation au scroll
+        function getPagesForSpread(spreadIndex) {
+            if (spreadIndex === 0) {
+                return [1];
+            } else {
+                const leftPage = spreadIndex * 2;
+                const rightPage = leftPage + 1;
+                
+                if (rightPage > totalPages) {
+                    return [leftPage];
+                } else {
+                    return [leftPage, rightPage];
+                }
+            }
+        }
+
+        function getTotalSpreads() {
+            if (totalPages === 1) return 1;
+            return 1 + Math.ceil((totalPages - 1) / 2);
+        }
+
+        async function renderSpread() {
+            if (!pdfDoc) return;
+
+            const pages = getPagesForSpread(currentSpread);
+            const canvasLeft = document.getElementById('pdf-canvas-left');
+            const canvasRight = document.getElementById('pdf-canvas-right');
+
+            if (pages.length === 1) {
+                await renderPage(pages[0], 'pdf-canvas-left');
+                canvasLeft.classList.add('single');
+                clearCanvas('pdf-canvas-right');
+            } else {
+                await renderPage(pages[0], 'pdf-canvas-left');
+                await renderPage(pages[1], 'pdf-canvas-right');
+                canvasLeft.classList.remove('single');
+                canvasRight.classList.remove('single');
+            }
+
+            updateControls();
+        }
+
+        async function renderPage(pageNum, canvasId) {
+            const page = await pdfDoc.getPage(pageNum);
+            const canvas = document.getElementById(canvasId);
+            const context = canvas.getContext('2d');
+            
+            const viewport = page.getViewport({ scale: 1.2 });
+            
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            canvas.style.display = 'block';
+            
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+            
+            await page.render(renderContext).promise;
+        }
+
+        function updateControls() {
+            const pages = getPagesForSpread(currentSpread);
+            const totalSpreads = getTotalSpreads();
+            
+            if (pages.length === 1) {
+                document.getElementById('currentPage').textContent = `${pages[0]}`;
+            } else {
+                document.getElementById('currentPage').textContent = `${pages[0]}-${pages[1]}`;
+            }
+            
+            document.getElementById('totalPages').textContent = totalSpreads;
+            
+            document.getElementById('prevBtn').disabled = currentSpread === 0;
+            document.getElementById('nextBtn').disabled = currentSpread >= totalSpreads - 1;
+        }
+
+        function previousPage() {
+            if (currentSpread > 0) {
+                currentSpread--;
+                renderSpread();
+            }
+        }
+
+        function nextPage() {
+            const totalSpreads = getTotalSpreads();
+            if (currentSpread < totalSpreads - 1) {
+                currentSpread++;
+                renderSpread();
+            }
+        }
+
+        function clearCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            canvas.style.display = 'none';
+        }
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
