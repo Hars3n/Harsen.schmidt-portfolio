@@ -3,8 +3,8 @@
     const mountRef = document.getElementById('liquidBg');
     if (!mountRef) return;
 
-    const mouseForce = 8;
-    const cursorSize = 60;
+    const mouseForce = 6;
+    const cursorSize = 50;
     const isViscous = false;
     const viscous = 20;
     const iterationsViscous = 25;
@@ -15,8 +15,8 @@
     const isBounce = false;
     const colors = ['#FF073A', '#FF0033', '#DC143C'];
     const autoDemo = true;
-    const autoSpeed = 0.20;
-    const autoIntensity = 0.9;
+    const autoSpeed = 0.15;
+    const autoIntensity = 0.8;
     const takeoverDuration = 0.25;
     const autoResumeDelay = 3000;
     const autoRampDuration = 0.6;
