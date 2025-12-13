@@ -198,12 +198,45 @@
             border-bottom: 1px solid rgba(255, 0, 51, 0.2);
             background: rgba(0, 0, 0, 0.3);
             padding: 40px 0;
+            position: relative;
+        }
+
+        .banner-control {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 0, 51, 0.9);
+            border: none;
+            color: #fff;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .banner-control:hover {
+            background: var(--primary-red);
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 0, 51, 0.6);
+        }
+
+        .banner-control.left {
+            left: 20px;
+        }
+
+        .banner-control.right {
+            right: 20px;
         }
 
         .banner-track {
             display: flex;
             gap: 30px;
-            animation: scroll 60s linear infinite;
         }
 
         @keyframes scroll {
@@ -362,15 +395,16 @@
 
         .magnifier-toggle {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
+            top: 20px;
+            right: -70px;
             width: 50px;
             height: 50px;
             background: var(--primary-red);
             color: #fff;
-            border: none;
-            border-radius: 50%;
-            font-size: 24px;
+            border: 2px solid var(--primary-red);
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
@@ -379,14 +413,20 @@
             box-shadow: 0 4px 15px rgba(255, 0, 51, 0.4);
         }
 
+        .magnifier-toggle::before {
+            content: '🔍';
+            font-style: normal;
+        }
+
         .magnifier-toggle:hover {
-            transform: scale(1.1);
+            transform: translateY(-2px);
             box-shadow: 0 6px 25px rgba(255, 0, 51, 0.6);
         }
 
         .magnifier-toggle.active {
             background: #fff;
             color: var(--primary-red);
+            border-color: #fff;
         }
 
         .affiche-description {
@@ -398,7 +438,8 @@
             font-size: 16px;
             line-height: 1.9;
             color: rgba(255, 255, 255, 0.85);
-            text-align: justify;
+            text-align: left;
+            hyphens: manual;
         }
 
         footer {
@@ -513,7 +554,9 @@
             </div>
 
             <div class="scrolling-banner">
-                <div class="banner-track">
+                <button class="banner-control left" id="bannerLeft">←</button>
+                <button class="banner-control right" id="bannerRight">→</button>
+                <div class="banner-track" id="bannerTrack">
                     <img src="macro1-exp1.jpg" alt="Expérimentation 1" class="banner-image">
                     <img src="macro1-exp2.jpg" alt="Expérimentation 2" class="banner-image">
                     <img src="macro1-exp3.jpg" alt="Expérimentation 3" class="banner-image">
@@ -579,13 +622,13 @@
                     <div class="affiche-image-container" id="afficheContainer">
                         <img src="affiche-m1.jpg" alt="Affiche Macro 1" class="affiche-image" id="afficheImage">
                         <div class="magnifier" id="magnifier"></div>
-                        <button class="magnifier-toggle" id="magnifierToggle">🔍</button>
                     </div>
+                    <button class="magnifier-toggle" id="magnifierToggle"></button>
                 </div>
 
                 <div class="affiche-description">
                     <p>
-                        Cette affiche repose sur l'utilisation d'une trame construite à partir de la typographie Helvetica Bold, déclinée en différents corps. La notion centrale du projet est celle de la répétition, qui structure l'ensemble de la composition et instaure un rythme visuel régulier. Cette continuité est volontairement interrompue, voire brisée, par l'apparition de lettres en contreforme, créant des ruptures dans la trame et invitant le regard à circuler autrement au sein de l'affiche.
+                        Cette affiche repose sur l'utilisation d'une trame construite à partir de&nbsp;la typographie Helvetica Bold, déclinée en différents corps. La notion centrale du projet est celle de&nbsp;la répétition, qui structure l'ensemble de&nbsp;la composition et&nbsp;instaure un rythme visuel régulier. Cette continuité est volontairement interrompue, voire brisée, par l'apparition de&nbsp;lettres en&nbsp;contreforme, créant des ruptures dans la&nbsp;trame et&nbsp;invitant le&nbsp;regard à&nbsp;circuler autrement au&nbsp;sein de&nbsp;l'affiche.
                     </p>
                 </div>
             </div>
@@ -605,6 +648,53 @@
             cursorDot.style.left = e.clientX + 'px';
             cursorDot.style.top = e.clientY + 'px';
         });
+
+        // Contrôle du bandeau défilant
+        const bannerTrack = document.getElementById('bannerTrack');
+        const bannerLeft = document.getElementById('bannerLeft');
+        const bannerRight = document.getElementById('bannerRight');
+        let scrollPosition = 0;
+        let isScrolling = true;
+        let scrollInterval;
+
+        function startAutoScroll() {
+            if (isScrolling) {
+                scrollInterval = setInterval(() => {
+                    scrollPosition -= 1;
+                    bannerTrack.style.transform = `translateX(${scrollPosition}px)`;
+                    
+                    // Réinitialiser la position pour la boucle infinie
+                    const trackWidth = bannerTrack.scrollWidth / 2;
+                    if (Math.abs(scrollPosition) >= trackWidth) {
+                        scrollPosition = 0;
+                    }
+                }, 20);
+            }
+        }
+
+        bannerLeft.addEventListener('click', () => {
+            clearInterval(scrollInterval);
+            scrollPosition += 300;
+            bannerTrack.style.transition = 'transform 0.5s ease';
+            bannerTrack.style.transform = `translateX(${scrollPosition}px)`;
+            setTimeout(() => {
+                bannerTrack.style.transition = 'none';
+                startAutoScroll();
+            }, 500);
+        });
+
+        bannerRight.addEventListener('click', () => {
+            clearInterval(scrollInterval);
+            scrollPosition -= 300;
+            bannerTrack.style.transition = 'transform 0.5s ease';
+            bannerTrack.style.transform = `translateX(${scrollPosition}px)`;
+            setTimeout(() => {
+                bannerTrack.style.transition = 'none';
+                startAutoScroll();
+            }, 500);
+        });
+
+        startAutoScroll();
 
         // Modal pour images en grand
         const imageModal = document.getElementById('imageModal');
@@ -666,8 +756,8 @@
                 magnifier.style.left = (x - magnifierSize / 2) + 'px';
                 magnifier.style.top = (y - magnifierSize / 2) + 'px';
 
-                // Zoom réduit à 1.5x au lieu de 2x
-                const zoomLevel = 1.5;
+                // Zoom réduit à 1.2x au lieu de 1.5x
+                const zoomLevel = 1.2;
                 const bgX = -((x / rect.width) * afficheImage.naturalWidth * zoomLevel - magnifierSize / 2);
                 const bgY = -((y / rect.height) * afficheImage.naturalHeight * zoomLevel - magnifierSize / 2);
                 
