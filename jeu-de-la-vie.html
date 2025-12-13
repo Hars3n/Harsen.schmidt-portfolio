@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Jeu de la Vie Infini</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    @import url('https://fonts.cdnfonts.com/css/helvetica-neue-9');
+    
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #1a1a1a;
+      font-family: 'Source Code Pro', monospace;
+      color: #f1f1f1;
+    }
+
+    canvas {
+      display: block;
+      background: #1a1a1a;
+      cursor: crosshair;
+    }
+
+    .controls {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(30,30,30,0.95);
+      padding: 15px 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .controls button, .controls select {
+      padding: 10px 15px;
+      background-color: #1e1e1e;
+      border: 1px solid #444;
+      color: #f1f1f1;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Source Code Pro', monospace;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .controls button:hover, .controls select:hover {
+      background-color: #333;
+      border-color: #777;
+    }
+
+    .controls .active-start {
+      background-color: #FF0033;
+      border-color: #FF0033;
+    }
+
+    .controls .active-pause {
+      background-color: #e74c3c;
+      border-color: #c0392b;
+    }
+
+    #homeBtn {
+      background-color: #FF0033;
+      border-color: #FF0033;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 10px;
+    }
+
+    #homeBtn:hover {
+      background-color: #fff;
+      color: #FF0033;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 0, 51, 0.4);
+    }
+
+    label {
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Modal de confirmation */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background: rgba(26, 26, 26, 0.98);
+      border: 2px solid rgba(255, 0, 51, 0.3);
+      border-radius: 12px;
+      padding: 40px 50px;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 
+        inset 0 0 60px rgba(255, 0, 51, 0.05),
+        0 0 40px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    @keyframes slideUp {
+      from { 
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to { 
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-content h2 {
+      font-family: 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+      font-size: 36px;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+      color: #FF0033;
+    }
+
+    .modal-content p {
+      font-size: 16px;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 30px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .modal-btn {
+      padding: 12px 30px;
+      font-size: 14px;
+      font-weight: bold;
+      font-family: 'Source Code Pro', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: 2px solid;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .modal-btn.confirm {
+      background: #FF0033;
+      border-color: #FF0033;
+      color: #fff;
+    }
+
+    .modal-btn.confirm:hover {
+      background: #fff;
+      color: #FF0033;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(255, 0, 51, 0.4);
+    }
+
+    .modal-btn.cancel {
+      background: transparent;
+      border-color: rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .modal-btn.cancel:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.6);
+      color: #fff;
+    }
+
+    .thanks-message {
+      font-size: 14px;
+      color: #FF0033;
+      margin-top: 20px;
+      font-style: italic;
+      opacity: 0;
+      animation: fadeInThanks 0.5s ease 0.3s forwards;
+    }
+
+    @keyframes fadeInThanks {
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <button id="startBtn">▶ Démarrer</button>
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="resetBtn">🔄 Réinitialiser</button>
+    <label>
+      ⏱ Vitesse :
+      <select id="speedSelect">
+        <option value="300">0.5x</option>
+        <option value="150" selected>1x</option>
+        <option value="75">2x</option>
+      </select>
+    </label>
+    <button id="homeBtn">← Menu</button>
+  </div>
+
+  <!-- Modal de confirmation -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+      <h2>Quitter ?</h2>
+      <p>Êtes-vous sûr de vouloir retourner au menu principal ?</p>
+      <p class="thanks-message">Merci d'avoir joué au Jeu de la Vie !</p>
+      <div class="modal-buttons">
+        <button class="modal-btn confirm" id="confirmBtn">Oui, quitter</button>
+        <button class="modal-btn cancel" id="cancelBtn">Continuer à jouer</button>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    const cellSize = 20;
+    let zoom = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const liveCells = new Set();
+
+    function key(x, y) {
+      return `${x},${y}`;
+    }
+
+    function drawGrid() {
+      ctx.clearRect(0, 0, width, height);
+      const scaledCell = cellSize * zoom;
+      const startX = Math.floor(-offsetX / scaledCell);
+      const endX = Math.ceil((width - offsetX) / scaledCell);
+      const startY = Math.floor(-offsetY / scaledCell);
+      const endY = Math.ceil((height - offsetY) / scaledCell);
+
+      ctx.fillStyle = "#FF0033";
+      for (let x = startX; x < endX; x++) {
+        for (let y = startY; y < endY; y++) {
+          if (liveCells.has(key(x, y))) {
+            ctx.fillRect(offsetX + x * scaledCell, offsetY + y * scaledCell, scaledCell - 1, scaledCell - 1);
+          }
+        }
+      }
+
+      // Grille
+      ctx.strokeStyle = "rgba(255,255,255,0.05)";
+      ctx.lineWidth = 1;
+      for (let x = startX; x < endX; x++) {
+        const px = offsetX + x * scaledCell;
+        ctx.beginPath();
+        ctx.moveTo(px, 0);
+        ctx.lineTo(px, height);
+        ctx.stroke();
+      }
+      for (let y = startY; y < endY; y++) {
+        const py = offsetY + y * scaledCell;
+        ctx.beginPath();
+        ctx.moveTo(0, py);
+        ctx.lineTo(width, py);
+        ctx.stroke();
+      }
+    }
+
+    function getNeighbors(x, y) {
+      return [
+        [x-1, y-1], [x, y-1], [x+1, y-1],
+        [x-1, y],           [x+1, y],
+        [x-1, y+1], [x, y+1], [x+1, y+1],
+      ];
+    }
+
+    function nextGen() {
+      const newLive = new Set();
+      const toCheck = new Set();
+      for (const cell of liveCells) {
+        const [x, y] = cell.split(",").map(Number);
+        toCheck.add(key(x, y));
+        getNeighbors(x, y).forEach(([nx, ny]) => toCheck.add(key(nx, ny)));
+      }
+      for (const cell of toCheck) {
+        const [x, y] = cell.split(",").map(Number);
+        const neighbors = getNeighbors(x, y);
+        const count = neighbors.filter(([nx, ny]) => liveCells.has(key(nx, ny))).length;
+        if (liveCells.has(cell)) {
+          if (count === 2 || count === 3) newLive.add(cell);
+        } else {
+          if (count === 3) newLive.add(cell);
+        }
+      }
+      liveCells.clear();
+      newLive.forEach(c => liveCells.add(c));
+    }
+
+    let running = false;
+    let interval = null;
+
+    const startBtn = document.getElementById("startBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+
+    startBtn.onclick = () => {
+      if (!running) {
+        running = true;
+        const speed = +document.getElementById("speedSelect").value;
+        interval = setInterval(() => {
+          nextGen();
+          drawGrid();
+        }, speed);
+        startBtn.classList.add("active-start");
+        pauseBtn.classList.remove("active-pause");
+      }
+    };
+
+    pauseBtn.onclick = () => {
+      if (running) {
+        running = false;
+        clearInterval(interval);
+        pauseBtn.classList.add("active-pause");
+        startBtn.classList.remove("active-start");
+      }
+    };
+
+    document.getElementById("resetBtn").onclick = () => {
+      running = false;
+      clearInterval(interval);
+      liveCells.clear();
+      drawGrid();
+      startBtn.classList.remove("active-start");
+      pauseBtn.classList.remove("active-pause");
+    };
+
+    document.getElementById("speedSelect").onchange = () => {
+      if (running) {
+        clearInterval(interval);
+        const speed = +document.getElementById("speedSelect").value;
+        interval = setInterval(() => {
+          nextGen();
+          drawGrid();
+        }, speed);
+      }
+    };
+
+    // Gestion du bouton retour au menu
+    const modalOverlay = document.getElementById("modalOverlay");
+    const homeBtn = document.getElementById("homeBtn");
+    const confirmBtn = document.getElementById("confirmBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
+
+    homeBtn.onclick = () => {
+      modalOverlay.classList.add("show");
+    };
+
+    confirmBtn.onclick = () => {
+      window.location.href = "index.html";
+    };
+
+    cancelBtn.onclick = () => {
+      modalOverlay.classList.remove("show");
+    };
+
+    // Fermer la modal en cliquant sur l'overlay
+    modalOverlay.onclick = (e) => {
+      if (e.target === modalOverlay) {
+        modalOverlay.classList.remove("show");
+      }
+    };
+
+    // Échapper pour fermer la modal
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modalOverlay.classList.contains("show")) {
+        modalOverlay.classList.remove("show");
+      }
+    });
+
+    function toggleCell(e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = Math.floor((e.clientX - rect.left - offsetX) / (cellSize * zoom));
+      const y = Math.floor((e.clientY - rect.top - offsetY) / (cellSize * zoom));
+      const k = key(x, y);
+      liveCells.has(k) ? liveCells.delete(k) : liveCells.add(k);
+      drawGrid();
+    }
+
+    let drawing = false;
+    let dragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+
+    canvas.addEventListener("mousedown", (e) => {
+      if (e.button === 0) {
+        drawing = true;
+        toggleCell(e);
+      } else if (e.button === 2) {
+        dragging = true;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+      }
+    });
+
+    canvas.addEventListener("mouseup", () => {
+      drawing = false;
+      dragging = false;
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+      if (drawing) toggleCell(e);
+      if (dragging) {
+        offsetX += e.clientX - dragStartX;
+        offsetY += e.clientY - dragStartY;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        drawGrid();
+      }
+    });
+
+    canvas.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const zoomFactor = 1.1;
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+      const wx = (mouseX - offsetX) / (cellSize * zoom);
+      const wy = (mouseY - offsetY) / (cellSize * zoom);
+      if (e.deltaY < 0) {
+        zoom *= zoomFactor;
+      } else {
+        zoom /= zoomFactor;
+      }
+      offsetX = mouseX - wx * cellSize * zoom;
+      offsetY = mouseY - wy * cellSize * zoom;
+      drawGrid();
+    });
+
+    canvas.oncontextmenu = () => false;
+
+    window.addEventListener("resize", () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+      drawGrid();
+    });
+
+    drawGrid();
+  </script>
+</body>
+</html>
