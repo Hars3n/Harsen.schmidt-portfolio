@@ -395,7 +395,7 @@
 
         .magnifier-toggle {
             position: absolute;
-            top: 20px;
+            bottom: 20px;
             right: -70px;
             width: 50px;
             height: 50px;
@@ -757,8 +757,8 @@
                 magnifier.style.left = (x - magnifierSize / 2) + 'px';
                 magnifier.style.top = (y - magnifierSize / 2) + 'px';
 
-                // Zoom réduit à 1.2x au lieu de 1.5x
-                const zoomLevel = 1.2;
+                // Zoom x2
+                const zoomLevel = 2;
                 const bgX = -((x / rect.width) * afficheImage.naturalWidth * zoomLevel - magnifierSize / 2);
                 const bgY = -((y / rect.height) * afficheImage.naturalHeight * zoomLevel - magnifierSize / 2);
                 
