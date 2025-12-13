@@ -264,7 +264,7 @@
         }
 
         .research-content.open {
-            max-height: 50000px;
+            max-height: 10000px;
         }
 
         .research-inner {
@@ -272,6 +272,81 @@
             background: rgba(255, 255, 255, 0.02);
             border: 2px solid rgba(255, 0, 51, 0.2);
             border-top: none;
+        }
+
+        .pdf-viewer {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+        }
+
+        .pdf-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 0, 51, 0.2);
+        }
+
+        .pdf-page-info {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: bold;
+        }
+
+        .pdf-canvas-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .pdf-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            color: var(--primary-red);
+            border: none;
+            cursor: pointer;
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+            opacity: 0.5;
+            padding: 10px;
+        }
+
+        .pdf-nav-btn:hover {
+            opacity: 1;
+            transform: translateY(-50%) scale(1.2);
+            text-shadow: 0 0 10px rgba(255, 0, 51, 0.8);
+        }
+
+        .pdf-nav-btn:disabled {
+            color: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+            opacity: 0.3;
+        }
+
+        .pdf-nav-btn:disabled:hover {
+            transform: translateY(-50%) scale(1);
+            text-shadow: none;
+        }
+
+        .pdf-nav-btn.prev {
+            left: 5px;
+        }
+
+        .pdf-nav-btn.next {
+            right: 5px;
         }
 
         .pdf-page {
@@ -459,16 +534,19 @@
             </div>
             <div class="research-content" id="charteContent">
                 <div class="research-inner">
-                    <canvas class="pdf-page" id="pdf-canvas-charte-1"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-charte-2"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-charte-3"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-charte-4"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-charte-5"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-charte-6"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-charte-7"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-charte-8"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-charte-9"></canvas>
-                    <canvas class="pdf-page" id="pdf-canvas-charte-10"></canvas>
+                    <div class="pdf-viewer">
+                        <div class="pdf-controls">
+                            <span class="pdf-page-info">
+                                Page <span id="currentPageCharte">1-2</span> / <span id="totalPagesCharte">-</span>
+                            </span>
+                        </div>
+                        <div class="pdf-canvas-container">
+                            <button class="pdf-nav-btn prev" id="prevBtnCharte" onclick="previousPageCharte()">←</button>
+                            <canvas id="pdf-canvas-charte-left" class="pdf-page-canvas"></canvas>
+                            <canvas id="pdf-canvas-charte-right" class="pdf-page-canvas"></canvas>
+                            <button class="pdf-nav-btn next" id="nextBtnCharte" onclick="nextPageCharte()">→</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -489,6 +567,11 @@
             cursorDot.style.top = e.clientY + 'px';
         });
 
+        // Variables pour les lecteurs PDF
+        let pdfDocCharte = null;
+        let currentSpreadCharte = 0;
+        let totalPagesCharte = 0;
+
         // Toggle recherche
         function toggleResearch() {
             const content = document.getElementById('researchContent');
@@ -496,9 +579,8 @@
             content.classList.toggle('open');
             arrow.classList.toggle('open');
             
-            // Charger le PDF uniquement lors de la première ouverture
             if (content.classList.contains('open') && !content.dataset.loaded) {
-                loadPDF();
+                loadPDFRecherche();
                 content.dataset.loaded = 'true';
             }
         }
@@ -510,15 +592,14 @@
             content.classList.toggle('open');
             arrow.classList.toggle('open');
             
-            // Charger le PDF uniquement lors de la première ouverture
             if (content.classList.contains('open') && !content.dataset.loaded) {
-                loadChartePDF();
+                loadPDFCharte();
                 content.dataset.loaded = 'true';
             }
         }
 
-        // Charger et afficher le PDF de recherche
-        async function loadPDF() {
+        // Fonction pour le PDF Recherche (ancien système)
+        async function loadPDFRecherche() {
             const url = 'oral-ayamaya.pdf';
             
             try {
@@ -527,7 +608,6 @@
                 const loadingTask = pdfjsLib.getDocument(url);
                 const pdf = await loadingTask.promise;
                 
-                // Limiter à 10 pages maximum
                 const numPages = Math.min(pdf.numPages, 10);
                 
                 for (let pageNum = 1; pageNum <= numPages; pageNum++) {
@@ -550,45 +630,122 @@
                     await page.render(renderContext).promise;
                 }
             } catch (error) {
-                console.error('Erreur lors du chargement du PDF:', error);
+                console.error('Erreur lors du chargement du PDF recherche:', error);
             }
         }
 
-        // Charger et afficher le PDF de la charte graphique
-        async function loadChartePDF() {
+        // Fonctions pour le PDF Charte
+        async function loadPDFCharte() {
             const url = 'Charte-graphique-ayamaya.pdf';
             
             try {
                 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
                 
                 const loadingTask = pdfjsLib.getDocument(url);
-                const pdf = await loadingTask.promise;
+                pdfDocCharte = await loadingTask.promise;
+                totalPagesCharte = pdfDocCharte.numPages;
                 
-                // Limiter à 10 pages maximum
-                const numPages = Math.min(pdf.numPages, 10);
-                
-                for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-                    const page = await pdf.getPage(pageNum);
-                    const canvas = document.getElementById(`pdf-canvas-charte-${pageNum}`);
-                    
-                    if (!canvas) continue;
-                    
-                    const context = canvas.getContext('2d');
-                    const viewport = page.getViewport({ scale: 1.5 });
-                    
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
-                    
-                    const renderContext = {
-                        canvasContext: context,
-                        viewport: viewport
-                    };
-                    
-                    await page.render(renderContext).promise;
-                }
+                renderSpreadCharte();
             } catch (error) {
-                console.error('Erreur lors du chargement du PDF de la charte graphique:', error);
+                console.error('Erreur lors du chargement du PDF charte:', error);
             }
+        }
+
+        function getPagesForSpreadCharte(spreadIndex) {
+            if (spreadIndex === 0) {
+                return [1];
+            } else {
+                const leftPage = spreadIndex * 2;
+                const rightPage = leftPage + 1;
+                
+                if (rightPage > totalPagesCharte) {
+                    return [leftPage];
+                } else {
+                    return [leftPage, rightPage];
+                }
+            }
+        }
+
+        function getTotalSpreadsCharte() {
+            if (totalPagesCharte === 1) return 1;
+            return 1 + Math.ceil((totalPagesCharte - 1) / 2);
+        }
+
+        async function renderSpreadCharte() {
+            if (!pdfDocCharte) return;
+
+            const pages = getPagesForSpreadCharte(currentSpreadCharte);
+            const canvasLeft = document.getElementById('pdf-canvas-charte-left');
+            const canvasRight = document.getElementById('pdf-canvas-charte-right');
+
+            if (pages.length === 1) {
+                await renderPageCharte(pages[0], 'pdf-canvas-charte-left');
+                canvasLeft.classList.add('single');
+                clearCanvas('pdf-canvas-charte-right');
+            } else {
+                await renderPageCharte(pages[0], 'pdf-canvas-charte-left');
+                await renderPageCharte(pages[1], 'pdf-canvas-charte-right');
+                canvasLeft.classList.remove('single');
+                canvasRight.classList.remove('single');
+            }
+
+            updateControlsCharte();
+        }
+
+        async function renderPageCharte(pageNum, canvasId) {
+            const page = await pdfDocCharte.getPage(pageNum);
+            const canvas = document.getElementById(canvasId);
+            const context = canvas.getContext('2d');
+            
+            const viewport = page.getViewport({ scale: 1.2 });
+            
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            canvas.style.display = 'block';
+            
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+            
+            await page.render(renderContext).promise;
+        }
+
+        function updateControlsCharte() {
+            const pages = getPagesForSpreadCharte(currentSpreadCharte);
+            const totalSpreads = getTotalSpreadsCharte();
+            
+            if (pages.length === 1) {
+                document.getElementById('currentPageCharte').textContent = `${pages[0]}`;
+            } else {
+                document.getElementById('currentPageCharte').textContent = `${pages[0]}-${pages[1]}`;
+            }
+            
+            document.getElementById('totalPagesCharte').textContent = totalSpreads;
+            
+            document.getElementById('prevBtnCharte').disabled = currentSpreadCharte === 0;
+            document.getElementById('nextBtnCharte').disabled = currentSpreadCharte >= totalSpreads - 1;
+        }
+
+        function previousPageCharte() {
+            if (currentSpreadCharte > 0) {
+                currentSpreadCharte--;
+                renderSpreadCharte();
+            }
+        }
+
+        function nextPageCharte() {
+            const totalSpreads = getTotalSpreadsCharte();
+            if (currentSpreadCharte < totalSpreads - 1) {
+                currentSpreadCharte++;
+                renderSpreadCharte();
+            }
+        }
+
+        // Fonction utilitaire pour effacer un canvas
+        function clearCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            canvas.style.display = 'none';
         }
 
         // Animation au scroll
