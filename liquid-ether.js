@@ -54,217 +54,7 @@
     const paletteTex = makePaletteTexture(colors);
     const bgVec4 = new THREE.Vector4(0, 0, 0, 0);
 
-    class Simulation {
-        constructor(options) {
-            this.options = {
-                iterations_poisson: options.iterations_poisson || 32,
-                iterations_viscous: options.iterations_viscous || 32,
-                mouse_force: options.mouse_force || 20,
-                resolution: options.resolution || 0.5,
-                cursor_size: options.cursor_size || 100,
-                viscous: options.viscous || 30,
-                isBounce: options.isBounce || false,
-                dt: options.dt || 0.014,
-                isViscous: options.isViscous || false,
-                BFECC: options.BFECC !== undefined ? options.BFECC : true
-            };
-            this.cellScale = new THREE.Vector2();
-            this.fboSize = new THREE.Vector2();
-            this.boundarySpace = new THREE.Vector2();
-            const fboSize = this.calcFBOSize(this.options.resolution);
-            this.fboSize.set(fboSize.width, fboSize.height);
-            const cellScale = this.calcCellScale(this.fboSize);
-            this.cellScale.set(cellScale.x, cellScale.y);
-            this.boundarySpace.copy(this.cellScale);
-            this.createAllFBO();
-            this.advection = new Advection({
-                cellScale: this.cellScale,
-                fboSize: this.fboSize,
-                dt: this.options.dt,
-                src: this.fbo.vel_0,
-                dst: this.fbo.vel_1
-            });
-            this.externalForce = new ExternalForce({
-                cellScale: this.cellScale,
-                cursor_size: this.options.cursor_size,
-                dst: this.fbo.vel_1
-            });
-            if (this.options.isViscous) {
-                this.viscous = new Viscous({
-                    cellScale: this.cellScale,
-                    boundarySpace: this.boundarySpace,
-                    viscous: this.options.viscous,
-                    src: this.fbo.vel_1,
-                    dst: this.fbo.vel_viscous_0,
-                    dst_: this.fbo.vel_viscous_1,
-                    dt: this.options.dt
-                });
-            }
-            this.divergence = new Divergence({
-                cellScale: this.cellScale,
-                boundarySpace: this.boundarySpace,
-                src: this.options.isViscous ? this.fbo.vel_viscous_0 : this.fbo.vel_1,
-                dst: this.fbo.div,
-                dt: this.options.dt
-            });
-            this.poisson = new Poisson({
-                cellScale: this.cellScale,
-                boundarySpace: this.boundarySpace,
-                src: this.fbo.div,
-                dst: this.fbo.pressure_0,
-                dst_: this.fbo.pressure_1
-            });
-            this.pressure = new Pressure({
-                cellScale: this.cellScale,
-                boundarySpace: this.boundarySpace,
-                src_p: this.fbo.pressure_0,
-                src_v: this.options.isViscous ? this.fbo.vel_viscous_0 : this.fbo.vel_1,
-                dst: this.fbo.vel_0,
-                dt: this.options.dt
-            });
-            this.outputColor = new ShaderPass({
-                material: {
-                    vertexShader: face_vert,
-                    fragmentShader: color_frag,
-                    uniforms: {
-                        boundarySpace: { value: new THREE.Vector2() },
-                        px: { value: this.cellScale },
-                        velocity: { value: this.fbo.vel_0.texture },
-                        palette: { value: paletteTex },
-                        bgColor: { value: bgVec4 }
-                    }
-                },
-                output: null
-            });
-            this.outputColor.init();
-        }
-        calcFBOSize(resolution) {
-            const width = Math.round(Common.width * resolution);
-            const height = Math.round(Common.height * resolution);
-            return { width: Math.max(width, 1), height: Math.max(height, 1) };
-        }
-        calcCellScale(fboSize) {
-            const x = 1.0 / fboSize.x;
-            const y = 1.0 / fboSize.y;
-            return { x, y };
-        }
-        createAllFBO() {
-            const type = THREE.HalfFloatType;
-            this.fbo = {
-                vel_0: this.createFBO(type),
-                vel_1: this.createFBO(type),
-                vel_viscous_0: this.createFBO(type),
-                vel_viscous_1: this.createFBO(type),
-                div: this.createFBO(type),
-                pressure_0: this.createFBO(type),
-                pressure_1: this.createFBO(type)
-            };
-        }
-        createFBO(type) {
-            return new THREE.WebGLRenderTarget(this.fboSize.x, this.fboSize.y, {
-                type: type,
-                minFilter: THREE.LinearFilter,
-                magFilter: THREE.LinearFilter,
-                stencilBuffer: false,
-                depthBuffer: false
-            });
-        }
-        resize() {
-            const fboSize = this.calcFBOSize(this.options.resolution);
-            this.fboSize.set(fboSize.width, fboSize.height);
-            for (const key in this.fbo) {
-                this.fbo[key].setSize(this.fboSize.x, this.fboSize.y);
-            }
-            const cellScale = this.calcCellScale(this.fboSize);
-            this.cellScale.set(cellScale.x, cellScale.y);
-            this.boundarySpace.copy(this.cellScale);
-            if (this.advection) this.advection.uniforms.fboSize.value = this.fboSize;
-        }
-        update() {
-            this.advection.update({
-                dt: this.options.dt,
-                isBounce: this.options.isBounce,
-                BFECC: this.options.BFECC
-            });
-            this.externalForce.update({
-                mouse_force: this.options.mouse_force,
-                cursor_size: this.options.cursor_size,
-                cellScale: this.cellScale
-            });
-            if (this.options.isViscous) {
-                const vel_viscous = this.viscous.update({
-                    viscous: this.options.viscous,
-                    iterations: this.options.iterations_viscous,
-                    dt: this.options.dt
-                });
-                this.divergence.update({ vel: vel_viscous });
-            } else {
-                this.divergence.update({ vel: this.fbo.vel_1 });
-            }
-            const pressure = this.poisson.update({
-                iterations: this.options.iterations_poisson
-            });
-            this.pressure.update({
-                vel: this.options.isViscous ? this.fbo.vel_viscous_0 : this.fbo.vel_1,
-                pressure: pressure
-            });
-            this.outputColor.update();
-        }
-    }
-
-    class InteractionManager {
-        constructor() {
-            this.lastUserInteraction = performance.now();
-        }
-        recordInteraction() {
-            this.lastUserInteraction = performance.now();
-        }
-    }
-
-    const manager = new InteractionManager();
-    Mouse.onInteract = () => manager.recordInteraction();
-
-    Common.init(mountRef);
-    mountRef.appendChild(Common.renderer.domElement);
-    Mouse.init(mountRef);
-
-    const sim = new Simulation({
-        iterations_poisson: iterationsPoisson,
-        iterations_viscous: iterationsViscous,
-        mouse_force: mouseForce,
-        resolution: resolution,
-        cursor_size: cursorSize,
-        viscous: viscous,
-        isBounce: isBounce,
-        dt: dt,
-        isViscous: isViscous,
-        BFECC: BFECC
-    });
-
-    const autoDriver = new AutoDriver(Mouse, manager, {
-        enabled: autoDemo,
-        speed: autoSpeed,
-        resumeDelay: autoResumeDelay,
-        rampDuration: autoRampDuration
-    });
-
-    Mouse.autoIntensity = autoIntensity;
-
-    function onResize() {
-        Common.resize();
-        sim.resize();
-    }
-    window.addEventListener('resize', onResize);
-
-    function animate() {
-        requestAnimationFrame(animate);
-        Common.update();
-        autoDriver.update();
-        Mouse.update();
-        sim.update();
-    }
-    animate();
-})(); CommonClass {
+    class CommonClass {
         constructor() {
             this.width = 0;
             this.height = 0;
@@ -909,4 +699,214 @@ gl_FragColor = vec4(newv, 0.0, 0.0);
         }
     }
 
-    class
+    class Simulation {
+        constructor(options) {
+            this.options = {
+                iterations_poisson: options.iterations_poisson || 32,
+                iterations_viscous: options.iterations_viscous || 32,
+                mouse_force: options.mouse_force || 20,
+                resolution: options.resolution || 0.5,
+                cursor_size: options.cursor_size || 100,
+                viscous: options.viscous || 30,
+                isBounce: options.isBounce || false,
+                dt: options.dt || 0.014,
+                isViscous: options.isViscous || false,
+                BFECC: options.BFECC !== undefined ? options.BFECC : true
+            };
+            this.cellScale = new THREE.Vector2();
+            this.fboSize = new THREE.Vector2();
+            this.boundarySpace = new THREE.Vector2();
+            const fboSize = this.calcFBOSize(this.options.resolution);
+            this.fboSize.set(fboSize.width, fboSize.height);
+            const cellScale = this.calcCellScale(this.fboSize);
+            this.cellScale.set(cellScale.x, cellScale.y);
+            this.boundarySpace.copy(this.cellScale);
+            this.createAllFBO();
+            this.advection = new Advection({
+                cellScale: this.cellScale,
+                fboSize: this.fboSize,
+                dt: this.options.dt,
+                src: this.fbo.vel_0,
+                dst: this.fbo.vel_1
+            });
+            this.externalForce = new ExternalForce({
+                cellScale: this.cellScale,
+                cursor_size: this.options.cursor_size,
+                dst: this.fbo.vel_1
+            });
+            if (this.options.isViscous) {
+                this.viscous = new Viscous({
+                    cellScale: this.cellScale,
+                    boundarySpace: this.boundarySpace,
+                    viscous: this.options.viscous,
+                    src: this.fbo.vel_1,
+                    dst: this.fbo.vel_viscous_0,
+                    dst_: this.fbo.vel_viscous_1,
+                    dt: this.options.dt
+                });
+            }
+            this.divergence = new Divergence({
+                cellScale: this.cellScale,
+                boundarySpace: this.boundarySpace,
+                src: this.options.isViscous ? this.fbo.vel_viscous_0 : this.fbo.vel_1,
+                dst: this.fbo.div,
+                dt: this.options.dt
+            });
+            this.poisson = new Poisson({
+                cellScale: this.cellScale,
+                boundarySpace: this.boundarySpace,
+                src: this.fbo.div,
+                dst: this.fbo.pressure_0,
+                dst_: this.fbo.pressure_1
+            });
+            this.pressure = new Pressure({
+                cellScale: this.cellScale,
+                boundarySpace: this.boundarySpace,
+                src_p: this.fbo.pressure_0,
+                src_v: this.options.isViscous ? this.fbo.vel_viscous_0 : this.fbo.vel_1,
+                dst: this.fbo.vel_0,
+                dt: this.options.dt
+            });
+            this.outputColor = new ShaderPass({
+                material: {
+                    vertexShader: face_vert,
+                    fragmentShader: color_frag,
+                    uniforms: {
+                        boundarySpace: { value: new THREE.Vector2() },
+                        px: { value: this.cellScale },
+                        velocity: { value: this.fbo.vel_0.texture },
+                        palette: { value: paletteTex },
+                        bgColor: { value: bgVec4 }
+                    }
+                },
+                output: null
+            });
+            this.outputColor.init();
+        }
+        calcFBOSize(resolution) {
+            const width = Math.round(Common.width * resolution);
+            const height = Math.round(Common.height * resolution);
+            return { width: Math.max(width, 1), height: Math.max(height, 1) };
+        }
+        calcCellScale(fboSize) {
+            const x = 1.0 / fboSize.x;
+            const y = 1.0 / fboSize.y;
+            return { x, y };
+        }
+        createAllFBO() {
+            const type = THREE.HalfFloatType;
+            this.fbo = {
+                vel_0: this.createFBO(type),
+                vel_1: this.createFBO(type),
+                vel_viscous_0: this.createFBO(type),
+                vel_viscous_1: this.createFBO(type),
+                div: this.createFBO(type),
+                pressure_0: this.createFBO(type),
+                pressure_1: this.createFBO(type)
+            };
+        }
+        createFBO(type) {
+            return new THREE.WebGLRenderTarget(this.fboSize.x, this.fboSize.y, {
+                type: type,
+                minFilter: THREE.LinearFilter,
+                magFilter: THREE.LinearFilter,
+                stencilBuffer: false,
+                depthBuffer: false
+            });
+        }
+        resize() {
+            const fboSize = this.calcFBOSize(this.options.resolution);
+            this.fboSize.set(fboSize.width, fboSize.height);
+            for (const key in this.fbo) {
+                this.fbo[key].setSize(this.fboSize.x, this.fboSize.y);
+            }
+            const cellScale = this.calcCellScale(this.fboSize);
+            this.cellScale.set(cellScale.x, cellScale.y);
+            this.boundarySpace.copy(this.cellScale);
+            if (this.advection) this.advection.uniforms.fboSize.value = this.fboSize;
+        }
+        update() {
+            this.advection.update({
+                dt: this.options.dt,
+                isBounce: this.options.isBounce,
+                BFECC: this.options.BFECC
+            });
+            this.externalForce.update({
+                mouse_force: this.options.mouse_force,
+                cursor_size: this.options.cursor_size,
+                cellScale: this.cellScale
+            });
+            if (this.options.isViscous) {
+                const vel_viscous = this.viscous.update({
+                    viscous: this.options.viscous,
+                    iterations: this.options.iterations_viscous,
+                    dt: this.options.dt
+                });
+                this.divergence.update({ vel: vel_viscous });
+            } else {
+                this.divergence.update({ vel: this.fbo.vel_1 });
+            }
+            const pressure = this.poisson.update({
+                iterations: this.options.iterations_poisson
+            });
+            this.pressure.update({
+                vel: this.options.isViscous ? this.fbo.vel_viscous_0 : this.fbo.vel_1,
+                pressure: pressure
+            });
+            this.outputColor.update();
+        }
+    }
+
+    class InteractionManager {
+        constructor() {
+            this.lastUserInteraction = performance.now();
+        }
+        recordInteraction() {
+            this.lastUserInteraction = performance.now();
+        }
+    }
+
+    const manager = new InteractionManager();
+    Mouse.onInteract = () => manager.recordInteraction();
+
+    Common.init(mountRef);
+    mountRef.appendChild(Common.renderer.domElement);
+    Mouse.init(mountRef);
+
+    const sim = new Simulation({
+        iterations_poisson: iterationsPoisson,
+        iterations_viscous: iterationsViscous,
+        mouse_force: mouseForce,
+        resolution: resolution,
+        cursor_size: cursorSize,
+        viscous: viscous,
+        isBounce: isBounce,
+        dt: dt,
+        isViscous: isViscous,
+        BFECC: BFECC
+    });
+
+    const autoDriver = new AutoDriver(Mouse, manager, {
+        enabled: autoDemo,
+        speed: autoSpeed,
+        resumeDelay: autoResumeDelay,
+        rampDuration: autoRampDuration
+    });
+
+    Mouse.autoIntensity = autoIntensity;
+
+    function onResize() {
+        Common.resize();
+        sim.resize();
+    }
+    window.addEventListener('resize', onResize);
+
+    function animate() {
+        requestAnimationFrame(animate);
+        Common.update();
+        autoDriver.update();
+        Mouse.update();
+        sim.update();
+    }
+    animate();
+})();
