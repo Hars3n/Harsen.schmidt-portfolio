@@ -5,8 +5,8 @@
 
     const mouseForce = 6;
     const cursorSize = 50;
-    const isViscous = false;
-    const viscous = 20;
+    const isViscous = true;
+    const viscous = 50;
     const iterationsViscous = 25;
     const iterationsPoisson = 25;
     const dt = 0.012;
