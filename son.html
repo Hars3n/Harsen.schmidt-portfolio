@@ -38,7 +38,7 @@
             justify-content: space-between;
             align-items: center;
             z-index: 1000;
-            background: rgba(26, 26, 26, 0.8);
+            background: rgba(26, 26, 26, 0.95);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -156,18 +156,25 @@
         .binary-display {
             flex: 1;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            line-height: 1.6;
-            text-align: center;
-            padding: 40px;
+            align-items: flex-start;
+            justify-content: flex-start;
+            font-size: 20px;
+            line-height: 1.4;
+            padding: 30px;
             overflow: hidden;
-            letter-spacing: 4px;
+            letter-spacing: 3px;
             background: rgba(255, 255, 255, 0.02);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 0, 51, 0.2);
             box-shadow: inset 0 0 40px rgba(255, 0, 51, 0.05);
+            position: relative;
+        }
+
+        .binary-content {
+            width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
         }
 
         .waterfall-container {
@@ -178,6 +185,7 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 0, 51, 0.2);
             box-shadow: inset 0 0 40px rgba(255, 0, 51, 0.05);
+            overflow: hidden;
         }
 
         .waterfall-container.active {
@@ -187,7 +195,7 @@
         canvas {
             width: 100%;
             height: 100%;
-            image-rendering: pixelated;
+            display: block;
         }
 
         .info {
@@ -256,7 +264,7 @@
             }
 
             .binary-display {
-                font-size: 20px;
+                font-size: 16px;
                 padding: 20px;
                 letter-spacing: 2px;
             }
@@ -289,7 +297,7 @@
         <div class="frequency-bar" id="frequencyBar"></div>
 
         <div class="binary-display" id="binaryDisplay">
-            <div>CHARGEZ UN FICHIER AUDIO POUR COMMENCER</div>
+            <div class="binary-content" id="binaryContent">CHARGEZ UN FICHIER AUDIO POUR COMMENCER</div>
         </div>
 
         <div class="waterfall-container" id="waterfallContainer">
@@ -310,6 +318,7 @@
         const stopBtn = document.getElementById('stopBtn');
         const modeBtn = document.getElementById('modeBtn');
         const binaryDisplay = document.getElementById('binaryDisplay');
+        const binaryContent = document.getElementById('binaryContent');
         const waterfallContainer = document.getElementById('waterfallContainer');
         const waterfallCanvas = document.getElementById('waterfallCanvas');
         const info = document.getElementById('info');
@@ -319,8 +328,8 @@
         let animationId;
         let isWaterfallMode = false;
         let waterfallCtx;
-        let waterfallImageData;
-        let waterfallHeight = 0;
+        let binaryStream = '';
+        let maxBinaryLength = 10000;
 
         uploadZone.addEventListener('click', () => fileInput.click());
         
@@ -360,7 +369,8 @@
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioContext.createAnalyser();
-                analyser.fftSize = 2048;
+                analyser.fftSize = 512;
+                analyser.smoothingTimeConstant = 0.8;
                 bufferLength = analyser.frequencyBinCount;
                 dataArray = new Uint8Array(bufferLength);
 
@@ -394,7 +404,8 @@
             cancelAnimationFrame(animationId);
             animationId = null;
             frequencyBar.classList.remove('active');
-            binaryDisplay.innerHTML = '<div>AUDIO ARRÊTÉ</div>';
+            binaryStream = '';
+            binaryContent.innerHTML = 'AUDIO ARRÊTÉ';
         });
 
         modeBtn.addEventListener('click', () => {
@@ -425,32 +436,46 @@
 
             analyser.getByteFrequencyData(dataArray);
 
-            const step = Math.floor(bufferLength / 80);
-            let binaryString = '';
-
-            for (let i = 0; i < 80; i++) {
+            // Générer de nouveaux bits binaires basés sur les fréquences
+            let newBits = '';
+            const step = Math.floor(bufferLength / 8);
+            
+            for (let i = 0; i < 8; i++) {
                 const value = dataArray[i * step];
                 const binary = value > 128 ? '1' : '0';
-                
                 const weight = Math.floor((value / 255) * 800) + 100;
-                const opacity = (value / 255) * 0.5 + 0.5;
+                const opacity = (value / 255) * 0.4 + 0.6;
                 
-                binaryString += `<span style="font-weight: ${weight}; opacity: ${opacity}; transition: all 0.1s ease;">${binary}</span>`;
-                
-                if ((i + 1) % 20 === 0) binaryString += '<br>';
+                newBits += `<span style="font-weight: ${weight}; opacity: ${opacity};">${binary}</span>`;
             }
 
-            binaryDisplay.innerHTML = binaryString;
+            // Ajouter les nouveaux bits au flux
+            binaryStream += newBits;
+
+            // Limiter la longueur pour éviter les problèmes de performance
+            if (binaryStream.length > maxBinaryLength * 100) {
+                binaryStream = binaryStream.slice(-maxBinaryLength * 50);
+            }
+
+            binaryContent.innerHTML = binaryStream;
+
+            // Auto-scroll vers le bas
+            binaryDisplay.scrollTop = binaryDisplay.scrollHeight;
 
             animationId = requestAnimationFrame(animateBinary);
         }
 
         function initWaterfall() {
-            waterfallCanvas.width = waterfallContainer.clientWidth;
-            waterfallCanvas.height = waterfallContainer.clientHeight;
-            waterfallHeight = waterfallCanvas.height;
+            const dpr = window.devicePixelRatio || 1;
+            waterfallCanvas.width = waterfallContainer.clientWidth * dpr;
+            waterfallCanvas.height = waterfallContainer.clientHeight * dpr;
+            waterfallCanvas.style.width = waterfallContainer.clientWidth + 'px';
+            waterfallCanvas.style.height = waterfallContainer.clientHeight + 'px';
+            
             waterfallCtx = waterfallCanvas.getContext('2d');
-            waterfallImageData = waterfallCtx.createImageData(waterfallCanvas.width, waterfallCanvas.height);
+            waterfallCtx.scale(dpr, dpr);
+            waterfallCtx.fillStyle = '#000';
+            waterfallCtx.fillRect(0, 0, waterfallCanvas.width, waterfallCanvas.height);
         }
 
         function animateWaterfall() {
@@ -458,35 +483,54 @@
 
             analyser.getByteFrequencyData(dataArray);
 
-            const imageData = waterfallCtx.getImageData(0, 0, waterfallCanvas.width, waterfallCanvas.height - 1);
+            const width = waterfallContainer.clientWidth;
+            const height = waterfallContainer.clientHeight;
+
+            // Décaler l'image existante vers le bas
+            const imageData = waterfallCtx.getImageData(0, 0, width, height - 1);
             waterfallCtx.putImageData(imageData, 0, 1);
 
-            const step = bufferLength / waterfallCanvas.width;
-            
-            for (let i = 0; i < waterfallCanvas.width; i++) {
-                const value = dataArray[Math.floor(i * step)];
+            // Dessiner la nouvelle ligne de fréquences en haut
+            for (let x = 0; x < width; x++) {
+                const index = Math.floor((x / width) * bufferLength);
+                const value = dataArray[index];
                 
+                // Palette de couleurs optimisée pour les fréquences radio
                 let r, g, b;
-                if (value < 64) {
-                    r = 0; 
-                    g = 0; 
-                    b = value * 4;
-                } else if (value < 128) {
-                    r = (value - 64) * 2; 
-                    g = (value - 64) * 3; 
-                    b = 255 - (value - 64) * 2;
-                } else if (value < 192) {
-                    r = 128 + (value - 128) * 2; 
-                    g = 192 + (value - 128); 
-                    b = (192 - value) * 2;
+                
+                if (value < 50) {
+                    // Très faible : bleu foncé
+                    r = 0;
+                    g = 0;
+                    b = Math.floor(value * 2);
+                } else if (value < 100) {
+                    // Faible : bleu vers cyan
+                    const t = (value - 50) / 50;
+                    r = 0;
+                    g = Math.floor(t * 150);
+                    b = 100 + Math.floor(t * 155);
+                } else if (value < 150) {
+                    // Moyen : cyan vers vert
+                    const t = (value - 100) / 50;
+                    r = 0;
+                    g = 150 + Math.floor(t * 105);
+                    b = 255 - Math.floor(t * 255);
+                } else if (value < 200) {
+                    // Fort : vert vers jaune
+                    const t = (value - 150) / 50;
+                    r = Math.floor(t * 255);
+                    g = 255;
+                    b = 0;
                 } else {
-                    r = 255; 
-                    g = 255 - (value - 192) * 3; 
+                    // Très fort : jaune vers rouge
+                    const t = (value - 200) / 55;
+                    r = 255;
+                    g = 255 - Math.floor(t * 255);
                     b = 0;
                 }
 
                 waterfallCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-                waterfallCtx.fillRect(i, 0, 1, 1);
+                waterfallCtx.fillRect(x, 0, 1, 1);
             }
 
             animationId = requestAnimationFrame(animateWaterfall);
