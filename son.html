@@ -315,10 +315,6 @@
             <canvas id="waterfallCanvas"></canvas>
         </div>
 
-        <div class="waterfall-container" id="particlesContainer">
-            <canvas id="particlesCanvas"></canvas>
-        </div>
-
         <div class="waterfall-container" id="sonogram3dContainer">
             <canvas id="sonogram3dCanvas"></canvas>
         </div>
@@ -341,8 +337,6 @@
         const binaryContent = document.getElementById('binaryContent');
         const waterfallContainer = document.getElementById('waterfallContainer');
         const waterfallCanvas = document.getElementById('waterfallCanvas');
-        const particlesContainer = document.getElementById('particlesContainer');
-        const particlesCanvas = document.getElementById('particlesCanvas');
         const sonogram3dContainer = document.getElementById('sonogram3dContainer');
         const sonogram3dCanvas = document.getElementById('sonogram3dCanvas');
         const info = document.getElementById('info');
@@ -350,14 +344,13 @@
 
         let audioContext, analyser, source, dataArray, bufferLength;
         let animationId;
-        let currentMode = 0; // 0: binary, 1: waterfall, 2: particles, 3: sonogram3d
-        let waterfallCtx, particlesCtx, sonogram3dCtx;
+        let currentMode = 0; // 0: binary, 1: waterfall, 2: sonogram3d
+        let waterfallCtx, sonogram3dCtx;
         let binaryStream = '';
         let maxBinaryLength = 10000;
         let playbackSpeed = 1;
         let waterfallImageData;
         let waterfallHeight = 0;
-        let particles = [];
         let sonogram3dHistory = [];
 
         uploadZone.addEventListener('click', () => fileInput.click());
@@ -471,10 +464,6 @@
                     animateWaterfall();
                     break;
                 case 2:
-                    initParticles();
-                    animateParticles();
-                    break;
-                case 3:
                     initSonogram3D();
                     animateSonogram3D();
                     break;
@@ -482,14 +471,13 @@
         }
 
         modeBtn.addEventListener('click', () => {
-            currentMode = (currentMode + 1) % 4;
+            currentMode = (currentMode + 1) % 3;
             cancelAnimationFrame(animationId);
             animationId = null;
             
             // Cacher tous les containers
             binaryDisplay.style.display = 'none';
             waterfallContainer.classList.remove('active');
-            particlesContainer.classList.remove('active');
             sonogram3dContainer.classList.remove('active');
             
             // Afficher le container approprié
@@ -501,14 +489,9 @@
                 case 1:
                     waterfallContainer.classList.add('active');
                     initWaterfall();
-                    modeBtn.textContent = 'MODE PARTICULES';
-                    break;
-                case 2:
-                    particlesContainer.classList.add('active');
-                    initParticles();
                     modeBtn.textContent = 'MODE SONOGRAMME 3D';
                     break;
-                case 3:
+                case 2:
                     sonogram3dContainer.classList.add('active');
                     initSonogram3D();
                     modeBtn.textContent = 'MODE BINAIRE';
@@ -601,93 +584,6 @@
             animationId = requestAnimationFrame(animateWaterfall);
         }
 
-        // Mode Particules
-        class Particle {
-            constructor(x, y, frequency, amplitude) {
-                this.x = x;
-                this.y = y;
-                this.baseX = x;
-                this.baseY = y;
-                this.frequency = frequency;
-                this.amplitude = amplitude;
-                this.size = Math.max(2, (amplitude / 255) * 15);
-                this.speedX = (Math.random() - 0.5) * 2;
-                this.speedY = (Math.random() - 0.5) * 2;
-                this.life = 1;
-                this.decay = 0.005 + (frequency / bufferLength) * 0.01;
-                
-                // Couleur basée sur la fréquence
-                const hue = (frequency / bufferLength) * 360;
-                this.color = `hsl(${hue}, 100%, 50%)`;
-            }
-
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                this.life -= this.decay;
-                this.size *= 0.99;
-            }
-
-            draw(ctx) {
-                ctx.globalAlpha = this.life;
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.globalAlpha = 1;
-            }
-
-            isDead() {
-                return this.life <= 0 || this.size < 0.5;
-            }
-        }
-
-        function initParticles() {
-            particlesCanvas.width = particlesContainer.clientWidth;
-            particlesCanvas.height = particlesContainer.clientHeight;
-            particlesCtx = particlesCanvas.getContext('2d');
-            particles = [];
-        }
-
-        function animateParticles() {
-            if (!analyser) return;
-
-            analyser.getByteFrequencyData(dataArray);
-
-            particlesCtx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-            particlesCtx.fillRect(0, 0, particlesCanvas.width, particlesCanvas.height);
-
-            const centerX = particlesCanvas.width / 2;
-            const centerY = particlesCanvas.height / 2;
-
-            // Créer de nouvelles particules basées sur les fréquences
-            for (let i = 0; i < bufferLength; i += 8) {
-                const value = dataArray[i];
-                if (value > 50) {
-                    const angle = (i / bufferLength) * Math.PI * 2;
-                    const distance = (value / 255) * 100;
-                    const x = centerX + Math.cos(angle) * distance;
-                    const y = centerY + Math.sin(angle) * distance;
-                    
-                    particles.push(new Particle(x, y, i, value));
-                }
-            }
-
-            // Mettre à jour et dessiner les particules
-            particles = particles.filter(p => {
-                p.update();
-                p.draw(particlesCtx);
-                return !p.isDead();
-            });
-
-            // Limiter le nombre de particules pour les performances
-            if (particles.length > 500) {
-                particles = particles.slice(-500);
-            }
-
-            animationId = requestAnimationFrame(animateParticles);
-        }
-
         // Mode Sonogramme 3D
         function initSonogram3D() {
             sonogram3dCanvas.width = sonogram3dContainer.clientWidth;
@@ -758,10 +654,7 @@
             if (waterfallCtx && currentMode === 1) {
                 initWaterfall();
             }
-            if (particlesCtx && currentMode === 2) {
-                initParticles();
-            }
-            if (sonogram3dCtx && currentMode === 3) {
+            if (sonogram3dCtx && currentMode === 2) {
                 initSonogram3D();
             }
         });
