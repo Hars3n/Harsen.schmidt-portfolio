@@ -302,7 +302,7 @@
             <button id="pauseBtn" disabled>⏸ PAUSE</button>
             <button id="stopBtn" disabled>⏹ STOP</button>
             <button id="speedBtn" class="speed-toggle" disabled>VITESSE x1</button>
-            <button id="modeBtn" class="mode-toggle" disabled>MODE RADIO / WATERFALL</button>
+            <button id="modeBtn" class="mode-toggle" disabled>CHANGER MODE</button>
         </div>
 
         <div class="frequency-bar" id="frequencyBar"></div>
@@ -313,6 +313,14 @@
 
         <div class="waterfall-container" id="waterfallContainer">
             <canvas id="waterfallCanvas"></canvas>
+        </div>
+
+        <div class="waterfall-container" id="particlesContainer">
+            <canvas id="particlesCanvas"></canvas>
+        </div>
+
+        <div class="waterfall-container" id="sonogram3dContainer">
+            <canvas id="sonogram3dCanvas"></canvas>
         </div>
 
         <div class="info" id="info">Prêt</div>
@@ -333,18 +341,24 @@
         const binaryContent = document.getElementById('binaryContent');
         const waterfallContainer = document.getElementById('waterfallContainer');
         const waterfallCanvas = document.getElementById('waterfallCanvas');
+        const particlesContainer = document.getElementById('particlesContainer');
+        const particlesCanvas = document.getElementById('particlesCanvas');
+        const sonogram3dContainer = document.getElementById('sonogram3dContainer');
+        const sonogram3dCanvas = document.getElementById('sonogram3dCanvas');
         const info = document.getElementById('info');
         const frequencyBar = document.getElementById('frequencyBar');
 
         let audioContext, analyser, source, dataArray, bufferLength;
         let animationId;
-        let isWaterfallMode = false;
-        let waterfallCtx;
+        let currentMode = 0; // 0: binary, 1: waterfall, 2: particles, 3: sonogram3d
+        let waterfallCtx, particlesCtx, sonogram3dCtx;
         let binaryStream = '';
         let maxBinaryLength = 10000;
         let playbackSpeed = 1;
         let waterfallImageData;
         let waterfallHeight = 0;
+        let particles = [];
+        let sonogram3dHistory = [];
 
         uploadZone.addEventListener('click', () => fileInput.click());
         
@@ -399,12 +413,7 @@
             audio.play();
             frequencyBar.classList.add('active');
             if (!animationId) {
-                if (isWaterfallMode) {
-                    initWaterfall();
-                    animateWaterfall();
-                } else {
-                    animateBinary();
-                }
+                startCurrentMode();
             }
         });
 
@@ -443,12 +452,7 @@
                     audio.play();
                     frequencyBar.classList.add('active');
                     if (!animationId) {
-                        if (isWaterfallMode) {
-                            initWaterfall();
-                            animateWaterfall();
-                        } else {
-                            animateBinary();
-                        }
+                        startCurrentMode();
                     }
                 } else {
                     audio.pause();
@@ -457,26 +461,62 @@
             }
         });
 
-        modeBtn.addEventListener('click', () => {
-            isWaterfallMode = !isWaterfallMode;
-            
-            if (isWaterfallMode) {
-                binaryDisplay.style.display = 'none';
-                waterfallContainer.classList.add('active');
-                modeBtn.textContent = 'MODE BINAIRE';
-                if (!audio.paused) {
-                    cancelAnimationFrame(animationId);
+        function startCurrentMode() {
+            switch(currentMode) {
+                case 0:
+                    animateBinary();
+                    break;
+                case 1:
                     initWaterfall();
                     animateWaterfall();
-                }
-            } else {
-                binaryDisplay.style.display = 'flex';
-                waterfallContainer.classList.remove('active');
-                modeBtn.textContent = 'MODE RADIO / WATERFALL';
-                if (!audio.paused) {
-                    cancelAnimationFrame(animationId);
-                    animateBinary();
-                }
+                    break;
+                case 2:
+                    initParticles();
+                    animateParticles();
+                    break;
+                case 3:
+                    initSonogram3D();
+                    animateSonogram3D();
+                    break;
+            }
+        }
+
+        modeBtn.addEventListener('click', () => {
+            currentMode = (currentMode + 1) % 4;
+            cancelAnimationFrame(animationId);
+            animationId = null;
+            
+            // Cacher tous les containers
+            binaryDisplay.style.display = 'none';
+            waterfallContainer.classList.remove('active');
+            particlesContainer.classList.remove('active');
+            sonogram3dContainer.classList.remove('active');
+            
+            // Afficher le container approprié
+            switch(currentMode) {
+                case 0:
+                    binaryDisplay.style.display = 'flex';
+                    modeBtn.textContent = 'MODE WATERFALL';
+                    break;
+                case 1:
+                    waterfallContainer.classList.add('active');
+                    initWaterfall();
+                    modeBtn.textContent = 'MODE PARTICULES';
+                    break;
+                case 2:
+                    particlesContainer.classList.add('active');
+                    initParticles();
+                    modeBtn.textContent = 'MODE SONOGRAMME 3D';
+                    break;
+                case 3:
+                    sonogram3dContainer.classList.add('active');
+                    initSonogram3D();
+                    modeBtn.textContent = 'MODE BINAIRE';
+                    break;
+            }
+            
+            if (!audio.paused) {
+                startCurrentMode();
             }
         });
 
@@ -561,9 +601,168 @@
             animationId = requestAnimationFrame(animateWaterfall);
         }
 
+        // Mode Particules
+        class Particle {
+            constructor(x, y, frequency, amplitude) {
+                this.x = x;
+                this.y = y;
+                this.baseX = x;
+                this.baseY = y;
+                this.frequency = frequency;
+                this.amplitude = amplitude;
+                this.size = Math.max(2, (amplitude / 255) * 15);
+                this.speedX = (Math.random() - 0.5) * 2;
+                this.speedY = (Math.random() - 0.5) * 2;
+                this.life = 1;
+                this.decay = 0.005 + (frequency / bufferLength) * 0.01;
+                
+                // Couleur basée sur la fréquence
+                const hue = (frequency / bufferLength) * 360;
+                this.color = `hsl(${hue}, 100%, 50%)`;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= this.decay;
+                this.size *= 0.99;
+            }
+
+            draw(ctx) {
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+
+            isDead() {
+                return this.life <= 0 || this.size < 0.5;
+            }
+        }
+
+        function initParticles() {
+            particlesCanvas.width = particlesContainer.clientWidth;
+            particlesCanvas.height = particlesContainer.clientHeight;
+            particlesCtx = particlesCanvas.getContext('2d');
+            particles = [];
+        }
+
+        function animateParticles() {
+            if (!analyser) return;
+
+            analyser.getByteFrequencyData(dataArray);
+
+            particlesCtx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            particlesCtx.fillRect(0, 0, particlesCanvas.width, particlesCanvas.height);
+
+            const centerX = particlesCanvas.width / 2;
+            const centerY = particlesCanvas.height / 2;
+
+            // Créer de nouvelles particules basées sur les fréquences
+            for (let i = 0; i < bufferLength; i += 8) {
+                const value = dataArray[i];
+                if (value > 50) {
+                    const angle = (i / bufferLength) * Math.PI * 2;
+                    const distance = (value / 255) * 100;
+                    const x = centerX + Math.cos(angle) * distance;
+                    const y = centerY + Math.sin(angle) * distance;
+                    
+                    particles.push(new Particle(x, y, i, value));
+                }
+            }
+
+            // Mettre à jour et dessiner les particules
+            particles = particles.filter(p => {
+                p.update();
+                p.draw(particlesCtx);
+                return !p.isDead();
+            });
+
+            // Limiter le nombre de particules pour les performances
+            if (particles.length > 500) {
+                particles = particles.slice(-500);
+            }
+
+            animationId = requestAnimationFrame(animateParticles);
+        }
+
+        // Mode Sonogramme 3D
+        function initSonogram3D() {
+            sonogram3dCanvas.width = sonogram3dContainer.clientWidth;
+            sonogram3dCanvas.height = sonogram3dContainer.clientHeight;
+            sonogram3dCtx = sonogram3dCanvas.getContext('2d');
+            sonogram3dHistory = [];
+        }
+
+        function animateSonogram3D() {
+            if (!analyser) return;
+
+            analyser.getByteFrequencyData(dataArray);
+
+            sonogram3dCtx.fillStyle = '#000';
+            sonogram3dCtx.fillRect(0, 0, sonogram3dCanvas.width, sonogram3dCanvas.height);
+
+            // Ajouter la nouvelle ligne de fréquences
+            const newLine = Array.from(dataArray);
+            sonogram3dHistory.push(newLine);
+
+            // Garder seulement les 100 dernières lignes
+            if (sonogram3dHistory.length > 100) {
+                sonogram3dHistory.shift();
+            }
+
+            const width = sonogram3dCanvas.width;
+            const height = sonogram3dCanvas.height;
+            const depth = sonogram3dHistory.length;
+
+            // Dessiner en perspective 3D
+            for (let z = 0; z < depth; z++) {
+                const perspective = 1 - (z / depth) * 0.7;
+                const yOffset = (z / depth) * height * 0.5;
+                const lineWidth = width * perspective;
+                const xOffset = (width - lineWidth) / 2;
+
+                const line = sonogram3dHistory[z];
+                const step = lineWidth / bufferLength;
+
+                for (let i = 0; i < bufferLength; i++) {
+                    const value = line[i];
+                    const x = xOffset + i * step;
+                    const barHeight = (value / 255) * height * 0.3 * perspective;
+                    const y = height - yOffset - barHeight;
+
+                    // Couleur basée sur la fréquence et la profondeur
+                    let r, g, b;
+                    if (value < 64) {
+                        r = 0; g = 0; b = value * 4;
+                    } else if (value < 128) {
+                        r = (value - 64) * 2; g = (value - 64) * 3; b = 255 - (value - 64) * 2;
+                    } else if (value < 192) {
+                        r = 128 + (value - 128) * 2; g = 192 + (value - 128); b = (192 - value) * 2;
+                    } else {
+                        r = 255; g = 255 - (value - 192) * 3; b = 0;
+                    }
+
+                    const alpha = perspective * 0.8;
+                    sonogram3dCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                    sonogram3dCtx.fillRect(x, y, step + 1, barHeight);
+                }
+            }
+
+            animationId = requestAnimationFrame(animateSonogram3D);
+        }
+
         window.addEventListener('resize', () => {
-            if (isWaterfallMode && waterfallCtx) {
+            if (waterfallCtx && currentMode === 1) {
                 initWaterfall();
+            }
+            if (particlesCtx && currentMode === 2) {
+                initParticles();
+            }
+            if (sonogram3dCtx && currentMode === 3) {
+                initSonogram3D();
             }
         });
     </script>
