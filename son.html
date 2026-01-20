@@ -196,7 +196,6 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 0, 51, 0.2);
             box-shadow: inset 0 0 40px rgba(255, 0, 51, 0.05);
-            overflow: hidden;
         }
 
         .waterfall-container.active {
@@ -206,7 +205,7 @@
         canvas {
             width: 100%;
             height: 100%;
-            display: block;
+            image-rendering: pixelated;
         }
 
         .info {
@@ -344,6 +343,8 @@
         let binaryStream = '';
         let maxBinaryLength = 10000;
         let playbackSpeed = 1;
+        let waterfallImageData;
+        let waterfallHeight = 0;
 
         uploadZone.addEventListener('click', () => fileInput.click());
         
@@ -384,8 +385,7 @@
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioContext.createAnalyser();
-                analyser.fftSize = 512;
-                analyser.smoothingTimeConstant = 0.8;
+                analyser.fftSize = 2048;
                 bufferLength = analyser.frequencyBinCount;
                 dataArray = new Uint8Array(bufferLength);
 
@@ -517,9 +517,9 @@
         function initWaterfall() {
             waterfallCanvas.width = waterfallContainer.clientWidth;
             waterfallCanvas.height = waterfallContainer.clientHeight;
+            waterfallHeight = waterfallCanvas.height;
             waterfallCtx = waterfallCanvas.getContext('2d');
-            waterfallCtx.fillStyle = '#000';
-            waterfallCtx.fillRect(0, 0, waterfallCanvas.width, waterfallCanvas.height);
+            waterfallImageData = waterfallCtx.createImageData(waterfallCanvas.width, waterfallCanvas.height);
         }
 
         function animateWaterfall() {
@@ -527,17 +527,12 @@
 
             analyser.getByteFrequencyData(dataArray);
 
-            const width = waterfallCanvas.width;
-            const height = waterfallCanvas.height;
-
-            // Décaler l'image vers le bas
-            const imageData = waterfallCtx.getImageData(0, 0, width, height - 1);
+            const imageData = waterfallCtx.getImageData(0, 0, waterfallCanvas.width, waterfallCanvas.height - 1);
             waterfallCtx.putImageData(imageData, 0, 1);
 
-            // Dessiner la nouvelle ligne en haut
-            const step = bufferLength / width;
+            const step = bufferLength / waterfallCanvas.width;
             
-            for (let i = 0; i < width; i++) {
+            for (let i = 0; i < waterfallCanvas.width; i++) {
                 const value = dataArray[Math.floor(i * step)];
                 
                 let r, g, b;
