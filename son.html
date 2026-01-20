@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualiseur Audio - HARSEN Schmidt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        body {
+            font-family: 'Source Code Pro', monospace;
+            background: #1a1a1a;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        :root {
+            --primary-red: #FF0033;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        header a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+        }
+
+        header a:hover {
+            color: var(--primary-red);
+        }
+
+        .container {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 80px 40px 40px;
+        }
+
+        .upload-zone {
+            border: 2px dashed rgba(255, 0, 51, 0.3);
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .upload-zone:hover {
+            background: rgba(255, 0, 51, 0.05);
+            border-color: var(--primary-red);
+        }
+
+        .upload-zone.dragover {
+            background: rgba(255, 0, 51, 0.1);
+            border-color: #fff;
+        }
+
+        .upload-zone h2 {
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 30px;
+            cursor: pointer;
+            font-family: 'Source Code Pro', monospace;
+            font-weight: 500;
+            font-size: 14px;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        button:hover:not(:disabled) {
+            background: rgba(255, 0, 51, 0.1);
+            border-color: var(--primary-red);
+            color: var(--primary-red);
+        }
+
+        button:disabled {
+            background: rgba(255, 255, 255, 0.02);
+            color: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+        }
+
+        .mode-toggle {
+            background: rgba(255, 0, 51, 0.1);
+            border-color: var(--primary-red);
+            color: var(--primary-red);
+        }
+
+        .mode-toggle:hover:not(:disabled) {
+            background: var(--primary-red);
+            color: #fff;
+        }
+
+        .binary-display {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            line-height: 1.6;
+            text-align: center;
+            padding: 40px;
+            overflow: hidden;
+            letter-spacing: 4px;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            box-shadow: inset 0 0 40px rgba(255, 0, 51, 0.05);
+        }
+
+        .waterfall-container {
+            flex: 1;
+            display: none;
+            position: relative;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            box-shadow: inset 0 0 40px rgba(255, 0, 51, 0.05);
+        }
+
+        .waterfall-container.active {
+            display: block;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+
+        .info {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            letter-spacing: 1px;
+            z-index: 1000;
+        }
+
+        .frequency-bar {
+            height: 2px;
+            background: linear-gradient(90deg, 
+                var(--primary-red) 0%, 
+                #ff0066 25%, 
+                #ff0099 50%, 
+                #ff00cc 75%, 
+                #ff00ff 100%
+            );
+            margin-bottom: 30px;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+
+        .frequency-bar.active {
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                height: 60px;
+                padding: 0 20px;
+            }
+
+            .header-title {
+                font-size: 14px;
+            }
+
+            header a {
+                font-size: 12px;
+            }
+
+            .container {
+                padding: 60px 20px 20px;
+            }
+
+            .upload-zone {
+                padding: 30px 20px;
+            }
+
+            .upload-zone h2 {
+                font-size: 14px;
+            }
+
+            .controls {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            button {
+                padding: 12px 20px;
+                font-size: 12px;
+            }
+
+            .binary-display {
+                font-size: 20px;
+                padding: 20px;
+                letter-spacing: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-title">VISUALISEUR AUDIO</div>
+        <div class="header-links">
+            <a href="index.html">ACCUEIL</a>
+            <a href="portfolio.html">PORTFOLIO</a>
+            <a href="contact.html">CONTACT</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="upload-zone" id="uploadZone">
+            <h2>GLISSEZ UN FICHIER MP3 ICI OU CLIQUEZ POUR SÉLECTIONNER</h2>
+            <input type="file" id="fileInput" accept=".mp3,audio/mpeg">
+        </div>
+
+        <div class="controls">
+            <button id="playBtn" disabled>▶ LECTURE</button>
+            <button id="pauseBtn" disabled>⏸ PAUSE</button>
+            <button id="stopBtn" disabled>⏹ STOP</button>
+            <button id="modeBtn" class="mode-toggle" disabled>MODE RADIO / WATERFALL</button>
+        </div>
+
+        <div class="frequency-bar" id="frequencyBar"></div>
+
+        <div class="binary-display" id="binaryDisplay">
+            <div>CHARGEZ UN FICHIER AUDIO POUR COMMENCER</div>
+        </div>
+
+        <div class="waterfall-container" id="waterfallContainer">
+            <canvas id="waterfallCanvas"></canvas>
+        </div>
+
+        <div class="info" id="info">Prêt</div>
+    </div>
+
+    <audio id="audio"></audio>
+
+    <script>
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const audio = document.getElementById('audio');
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const modeBtn = document.getElementById('modeBtn');
+        const binaryDisplay = document.getElementById('binaryDisplay');
+        const waterfallContainer = document.getElementById('waterfallContainer');
+        const waterfallCanvas = document.getElementById('waterfallCanvas');
+        const info = document.getElementById('info');
+        const frequencyBar = document.getElementById('frequencyBar');
+
+        let audioContext, analyser, source, dataArray, bufferLength;
+        let animationId;
+        let isWaterfallMode = false;
+        let waterfallCtx;
+        let waterfallImageData;
+        let waterfallHeight = 0;
+
+        uploadZone.addEventListener('click', () => fileInput.click());
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type === 'audio/mpeg') {
+                loadAudio(file);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) loadAudio(file);
+        });
+
+        function loadAudio(file) {
+            const url = URL.createObjectURL(file);
+            audio.src = url;
+            info.textContent = `Chargé: ${file.name}`;
+            
+            playBtn.disabled = false;
+            pauseBtn.disabled = false;
+            stopBtn.disabled = false;
+            modeBtn.disabled = false;
+
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+                bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+
+                source = audioContext.createMediaElementSource(audio);
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+            }
+        }
+
+        playBtn.addEventListener('click', () => {
+            audio.play();
+            frequencyBar.classList.add('active');
+            if (!animationId) {
+                if (isWaterfallMode) {
+                    initWaterfall();
+                    animateWaterfall();
+                } else {
+                    animateBinary();
+                }
+            }
+        });
+
+        pauseBtn.addEventListener('click', () => {
+            audio.pause();
+            frequencyBar.classList.remove('active');
+        });
+
+        stopBtn.addEventListener('click', () => {
+            audio.pause();
+            audio.currentTime = 0;
+            cancelAnimationFrame(animationId);
+            animationId = null;
+            frequencyBar.classList.remove('active');
+            binaryDisplay.innerHTML = '<div>AUDIO ARRÊTÉ</div>';
+        });
+
+        modeBtn.addEventListener('click', () => {
+            isWaterfallMode = !isWaterfallMode;
+            
+            if (isWaterfallMode) {
+                binaryDisplay.style.display = 'none';
+                waterfallContainer.classList.add('active');
+                modeBtn.textContent = 'MODE BINAIRE';
+                if (!audio.paused) {
+                    cancelAnimationFrame(animationId);
+                    initWaterfall();
+                    animateWaterfall();
+                }
+            } else {
+                binaryDisplay.style.display = 'flex';
+                waterfallContainer.classList.remove('active');
+                modeBtn.textContent = 'MODE RADIO / WATERFALL';
+                if (!audio.paused) {
+                    cancelAnimationFrame(animationId);
+                    animateBinary();
+                }
+            }
+        });
+
+        function animateBinary() {
+            if (!analyser) return;
+
+            analyser.getByteFrequencyData(dataArray);
+
+            const step = Math.floor(bufferLength / 80);
+            let binaryString = '';
+
+            for (let i = 0; i < 80; i++) {
+                const value = dataArray[i * step];
+                const binary = value > 128 ? '1' : '0';
+                
+                const weight = Math.floor((value / 255) * 800) + 100;
+                const opacity = (value / 255) * 0.5 + 0.5;
+                
+                binaryString += `<span style="font-weight: ${weight}; opacity: ${opacity}; transition: all 0.1s ease;">${binary}</span>`;
+                
+                if ((i + 1) % 20 === 0) binaryString += '<br>';
+            }
+
+            binaryDisplay.innerHTML = binaryString;
+
+            animationId = requestAnimationFrame(animateBinary);
+        }
+
+        function initWaterfall() {
+            waterfallCanvas.width = waterfallContainer.clientWidth;
+            waterfallCanvas.height = waterfallContainer.clientHeight;
+            waterfallHeight = waterfallCanvas.height;
+            waterfallCtx = waterfallCanvas.getContext('2d');
+            waterfallImageData = waterfallCtx.createImageData(waterfallCanvas.width, waterfallCanvas.height);
+        }
+
+        function animateWaterfall() {
+            if (!analyser) return;
+
+            analyser.getByteFrequencyData(dataArray);
+
+            const imageData = waterfallCtx.getImageData(0, 0, waterfallCanvas.width, waterfallCanvas.height - 1);
+            waterfallCtx.putImageData(imageData, 0, 1);
+
+            const step = bufferLength / waterfallCanvas.width;
+            
+            for (let i = 0; i < waterfallCanvas.width; i++) {
+                const value = dataArray[Math.floor(i * step)];
+                
+                let r, g, b;
+                if (value < 64) {
+                    r = 0; 
+                    g = 0; 
+                    b = value * 4;
+                } else if (value < 128) {
+                    r = (value - 64) * 2; 
+                    g = (value - 64) * 3; 
+                    b = 255 - (value - 64) * 2;
+                } else if (value < 192) {
+                    r = 128 + (value - 128) * 2; 
+                    g = 192 + (value - 128); 
+                    b = (192 - value) * 2;
+                } else {
+                    r = 255; 
+                    g = 255 - (value - 192) * 3; 
+                    b = 0;
+                }
+
+                waterfallCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                waterfallCtx.fillRect(i, 0, 1, 1);
+            }
+
+            animationId = requestAnimationFrame(animateWaterfall);
+        }
+
+        window.addEventListener('resize', () => {
+            if (isWaterfallMode && waterfallCtx) {
+                initWaterfall();
+            }
+        });
+    </script>
+</body>
+</html>
