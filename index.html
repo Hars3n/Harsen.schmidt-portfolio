@@ -482,6 +482,9 @@
                 <a href="experimentation.html" class="category-card">
                     <span>EXPÉRIMEN&shy;TATIONS</span>
                 </a>
+                <a href="son.html" class="category-card">
+                    <span>EXPÉRIMEN&shy;TATION<br>SONORE</span>
+                </a>
             </div>
 
             <a href="portfolio.html" class="discover-btn">DÉCOUVRIR PLUS</a>
@@ -532,7 +535,9 @@
             card.addEventListener('mouseenter', function() {
                 cards.forEach((c, i) => {
                     if (i !== index) {
-                        c.style.transform = index > i ? 'translateX(-30px)' : 'translateX(30px)';
+                        // Calcule la direction de déplacement en fonction de la position
+                        const direction = i < index ? -1 : 1;
+                        c.style.transform = `translateX(${direction * 30}px)`;
                     }
                 });
             });
