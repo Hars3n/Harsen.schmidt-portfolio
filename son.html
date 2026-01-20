@@ -153,6 +153,17 @@
             color: #fff;
         }
 
+        .speed-toggle {
+            background: rgba(255, 165, 0, 0.1);
+            border-color: #ffa500;
+            color: #ffa500;
+        }
+
+        .speed-toggle:hover:not(:disabled) {
+            background: #ffa500;
+            color: #fff;
+        }
+
         .binary-display {
             flex: 1;
             display: flex;
@@ -291,6 +302,7 @@
             <button id="playBtn" disabled>▶ LECTURE</button>
             <button id="pauseBtn" disabled>⏸ PAUSE</button>
             <button id="stopBtn" disabled>⏹ STOP</button>
+            <button id="speedBtn" class="speed-toggle" disabled>VITESSE x1</button>
             <button id="modeBtn" class="mode-toggle" disabled>MODE RADIO / WATERFALL</button>
         </div>
 
@@ -316,6 +328,7 @@
         const playBtn = document.getElementById('playBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const stopBtn = document.getElementById('stopBtn');
+        const speedBtn = document.getElementById('speedBtn');
         const modeBtn = document.getElementById('modeBtn');
         const binaryDisplay = document.getElementById('binaryDisplay');
         const binaryContent = document.getElementById('binaryContent');
@@ -330,6 +343,7 @@
         let waterfallCtx;
         let binaryStream = '';
         let maxBinaryLength = 10000;
+        let playbackSpeed = 1;
 
         uploadZone.addEventListener('click', () => fileInput.click());
         
@@ -364,6 +378,7 @@
             playBtn.disabled = false;
             pauseBtn.disabled = false;
             stopBtn.disabled = false;
+            speedBtn.disabled = false;
             modeBtn.disabled = false;
 
             if (!audioContext) {
@@ -406,6 +421,40 @@
             frequencyBar.classList.remove('active');
             binaryStream = '';
             binaryContent.innerHTML = 'AUDIO ARRÊTÉ';
+        });
+
+        speedBtn.addEventListener('click', () => {
+            if (playbackSpeed === 1) {
+                playbackSpeed = 2;
+                audio.playbackRate = 2;
+                speedBtn.textContent = 'VITESSE x2';
+            } else {
+                playbackSpeed = 1;
+                audio.playbackRate = 1;
+                speedBtn.textContent = 'VITESSE x1';
+            }
+        });
+
+        // Contrôle clavier : Espace pour pause/lecture
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !playBtn.disabled) {
+                e.preventDefault();
+                if (audio.paused) {
+                    audio.play();
+                    frequencyBar.classList.add('active');
+                    if (!animationId) {
+                        if (isWaterfallMode) {
+                            initWaterfall();
+                            animateWaterfall();
+                        } else {
+                            animateBinary();
+                        }
+                    }
+                } else {
+                    audio.pause();
+                    frequencyBar.classList.remove('active');
+                }
+            }
         });
 
         modeBtn.addEventListener('click', () => {
@@ -466,14 +515,9 @@
         }
 
         function initWaterfall() {
-            const dpr = window.devicePixelRatio || 1;
-            waterfallCanvas.width = waterfallContainer.clientWidth * dpr;
-            waterfallCanvas.height = waterfallContainer.clientHeight * dpr;
-            waterfallCanvas.style.width = waterfallContainer.clientWidth + 'px';
-            waterfallCanvas.style.height = waterfallContainer.clientHeight + 'px';
-            
+            waterfallCanvas.width = waterfallContainer.clientWidth;
+            waterfallCanvas.height = waterfallContainer.clientHeight;
             waterfallCtx = waterfallCanvas.getContext('2d');
-            waterfallCtx.scale(dpr, dpr);
             waterfallCtx.fillStyle = '#000';
             waterfallCtx.fillRect(0, 0, waterfallCanvas.width, waterfallCanvas.height);
         }
@@ -483,54 +527,40 @@
 
             analyser.getByteFrequencyData(dataArray);
 
-            const width = waterfallContainer.clientWidth;
-            const height = waterfallContainer.clientHeight;
+            const width = waterfallCanvas.width;
+            const height = waterfallCanvas.height;
 
-            // Décaler l'image existante vers le bas
+            // Décaler l'image vers le bas
             const imageData = waterfallCtx.getImageData(0, 0, width, height - 1);
             waterfallCtx.putImageData(imageData, 0, 1);
 
-            // Dessiner la nouvelle ligne de fréquences en haut
-            for (let x = 0; x < width; x++) {
-                const index = Math.floor((x / width) * bufferLength);
-                const value = dataArray[index];
+            // Dessiner la nouvelle ligne en haut
+            const step = bufferLength / width;
+            
+            for (let i = 0; i < width; i++) {
+                const value = dataArray[Math.floor(i * step)];
                 
-                // Palette de couleurs optimisée pour les fréquences radio
                 let r, g, b;
-                
-                if (value < 50) {
-                    // Très faible : bleu foncé
-                    r = 0;
-                    g = 0;
-                    b = Math.floor(value * 2);
-                } else if (value < 100) {
-                    // Faible : bleu vers cyan
-                    const t = (value - 50) / 50;
-                    r = 0;
-                    g = Math.floor(t * 150);
-                    b = 100 + Math.floor(t * 155);
-                } else if (value < 150) {
-                    // Moyen : cyan vers vert
-                    const t = (value - 100) / 50;
-                    r = 0;
-                    g = 150 + Math.floor(t * 105);
-                    b = 255 - Math.floor(t * 255);
-                } else if (value < 200) {
-                    // Fort : vert vers jaune
-                    const t = (value - 150) / 50;
-                    r = Math.floor(t * 255);
-                    g = 255;
-                    b = 0;
+                if (value < 64) {
+                    r = 0; 
+                    g = 0; 
+                    b = value * 4;
+                } else if (value < 128) {
+                    r = (value - 64) * 2; 
+                    g = (value - 64) * 3; 
+                    b = 255 - (value - 64) * 2;
+                } else if (value < 192) {
+                    r = 128 + (value - 128) * 2; 
+                    g = 192 + (value - 128); 
+                    b = (192 - value) * 2;
                 } else {
-                    // Très fort : jaune vers rouge
-                    const t = (value - 200) / 55;
-                    r = 255;
-                    g = 255 - Math.floor(t * 255);
+                    r = 255; 
+                    g = 255 - (value - 192) * 3; 
                     b = 0;
                 }
 
                 waterfallCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-                waterfallCtx.fillRect(x, 0, 1, 1);
+                waterfallCtx.fillRect(i, 0, 1, 1);
             }
 
             animationId = requestAnimationFrame(animateWaterfall);
