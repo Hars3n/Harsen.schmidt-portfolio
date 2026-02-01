@@ -101,6 +101,8 @@ const STATE = {
     characters: 'GO',
     isPlaying: false,
     showStats: false,
+    showWaterfall: true,
+    showGenerative: true,
     
     // Audio analysis
     avgFrequency: 0,
@@ -662,15 +664,20 @@ const AnimationEngine = {
         // Update frequency bar
         UI.updateFrequencyBar(audioData.avgFrequency);
         
-        // Render waterfall
-        WaterfallViz.render();
+        // Render waterfall only if enabled
+        if (STATE.showWaterfall) {
+            WaterfallViz.render();
+        }
         
-        // Clear and render generative canvas
-        STATE.generativeCtx.clearRect(0, 0, STATE.generativeCanvas.width, STATE.generativeCanvas.height);
-        
-        // Update and render particles
-        ParticleSystem.update(audioData, STATE.deltaTime);
-        ParticleSystem.render(STATE.generativeCtx);
+        // Render generative only if enabled
+        if (STATE.showGenerative) {
+            // Clear and render generative canvas
+            STATE.generativeCtx.clearRect(0, 0, STATE.generativeCanvas.width, STATE.generativeCanvas.height);
+            
+            // Update and render particles
+            ParticleSystem.update(audioData, STATE.deltaTime);
+            ParticleSystem.render(STATE.generativeCtx);
+        }
     },
     
     /**
@@ -800,6 +807,29 @@ const UI = {
             document.body.classList.add('light-mode');
             STATE.isDarkMode = false;
             this.setActiveButton('lightBtn', 'darkBtn');
+        });
+
+        // Display toggles
+        document.getElementById('generativeToggle').addEventListener('click', () => {
+            STATE.showGenerative = !STATE.showGenerative;
+            STATE.generativeCanvas.classList.toggle('hidden', !STATE.showGenerative);
+            document.getElementById('generativeToggle').classList.toggle('active', STATE.showGenerative);
+            
+            // Adjust waterfall opacity when generative is toggled
+            if (STATE.showWaterfall) {
+                STATE.waterfallCanvas.style.opacity = STATE.showGenerative ? '0.3' : '1.0';
+            }
+        });
+
+        document.getElementById('waterfallToggle').addEventListener('click', () => {
+            STATE.showWaterfall = !STATE.showWaterfall;
+            STATE.waterfallCanvas.classList.toggle('hidden', !STATE.showWaterfall);
+            document.getElementById('waterfallToggle').classList.toggle('active', STATE.showWaterfall);
+            
+            // Adjust waterfall opacity based on generative state
+            if (STATE.showWaterfall) {
+                STATE.waterfallCanvas.style.opacity = STATE.showGenerative ? '0.3' : '1.0';
+            }
         });
         
         // Mode controls
