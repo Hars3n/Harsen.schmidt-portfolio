@@ -370,10 +370,22 @@
         #waterfallCanvas {
             opacity: 0.3;
             z-index: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        #waterfallCanvas.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
 
         #generativeCanvas {
             z-index: 2;
+            transition: opacity 0.3s ease;
+        }
+
+        #generativeCanvas.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
 
         .fullscreen-btn {
@@ -611,6 +623,15 @@
                 <div class="theme-toggle">
                     <button id="darkBtn" class="active">Sombre</button>
                     <button id="lightBtn">Clair</button>
+                </div>
+            </div>
+
+            <!-- Display Toggles Section -->
+            <div class="control-section">
+                <h3>Affichage</h3>
+                <div class="theme-toggle">
+                    <button id="generativeToggle" class="active">Génératif</button>
+                    <button id="waterfallToggle" class="active">Waterfall</button>
                 </div>
             </div>
 
