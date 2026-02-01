@@ -1,7 +1,6 @@
 /**
  * AUDIO VISUALIZER - GENERATIVE TYPOGRAPHY ENGINE
- * Architecture modulaire avec effets génératifs avancés
- * Style: After Effects fluid typography animations
+ * Style: Progressive Text Dispersion (GONE effect)
  * Fichier: audio-visualizer.js
  */
 
@@ -16,18 +15,17 @@ const CONFIG = {
     maxDecibels: -10,
     
     typography: {
-        fontSize: 18,
+        fontSize: 16,
         fontFamily: "'JetBrains Mono', monospace",
-        baseSpacing: 8,      // Espacement de base entre lettres
-        maxSpacing: 120,     // Espacement maximum (interlettrage immense)
-        wordSpacing: 40      // Espacement entre mots
+        lineHeight: 24,
+        minSpacing: 0,      // Espacement minimum (texte compact)
+        maxSpacing: 200,    // Espacement maximum (dispersion totale)
     },
     
-    animation: {
-        smoothness: 0.15,    // Lissage des animations (plus c'est bas, plus c'est fluide)
-        waveSpeed: 0.02,
-        pulseSpeed: 0.03,
-        vortexSpeed: 0.015
+    dispersion: {
+        smoothness: 0.08,   // Lissage des transitions
+        waveSpeed: 0.015,
+        expansionRate: 1.2  // Vitesse d'expansion
     },
     
     colors: {
@@ -69,14 +67,12 @@ const CONFIG = {
 // ============================================================================
 
 const STATE = {
-    // Audio
     audioContext: null,
     analyser: null,
     source: null,
     dataArray: null,
     bufferLength: 0,
     
-    // Animation
     animationId: null,
     time: 0,
     deltaTime: 0,
@@ -85,17 +81,14 @@ const STATE = {
     frameCount: 0,
     lastFpsUpdate: 0,
     
-    // Canvas
     waterfallCtx: null,
     generativeCtx: null,
     waterfallCanvas: null,
     generativeCanvas: null,
     
-    // Typography
-    words: [],
-    characters: 'GO',
+    textLines: [],
+    characters: 'GONE',
     
-    // Settings
     currentMode: 1,
     generationSpeed: 1,
     sensitivity: 1,
@@ -105,7 +98,6 @@ const STATE = {
     showGenerative: true,
     motionBlur: false,
     
-    // Audio analysis
     avgFrequency: 0,
     peakFrequency: 0,
     bassLevel: 0,
@@ -113,7 +105,6 @@ const STATE = {
     trebleLevel: 0,
     beatDetected: false,
     
-    // Theme
     isDarkMode: true
 };
 
@@ -147,88 +138,73 @@ const Utils = {
         return Math.random() * (max - min) + min;
     },
     
-    easeInOutCubic(t) {
-        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    },
-    
-    easeOutElastic(t) {
-        const c4 = (2 * Math.PI) / 3;
-        return t === 0 ? 0 : t === 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+    easeInOutQuad(t) {
+        return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
     }
 };
 
 // ============================================================================
-// CHARACTER CLASS - Individual letter with smooth animations
+// CHARACTER CLASS
 // ============================================================================
 
 class Character {
-    constructor(char, wordIndex, charIndex) {
+    constructor(char, lineIndex, charIndex, totalChars) {
         this.char = char;
-        this.wordIndex = wordIndex;
+        this.lineIndex = lineIndex;
         this.charIndex = charIndex;
+        this.totalChars = totalChars;
         
-        // Position
         this.x = 0;
         this.y = 0;
         this.targetX = 0;
         this.targetY = 0;
         
-        // Spacing
-        this.spacing = CONFIG.typography.baseSpacing;
-        this.targetSpacing = CONFIG.typography.baseSpacing;
+        this.charSpacing = 0;
+        this.targetCharSpacing = 0;
         
-        // Visual
         this.opacity = 1.0;
-        this.scale = 1.0;
-        this.targetScale = 1.0;
+        this.targetOpacity = 1.0;
         
-        // Animation phase
         this.phase = Utils.random(0, Math.PI * 2);
     }
     
     update() {
-        // Smooth interpolation vers les positions cibles
-        this.x = Utils.lerp(this.x, this.targetX, CONFIG.animation.smoothness);
-        this.y = Utils.lerp(this.y, this.targetY, CONFIG.animation.smoothness);
-        this.spacing = Utils.lerp(this.spacing, this.targetSpacing, CONFIG.animation.smoothness);
-        this.scale = Utils.lerp(this.scale, this.targetScale, CONFIG.animation.smoothness);
+        this.x = Utils.lerp(this.x, this.targetX, CONFIG.dispersion.smoothness);
+        this.y = Utils.lerp(this.y, this.targetY, CONFIG.dispersion.smoothness);
+        this.charSpacing = Utils.lerp(this.charSpacing, this.targetCharSpacing, CONFIG.dispersion.smoothness);
+        this.opacity = Utils.lerp(this.opacity, this.targetOpacity, CONFIG.dispersion.smoothness);
     }
     
     draw(ctx) {
         ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.scale(this.scale, this.scale);
+        ctx.globalAlpha = this.opacity;
         
         const color = STATE.isDarkMode ? '#ffffff' : '#0a0a0a';
         ctx.fillStyle = color;
-        ctx.globalAlpha = this.opacity;
-        
         ctx.font = `${CONFIG.typography.fontSize}px ${CONFIG.typography.fontFamily}`;
         ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(this.char, 0, 0);
+        ctx.textBaseline = 'top';
+        
+        ctx.fillText(this.char, this.x, this.y);
         
         ctx.restore();
     }
 }
 
 // ============================================================================
-// WORD CLASS - Complete word unit
+// TEXT LINE CLASS
 // ============================================================================
 
-class Word {
-    constructor(text, index) {
+class TextLine {
+    constructor(text, lineIndex) {
         this.text = text;
-        this.index = index;
+        this.lineIndex = lineIndex;
         this.characters = [];
         
-        // Create character objects
         for (let i = 0; i < text.length; i++) {
-            this.characters.push(new Character(text[i], index, i));
+            this.characters.push(new Character(text[i], lineIndex, i, text.length));
         }
         
-        // Base position
-        this.baseX = 0;
         this.baseY = 0;
     }
     
@@ -239,14 +215,6 @@ class Word {
     draw(ctx) {
         this.characters.forEach(char => char.draw(ctx));
     }
-    
-    getWidth() {
-        let width = 0;
-        this.characters.forEach(char => {
-            width += char.spacing;
-        });
-        return width;
-    }
 }
 
 // ============================================================================
@@ -255,183 +223,174 @@ class Word {
 
 const TypographySystem = {
     init() {
-        this.createWords();
-        console.log(`Typography system initialized with word: "${STATE.characters}"`);
+        this.createLines();
+        console.log(`Typography system initialized with "${STATE.characters}"`);
     },
     
-    createWords() {
-        STATE.words = [];
+    createLines() {
+        STATE.textLines = [];
         const text = STATE.characters;
         
-        // Créer plusieurs instances du mot pour remplir l'écran
-        const estimatedWordWidth = text.length * (CONFIG.typography.baseSpacing + CONFIG.typography.fontSize);
-        const wordsNeeded = Math.ceil((STATE.generativeCanvas.width * 3) / estimatedWordWidth);
+        const numLines = Math.ceil(STATE.generativeCanvas.height / CONFIG.typography.lineHeight) + 2;
         
-        for (let i = 0; i < wordsNeeded; i++) {
-            STATE.words.push(new Word(text, i));
+        for (let i = 0; i < numLines; i++) {
+            STATE.textLines.push(new TextLine(text, i));
         }
     },
     
     updateText(newText) {
-        STATE.characters = newText || 'GO';
-        this.createWords();
+        STATE.characters = newText || 'GONE';
+        this.createLines();
     },
     
     update() {
-        STATE.words.forEach(word => word.update());
+        STATE.textLines.forEach(line => line.update());
     },
     
     draw(ctx) {
-        STATE.words.forEach(word => word.draw(ctx));
+        STATE.textLines.forEach(line => line.draw(ctx));
     }
 };
 
 // ============================================================================
-// GENERATIVE PATTERNS - Fluid Typography Animations
+// DISPERSION PATTERNS
 // ============================================================================
 
-const GenerativePatterns = {
+const DispersionPatterns = {
     /**
-     * Mode 1: Liquid Wave - Onde fluide de gauche à droite avec espacement dynamique
+     * Mode 1: Vertical Dispersion - Effet GONE classique
+     * Les lignes du haut sont compactes, celles du bas dispersées
      */
-    liquid(audioData) {
+    verticalDispersion(audioData) {
+        const intensity = audioData.avgFrequency * STATE.sensitivity * 0.01;
+        const bassImpact = audioData.bassLevel * 0.005;
+        const canvasHeight = STATE.generativeCanvas.height;
+        
+        STATE.textLines.forEach((line, lineIndex) => {
+            line.baseY = lineIndex * CONFIG.typography.lineHeight;
+            
+            // Progression verticale: 0 en haut, 1 en bas
+            const verticalProgress = line.baseY / canvasHeight;
+            
+            // Calcul de la dispersion avec courbe exponentielle
+            const dispersionAmount = Math.pow(verticalProgress, CONFIG.dispersion.expansionRate);
+            
+            // Modulation audio
+            const audioModulation = Math.sin(STATE.time * CONFIG.dispersion.waveSpeed + lineIndex * 0.1) * intensity * 0.3;
+            const beatBoost = audioData.beatDetected ? 1.3 : 1.0;
+            
+            const finalDispersion = Utils.constrain(
+                dispersionAmount + audioModulation * beatBoost,
+                0,
+                1
+            );
+            
+            // Calculer l'espacement pour cette ligne
+            const lineSpacing = Utils.lerp(
+                CONFIG.typography.minSpacing,
+                CONFIG.typography.maxSpacing,
+                finalDispersion
+            );
+            
+            // Opacité diminue avec la dispersion
+            const lineOpacity = Utils.lerp(1.0, 0.1, finalDispersion);
+            
+            // Positionner chaque caractère
+            let currentX = 50;
+            
+            line.characters.forEach((char, charIndex) => {
+                char.targetCharSpacing = lineSpacing;
+                char.targetX = currentX;
+                char.targetY = line.baseY;
+                char.targetOpacity = lineOpacity;
+                
+                currentX += CONFIG.typography.fontSize * 0.6 + lineSpacing;
+            });
+        });
+    },
+    
+    /**
+     * Mode 2: Radial Dispersion - Dispersion depuis le centre
+     */
+    radialDispersion(audioData) {
+        const intensity = audioData.avgFrequency * STATE.sensitivity * 0.01;
+        const centerX = STATE.generativeCanvas.width / 2;
         const centerY = STATE.generativeCanvas.height / 2;
+        const maxDistance = Math.sqrt(centerX * centerX + centerY * centerY);
+        
+        STATE.textLines.forEach((line, lineIndex) => {
+            line.baseY = lineIndex * CONFIG.typography.lineHeight;
+            
+            const lineY = line.baseY;
+            const distanceFromCenter = Math.abs(lineY - centerY);
+            const distanceProgress = distanceFromCenter / maxDistance;
+            
+            const dispersionAmount = Math.pow(distanceProgress, 1.5);
+            const audioModulation = Math.sin(STATE.time * CONFIG.dispersion.waveSpeed * 2 + lineIndex * 0.2) * intensity * 0.2;
+            
+            const finalDispersion = Utils.constrain(dispersionAmount + audioModulation, 0, 1);
+            
+            const lineSpacing = Utils.lerp(
+                CONFIG.typography.minSpacing,
+                CONFIG.typography.maxSpacing * 0.8,
+                finalDispersion
+            );
+            
+            const lineOpacity = Utils.lerp(1.0, 0.2, finalDispersion);
+            
+            let currentX = centerX - (line.text.length * (CONFIG.typography.fontSize * 0.6 + lineSpacing)) / 2;
+            
+            line.characters.forEach((char, charIndex) => {
+                char.targetCharSpacing = lineSpacing;
+                char.targetX = currentX;
+                char.targetY = line.baseY;
+                char.targetOpacity = lineOpacity;
+                
+                currentX += CONFIG.typography.fontSize * 0.6 + lineSpacing;
+            });
+        });
+    },
+    
+    /**
+     * Mode 3: Wave Dispersion - Ondes de dispersion
+     */
+    waveDispersion(audioData) {
         const intensity = audioData.avgFrequency * STATE.sensitivity * 0.01;
         const bassImpact = audioData.bassLevel * 0.01;
         
-        let currentX = 50;
-        let rowIndex = 0;
-        const rowSpacing = 80;
-        const numRows = Math.ceil(STATE.generativeCanvas.height / rowSpacing);
-        
-        STATE.words.forEach((word, wordIndex) => {
-            const row = Math.floor(wordIndex / 3);
-            const col = wordIndex % 3;
+        STATE.textLines.forEach((line, lineIndex) => {
+            line.baseY = lineIndex * CONFIG.typography.lineHeight;
             
-            word.baseY = centerY - (numRows * rowSpacing / 2) + (row * rowSpacing);
+            // Onde sinusoïdale qui traverse l'écran
+            const wavePhase = (STATE.time * CONFIG.dispersion.waveSpeed * 3) - (lineIndex * 0.15);
+            const waveValue = (Math.sin(wavePhase) + 1) / 2; // 0 to 1
             
-            let wordX = col * 400 + 100;
+            // Combine avec position verticale
+            const verticalProgress = line.baseY / STATE.generativeCanvas.height;
+            const combinedProgress = (waveValue * 0.6 + verticalProgress * 0.4);
             
-            word.characters.forEach((char, charIndex) => {
-                // Onde fluide qui se propage
-                const wavePhase = (STATE.time * CONFIG.animation.waveSpeed) - (wordX * 0.003) - (charIndex * 0.1);
-                const wave1 = Math.sin(wavePhase) * intensity * 60;
-                const wave2 = Math.sin(wavePhase * 2 + char.phase) * intensity * 30;
-                
-                // Variation d'espacement - crée l'effet d'interlettrage dynamique
-                const spacingWave = Math.sin(wavePhase * 0.5) * 0.5 + 0.5; // 0 to 1
-                const beatMultiplier = audioData.beatDetected ? 1.5 : 1.0;
-                char.targetSpacing = Utils.lerp(
-                    CONFIG.typography.baseSpacing,
-                    CONFIG.typography.maxSpacing,
-                    spacingWave * intensity * 0.02 * beatMultiplier
-                );
-                
-                // Position Y avec onde
-                char.targetY = word.baseY + wave1 + wave2;
-                
-                // Position X accumulative avec espacement
-                char.targetX = wordX;
-                wordX += char.spacing;
-                
-                // Scale subtil pour accentuer le mouvement
-                char.targetScale = 1.0 + Math.sin(wavePhase) * 0.1 * intensity * 0.01;
-            });
-        });
-    },
-    
-    /**
-     * Mode 2: Pulse - Expansion/contraction radiale avec espacement explosif
-     */
-    pulse(audioData) {
-        const centerX = STATE.generativeCanvas.width / 2;
-        const centerY = STATE.generativeCanvas.height / 2;
-        const intensity = audioData.avgFrequency * STATE.sensitivity * 0.01;
-        const beatPulse = audioData.beatDetected ? 1.5 : 1.0;
-        
-        STATE.words.forEach((word, wordIndex) => {
-            const angle = (wordIndex / STATE.words.length) * Math.PI * 2;
-            const baseRadius = 200 + (wordIndex % 3) * 100;
+            const dispersionAmount = Math.pow(combinedProgress, 1.3);
             
-            // Pulse radial
-            const pulsePhase = STATE.time * CONFIG.animation.pulseSpeed;
-            const radiusModulation = Math.sin(pulsePhase + wordIndex * 0.5) * intensity * 50 * beatPulse;
-            const radius = baseRadius + radiusModulation;
+            const lineSpacing = Utils.lerp(
+                CONFIG.typography.minSpacing,
+                CONFIG.typography.maxSpacing,
+                dispersionAmount * (1 + bassImpact * 0.5)
+            );
             
-            word.baseX = centerX + Math.cos(angle) * radius;
-            word.baseY = centerY + Math.sin(angle) * radius;
+            const lineOpacity = Utils.lerp(1.0, 0.15, dispersionAmount);
             
-            let charX = 0;
+            let currentX = 50;
             
-            word.characters.forEach((char, charIndex) => {
-                // Espacement qui pulse
-                const spacingPhase = pulsePhase + charIndex * 0.3;
-                const spacingPulse = (Math.sin(spacingPhase) * 0.5 + 0.5); // 0 to 1
+            line.characters.forEach((char, charIndex) => {
+                // Variation par caractère pour effet plus dynamique
+                const charWave = Math.sin(wavePhase + charIndex * 0.3) * intensity * 20;
                 
-                char.targetSpacing = Utils.lerp(
-                    CONFIG.typography.baseSpacing,
-                    CONFIG.typography.maxSpacing * 0.8,
-                    spacingPulse * intensity * 0.03 * beatPulse
-                );
+                char.targetCharSpacing = lineSpacing;
+                char.targetX = currentX + charWave;
+                char.targetY = line.baseY;
+                char.targetOpacity = lineOpacity;
                 
-                // Position
-                char.targetX = word.baseX + charX;
-                char.targetY = word.baseY;
-                
-                charX += char.spacing;
-                
-                // Scale pulse
-                char.targetScale = 1.0 + spacingPulse * 0.3 * intensity * 0.01;
-            });
-        });
-    },
-    
-    /**
-     * Mode 3: Vortex - Spirale avec compression/expansion de l'espacement
-     */
-    vortex(audioData) {
-        const centerX = STATE.generativeCanvas.width / 2;
-        const centerY = STATE.generativeCanvas.height / 2;
-        const intensity = audioData.avgFrequency * STATE.sensitivity * 0.01;
-        const midImpact = audioData.midLevel * 0.01;
-        
-        STATE.words.forEach((word, wordIndex) => {
-            const spiralPhase = (STATE.time * CONFIG.animation.vortexSpeed) + (wordIndex * 0.5);
-            const t = (wordIndex / STATE.words.length);
-            
-            // Spirale d'Archimède
-            const angle = t * Math.PI * 6 + spiralPhase;
-            const radius = t * 300 + Math.sin(spiralPhase * 2) * intensity * 30;
-            
-            word.baseX = centerX + Math.cos(angle) * radius;
-            word.baseY = centerY + Math.sin(angle) * radius;
-            
-            let charX = 0;
-            
-            word.characters.forEach((char, charIndex) => {
-                // Espacement en vortex - compression au centre, expansion à l'extérieur
-                const distanceFromCenter = radius / 300; // 0 to 1
-                const vortexSpacing = Utils.lerp(
-                    CONFIG.typography.baseSpacing * 0.5,
-                    CONFIG.typography.maxSpacing * 0.6,
-                    distanceFromCenter * intensity * 0.02
-                );
-                
-                // Modulation par la musique
-                const musicModulation = Math.sin(spiralPhase + charIndex * 0.2) * midImpact * 20;
-                char.targetSpacing = vortexSpacing + musicModulation;
-                
-                // Position
-                const charAngle = angle + (charX * 0.001); // Suit la courbe
-                const charRadius = radius;
-                
-                char.targetX = centerX + Math.cos(charAngle) * charRadius + charX * Math.cos(angle);
-                char.targetY = centerY + Math.sin(charAngle) * charRadius + charX * Math.sin(angle);
-                
-                charX += char.spacing;
-                
-                // Scale basé sur la distance
-                char.targetScale = 1.0 + distanceFromCenter * 0.2;
+                currentX += CONFIG.typography.fontSize * 0.6 + lineSpacing;
             });
         });
     },
@@ -439,13 +398,13 @@ const GenerativePatterns = {
     update(audioData) {
         switch(STATE.currentMode) {
             case 1:
-                this.liquid(audioData);
+                this.verticalDispersion(audioData);
                 break;
             case 2:
-                this.pulse(audioData);
+                this.radialDispersion(audioData);
                 break;
             case 3:
-                this.vortex(audioData);
+                this.waveDispersion(audioData);
                 break;
         }
     }
@@ -612,7 +571,7 @@ const AnimationEngine = {
             STATE.generativeCtx.fillStyle = bgColor;
             STATE.generativeCtx.fillRect(0, 0, STATE.generativeCanvas.width, STATE.generativeCanvas.height);
             
-            GenerativePatterns.update(audioData);
+            DispersionPatterns.update(audioData);
             TypographySystem.update();
             TypographySystem.draw(STATE.generativeCtx);
         }
@@ -817,7 +776,7 @@ const UI = {
         window.addEventListener('resize', () => {
             this.resizeCanvases();
             WaterfallViz.init();
-            TypographySystem.createWords();
+            TypographySystem.createLines();
         });
     },
     
@@ -867,7 +826,7 @@ const UI = {
     updateStats() {
         if (STATE.showStats) {
             document.getElementById('fps').textContent = STATE.fps;
-            document.getElementById('particleCount').textContent = STATE.words.length;
+            document.getElementById('particleCount').textContent = STATE.textLines.length;
             document.getElementById('avgFreq').textContent = Math.round(STATE.avgFrequency);
         }
     },
@@ -894,7 +853,7 @@ const UI = {
 // ============================================================================
 
 window.addEventListener('DOMContentLoaded', () => {
-    console.log('🎵 Audio Visualizer - Fluid Typography Engine');
+    console.log('🎵 Audio Visualizer - Progressive Dispersion Engine');
     console.log('Initializing...');
     
     UI.init();
