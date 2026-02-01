@@ -3,28 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualiseur Audio - HARSEN Schmidt</title>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>Visualiseur Audio Génératif - HARSEN Schmidt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Archivo+Black&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-        }
-
-        body {
-            font-family: 'Source Code Pro', monospace;
-            background: #1a1a1a;
-            color: #fff;
-            overflow: hidden;
         }
 
         :root {
-            --primary-red: #FF0033;
+            --bg-color: #0a0a0a;
+            --text-color: #ffffff;
+            --accent-color: #FF0033;
+            --secondary-accent: #00ff88;
+            --panel-bg: rgba(20, 20, 20, 0.95);
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            transition: background-color 0.6s ease;
+        }
+
+        body.light-mode {
+            --bg-color: #f5f5f0;
+            --text-color: #0a0a0a;
+            --panel-bg: rgba(255, 255, 255, 0.95);
         }
 
         header {
@@ -32,76 +39,105 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 80px;
-            padding: 0 40px;
+            height: 70px;
+            padding: 0 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 1000;
-            background: rgba(26, 26, 26, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 0, 51, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        header.hidden {
+            transform: translateY(-100%);
         }
 
         .header-title {
-            font-size: 18px;
-            font-weight: 500;
-            letter-spacing: 1px;
-            color: #fff;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 16px;
+            letter-spacing: 2px;
+            color: var(--accent-color);
         }
 
         .header-links {
             display: flex;
-            gap: 30px;
+            gap: 25px;
         }
 
         header a {
-            color: #fff;
+            color: var(--text-color);
             text-decoration: none;
-            font-weight: 500;
-            font-size: 14px;
+            font-weight: 600;
+            font-size: 13px;
             letter-spacing: 1px;
             transition: color 0.3s ease;
+            opacity: 0.7;
         }
 
         header a:hover {
-            color: var(--primary-red);
+            color: var(--accent-color);
+            opacity: 1;
         }
 
         .container {
-            position: relative;
             height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            padding-top: 70px;
+        }
+
+        .visualization-area {
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-color);
+        }
+
+        .control-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255, 0, 51, 0.2);
+            padding: 30px;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
-            padding: 80px 40px 40px;
+            gap: 25px;
+        }
+
+        .control-section {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .control-section h3 {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            text-transform: uppercase;
         }
 
         .upload-zone {
             border: 2px dashed rgba(255, 0, 51, 0.3);
-            padding: 40px;
+            padding: 30px 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
             background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(10px);
-            margin-bottom: 30px;
+            font-size: 11px;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.6);
         }
 
         .upload-zone:hover {
             background: rgba(255, 0, 51, 0.05);
-            border-color: var(--primary-red);
-        }
-
-        .upload-zone.dragover {
-            background: rgba(255, 0, 51, 0.1);
-            border-color: #fff;
-        }
-
-        .upload-zone h2 {
-            font-size: 16px;
-            font-weight: 400;
-            letter-spacing: 1px;
-            color: rgba(255, 255, 255, 0.7);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
         }
 
         input[type="file"] {
@@ -109,181 +145,235 @@
         }
 
         .controls {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
         button {
             background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            padding: 15px 30px;
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 16px;
             cursor: pointer;
-            font-family: 'Source Code Pro', monospace;
-            font-weight: 500;
-            font-size: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 11px;
             letter-spacing: 1px;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            text-transform: uppercase;
         }
 
         button:hover:not(:disabled) {
             background: rgba(255, 0, 51, 0.1);
-            border-color: var(--primary-red);
-            color: var(--primary-red);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            transform: translateY(-2px);
         }
 
         button:disabled {
-            background: rgba(255, 255, 255, 0.02);
-            color: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.1);
+            opacity: 0.3;
             cursor: not-allowed;
         }
 
-        .mode-toggle {
-            background: rgba(255, 0, 51, 0.1);
-            border-color: var(--primary-red);
-            color: var(--primary-red);
+        button.active {
+            background: var(--accent-color);
+            color: #000;
+            border-color: var(--accent-color);
         }
 
-        .mode-toggle:hover:not(:disabled) {
-            background: var(--primary-red);
-            color: #fff;
+        .slider-control {
+            margin-top: 10px;
         }
 
-        .speed-toggle {
-            background: rgba(255, 165, 0, 0.1);
-            border-color: #ffa500;
-            color: #ffa500;
-        }
-
-        .speed-toggle:hover:not(:disabled) {
-            background: #ffa500;
-            color: #fff;
-        }
-
-        .binary-display {
-            flex: 1;
-            display: flex;
-            align-items: flex-start;
-            justify-content: flex-start;
-            font-size: 20px;
-            line-height: 1.4;
-            padding: 30px;
-            overflow: hidden;
-            letter-spacing: 3px;
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 0, 51, 0.2);
-            box-shadow: inset 0 0 40px rgba(255, 0, 51, 0.05);
-            position: relative;
-        }
-
-        .binary-content {
-            width: 100%;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            white-space: pre-wrap;
-        }
-
-        .waterfall-container {
-            flex: 1;
-            display: none;
-            position: relative;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 0, 51, 0.2);
-            box-shadow: inset 0 0 40px rgba(255, 0, 51, 0.05);
-        }
-
-        .waterfall-container.active {
+        .slider-control label {
             display: block;
+            font-size: 11px;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--accent-color);
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: var(--accent-color);
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-color);
+            padding: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background: rgba(255, 0, 51, 0.05);
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .mode-buttons button {
+            flex: 1;
+            padding: 10px;
+            font-size: 10px;
+        }
+
+        .theme-toggle {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .theme-toggle button {
+            flex: 1;
         }
 
         canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            image-rendering: pixelated;
+        }
+
+        .waterfall-canvas {
+            opacity: 0.3;
+        }
+
+        .fullscreen-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: var(--accent-color);
+            border: none;
+            border-radius: 50%;
+            color: #000;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 999;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 0, 51, 0.5);
         }
 
         .info {
             position: fixed;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 20px;
             color: rgba(255, 255, 255, 0.5);
-            font-size: 12px;
+            font-size: 11px;
             letter-spacing: 1px;
-            z-index: 1000;
+            z-index: 999;
         }
 
         .frequency-bar {
-            height: 2px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
             background: linear-gradient(90deg, 
-                var(--primary-red) 0%, 
-                #ff0066 25%, 
-                #ff0099 50%, 
-                #ff00cc 75%, 
-                #ff00ff 100%
+                var(--accent-color) 0%, 
+                var(--secondary-accent) 100%
             );
-            margin-bottom: 30px;
-            opacity: 0.3;
-            transition: opacity 0.3s ease;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.1s ease;
+            z-index: 998;
         }
 
-        .frequency-bar.active {
-            opacity: 0.7;
-        }
-
-        @media (max-width: 768px) {
-            header {
-                height: 60px;
-                padding: 0 20px;
-            }
-
-            .header-title {
-                font-size: 14px;
-            }
-
-            header a {
-                font-size: 12px;
-            }
-
+        @media (max-width: 1024px) {
             .container {
-                padding: 60px 20px 20px;
+                grid-template-columns: 1fr;
             }
 
-            .upload-zone {
-                padding: 30px 20px;
+            .control-panel {
+                position: fixed;
+                top: 70px;
+                right: -350px;
+                bottom: 0;
+                width: 350px;
+                transition: right 0.3s ease;
+                z-index: 900;
             }
 
-            .upload-zone h2 {
-                font-size: 14px;
+            .control-panel.visible {
+                right: 0;
             }
 
-            .controls {
-                flex-wrap: wrap;
-                gap: 10px;
+            .menu-toggle {
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                background: var(--accent-color);
+                border: none;
+                border-radius: 50%;
+                color: #000;
+                font-size: 20px;
+                cursor: pointer;
+                z-index: 1001;
             }
+        }
 
-            button {
-                padding: 12px 20px;
-                font-size: 12px;
-            }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
 
-            .binary-display {
-                font-size: 16px;
-                padding: 20px;
-                letter-spacing: 2px;
-            }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="header-title">VISUALISEUR AUDIO</div>
+    <header id="header">
+        <div class="header-title">VISUALISEUR GÉNÉRATIF</div>
         <div class="header-links">
             <a href="index.html">ACCUEIL</a>
             <a href="portfolio.html">PORTFOLIO</a>
@@ -292,81 +382,219 @@
     </header>
 
     <div class="container">
-        <div class="upload-zone" id="uploadZone">
-            <h2>GLISSEZ UN FICHIER MP3 ICI OU CLIQUEZ POUR SÉLECTIONNER</h2>
-            <input type="file" id="fileInput" accept=".mp3,audio/mpeg">
+        <div class="visualization-area">
+            <canvas id="waterfallCanvas" class="waterfall-canvas"></canvas>
+            <canvas id="generativeCanvas"></canvas>
         </div>
 
-        <div class="controls">
-            <button id="playBtn" disabled>▶ LECTURE</button>
-            <button id="pauseBtn" disabled>⏸ PAUSE</button>
-            <button id="stopBtn" disabled>⏹ STOP</button>
-            <button id="speedBtn" class="speed-toggle" disabled>VITESSE x1</button>
-            <button id="modeBtn" class="mode-toggle" disabled>CHANGER MODE</button>
+        <div class="control-panel" id="controlPanel">
+            <div class="control-section">
+                <h3>Audio</h3>
+                <div class="upload-zone" id="uploadZone">
+                    Glissez un MP3 ou cliquez
+                    <input type="file" id="fileInput" accept=".mp3,audio/mpeg">
+                </div>
+                <div class="controls">
+                    <button id="playBtn" disabled>▶ Play</button>
+                    <button id="pauseBtn" disabled>⏸ Pause</button>
+                    <button id="stopBtn" disabled>⏹ Stop</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Thème</h3>
+                <div class="theme-toggle">
+                    <button id="darkBtn" class="active">Sombre</button>
+                    <button id="lightBtn">Clair</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Vitesse</h3>
+                <div class="slider-control">
+                    <label>Vitesse d'exécution: <span id="speedValue">1.0x</span></label>
+                    <input type="range" id="speedSlider" min="0.5" max="3" step="0.1" value="1">
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Mode de génération</h3>
+                <div class="mode-buttons">
+                    <button id="mode1" class="active">Onde</button>
+                    <button id="mode2">Spirale</button>
+                    <button id="mode3">Chaos</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Texte personnalisé</h3>
+                <input type="text" id="customText" placeholder="GO" value="GO">
+            </div>
+
+            <div class="control-section">
+                <h3>Sensibilité audio</h3>
+                <div class="slider-control">
+                    <label>Réactivité: <span id="sensitivityValue">1.0x</span></label>
+                    <input type="range" id="sensitivitySlider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+            </div>
         </div>
-
-        <div class="frequency-bar" id="frequencyBar"></div>
-
-        <div class="binary-display" id="binaryDisplay">
-            <div class="binary-content" id="binaryContent">CHARGEZ UN FICHIER AUDIO POUR COMMENCER</div>
-        </div>
-
-        <div class="waterfall-container" id="waterfallContainer">
-            <canvas id="waterfallCanvas"></canvas>
-        </div>
-
-        <div class="waterfall-container" id="sonogram3dContainer">
-            <canvas id="sonogram3dCanvas"></canvas>
-        </div>
-
-        <div class="info" id="info">Prêt</div>
     </div>
+
+    <button class="fullscreen-btn" id="fullscreenBtn" title="Plein écran">⛶</button>
+    <div class="info" id="info">Prêt</div>
+    <div class="frequency-bar" id="frequencyBar"></div>
 
     <audio id="audio"></audio>
 
     <script>
+        // Elements
         const uploadZone = document.getElementById('uploadZone');
         const fileInput = document.getElementById('fileInput');
         const audio = document.getElementById('audio');
         const playBtn = document.getElementById('playBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const stopBtn = document.getElementById('stopBtn');
-        const speedBtn = document.getElementById('speedBtn');
-        const modeBtn = document.getElementById('modeBtn');
-        const binaryDisplay = document.getElementById('binaryDisplay');
-        const binaryContent = document.getElementById('binaryContent');
-        const waterfallContainer = document.getElementById('waterfallContainer');
-        const waterfallCanvas = document.getElementById('waterfallCanvas');
-        const sonogram3dContainer = document.getElementById('sonogram3dContainer');
-        const sonogram3dCanvas = document.getElementById('sonogram3dCanvas');
+        const darkBtn = document.getElementById('darkBtn');
+        const lightBtn = document.getElementById('lightBtn');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
+        const sensitivitySlider = document.getElementById('sensitivitySlider');
+        const sensitivityValue = document.getElementById('sensitivityValue');
+        const mode1 = document.getElementById('mode1');
+        const mode2 = document.getElementById('mode2');
+        const mode3 = document.getElementById('mode3');
+        const customText = document.getElementById('customText');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const header = document.getElementById('header');
         const info = document.getElementById('info');
         const frequencyBar = document.getElementById('frequencyBar');
+        const waterfallCanvas = document.getElementById('waterfallCanvas');
+        const generativeCanvas = document.getElementById('generativeCanvas');
 
+        // Audio context
         let audioContext, analyser, source, dataArray, bufferLength;
         let animationId;
-        let currentMode = 0; // 0: binary, 1: waterfall, 2: sonogram3d
-        let waterfallCtx, sonogram3dCtx;
-        let binaryStream = '';
-        let maxBinaryLength = 10000;
-        let playbackSpeed = 1;
-        let waterfallImageData;
-        let waterfallHeight = 0;
-        let sonogram3dHistory = [];
+        let currentMode = 1;
+        let generationSpeed = 1;
+        let sensitivity = 1;
+        let characters = 'GO';
 
+        // Canvas contexts
+        let waterfallCtx, generativeCtx;
+        let particles = [];
+        let time = 0;
+
+        // Initialize canvases
+        function initCanvases() {
+            waterfallCanvas.width = window.innerWidth;
+            waterfallCanvas.height = window.innerHeight - 70;
+            generativeCanvas.width = window.innerWidth;
+            generativeCanvas.height = window.innerHeight - 70;
+
+            waterfallCtx = waterfallCanvas.getContext('2d');
+            generativeCtx = generativeCanvas.getContext('2d');
+        }
+
+        initCanvases();
+
+        // Particle class for generative typography
+        class TypoParticle {
+            constructor(x, y, char, frequency) {
+                this.x = x;
+                this.y = y;
+                this.char = char;
+                this.baseX = x;
+                this.baseY = y;
+                this.frequency = frequency;
+                this.size = 20 + frequency * 0.3;
+                this.opacity = 0.3 + frequency * 0.005;
+                this.rotation = 0;
+                this.vx = 0;
+                this.vy = 0;
+            }
+
+            update(avgFrequency, mode) {
+                const intensity = avgFrequency * sensitivity * 0.01;
+
+                switch(mode) {
+                    case 1: // Wave mode
+                        this.x = this.baseX + Math.sin(time * 0.05 + this.baseY * 0.01) * intensity * 50;
+                        this.y = this.baseY + Math.cos(time * 0.03 + this.baseX * 0.01) * intensity * 30;
+                        this.rotation = Math.sin(time * 0.1) * intensity * 0.5;
+                        this.size = 20 + avgFrequency * 0.3 + Math.sin(time * 0.1) * 10;
+                        break;
+
+                    case 2: // Spiral mode
+                        const angle = Math.atan2(this.baseY - generativeCanvas.height/2, this.baseX - generativeCanvas.width/2);
+                        const dist = Math.sqrt(Math.pow(this.baseX - generativeCanvas.width/2, 2) + Math.pow(this.baseY - generativeCanvas.height/2, 2));
+                        const spiral = time * 0.02 + dist * 0.005;
+                        this.x = this.baseX + Math.cos(angle + spiral) * intensity * 30;
+                        this.y = this.baseY + Math.sin(angle + spiral) * intensity * 30;
+                        this.rotation = angle + spiral;
+                        this.size = 15 + avgFrequency * 0.4;
+                        break;
+
+                    case 3: // Chaos mode
+                        this.vx += (Math.random() - 0.5) * intensity * 0.5;
+                        this.vy += (Math.random() - 0.5) * intensity * 0.5;
+                        this.vx *= 0.95;
+                        this.vy *= 0.95;
+                        this.x = this.baseX + this.vx;
+                        this.y = this.baseY + this.vy;
+                        this.rotation += intensity * 0.1;
+                        this.size = 10 + avgFrequency * 0.5 + Math.random() * 20;
+                        break;
+                }
+
+                this.opacity = Math.min(1, 0.3 + avgFrequency * 0.005);
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.font = `bold ${this.size}px 'Archivo Black', sans-serif`;
+                ctx.fillStyle = `rgba(${document.body.classList.contains('light-mode') ? '10, 10, 10' : '255, 255, 255'}, ${this.opacity})`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.char, 0, 0);
+                ctx.restore();
+            }
+        }
+
+        // Initialize particles
+        function initParticles() {
+            particles = [];
+            const cols = Math.floor(generativeCanvas.width / 60);
+            const rows = Math.floor(generativeCanvas.height / 60);
+
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    const x = (j + 0.5) * (generativeCanvas.width / cols);
+                    const y = (i + 0.5) * (generativeCanvas.height / rows) + 70;
+                    const char = characters[Math.floor(Math.random() * characters.length)];
+                    const freq = Math.random() * 255;
+                    particles.push(new TypoParticle(x, y, char, freq));
+                }
+            }
+        }
+
+        // Upload handlers
         uploadZone.addEventListener('click', () => fileInput.click());
-        
+
         uploadZone.addEventListener('dragover', (e) => {
             e.preventDefault();
-            uploadZone.classList.add('dragover');
+            uploadZone.style.borderColor = 'var(--accent-color)';
         });
 
         uploadZone.addEventListener('dragleave', () => {
-            uploadZone.classList.remove('dragover');
+            uploadZone.style.borderColor = '';
         });
 
         uploadZone.addEventListener('drop', (e) => {
             e.preventDefault();
-            uploadZone.classList.remove('dragover');
+            uploadZone.style.borderColor = '';
             const file = e.dataTransfer.files[0];
             if (file && file.type === 'audio/mpeg') {
                 loadAudio(file);
@@ -382,37 +610,36 @@
             const url = URL.createObjectURL(file);
             audio.src = url;
             info.textContent = `Chargé: ${file.name}`;
-            
+
             playBtn.disabled = false;
             pauseBtn.disabled = false;
             stopBtn.disabled = false;
-            speedBtn.disabled = false;
-            modeBtn.disabled = false;
 
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioContext.createAnalyser();
-                analyser.fftSize = 2048;
+                analyser.fftSize = 512;
                 bufferLength = analyser.frequencyBinCount;
                 dataArray = new Uint8Array(bufferLength);
 
                 source = audioContext.createMediaElementSource(audio);
                 source.connect(analyser);
                 analyser.connect(audioContext.destination);
+
+                initParticles();
             }
         }
 
+        // Playback controls
         playBtn.addEventListener('click', () => {
             audio.play();
-            frequencyBar.classList.add('active');
             if (!animationId) {
-                startCurrentMode();
+                animate();
             }
         });
 
         pauseBtn.addEventListener('click', () => {
             audio.pause();
-            frequencyBar.classList.remove('active');
         });
 
         stopBtn.addEventListener('click', () => {
@@ -420,243 +647,149 @@
             audio.currentTime = 0;
             cancelAnimationFrame(animationId);
             animationId = null;
-            frequencyBar.classList.remove('active');
-            binaryStream = '';
-            binaryContent.innerHTML = 'AUDIO ARRÊTÉ';
+            generativeCtx.clearRect(0, 0, generativeCanvas.width, generativeCanvas.height);
         });
 
-        speedBtn.addEventListener('click', () => {
-            if (playbackSpeed === 1) {
-                playbackSpeed = 2;
-                audio.playbackRate = 2;
-                speedBtn.textContent = 'VITESSE x2';
+        // Theme controls
+        darkBtn.addEventListener('click', () => {
+            document.body.classList.remove('light-mode');
+            darkBtn.classList.add('active');
+            lightBtn.classList.remove('active');
+        });
+
+        lightBtn.addEventListener('click', () => {
+            document.body.classList.add('light-mode');
+            lightBtn.classList.add('active');
+            darkBtn.classList.remove('active');
+        });
+
+        // Speed control
+        speedSlider.addEventListener('input', (e) => {
+            generationSpeed = parseFloat(e.target.value);
+            speedValue.textContent = generationSpeed.toFixed(1) + 'x';
+        });
+
+        // Sensitivity control
+        sensitivitySlider.addEventListener('input', (e) => {
+            sensitivity = parseFloat(e.target.value);
+            sensitivityValue.textContent = sensitivity.toFixed(1) + 'x';
+        });
+
+        // Mode controls
+        mode1.addEventListener('click', () => {
+            currentMode = 1;
+            mode1.classList.add('active');
+            mode2.classList.remove('active');
+            mode3.classList.remove('active');
+        });
+
+        mode2.addEventListener('click', () => {
+            currentMode = 2;
+            mode2.classList.add('active');
+            mode1.classList.remove('active');
+            mode3.classList.remove('active');
+        });
+
+        mode3.addEventListener('click', () => {
+            currentMode = 3;
+            mode3.classList.add('active');
+            mode1.classList.remove('active');
+            mode2.classList.remove('active');
+        });
+
+        // Custom text
+        customText.addEventListener('input', (e) => {
+            characters = e.target.value || 'GO';
+            initParticles();
+        });
+
+        // Fullscreen
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                header.classList.add('hidden');
             } else {
-                playbackSpeed = 1;
-                audio.playbackRate = 1;
-                speedBtn.textContent = 'VITESSE x1';
+                document.exitFullscreen();
+                header.classList.remove('hidden');
             }
         });
 
-        // Contrôle clavier : Espace pour pause/lecture
+        // Keyboard shortcut
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && !playBtn.disabled) {
                 e.preventDefault();
                 if (audio.paused) {
                     audio.play();
-                    frequencyBar.classList.add('active');
-                    if (!animationId) {
-                        startCurrentMode();
-                    }
+                    if (!animationId) animate();
                 } else {
                     audio.pause();
-                    frequencyBar.classList.remove('active');
                 }
             }
         });
 
-        function startCurrentMode() {
-            switch(currentMode) {
-                case 0:
-                    animateBinary();
-                    break;
-                case 1:
-                    initWaterfall();
-                    animateWaterfall();
-                    break;
-                case 2:
-                    initSonogram3D();
-                    animateSonogram3D();
-                    break;
-            }
-        }
-
-        modeBtn.addEventListener('click', () => {
-            currentMode = (currentMode + 1) % 3;
-            cancelAnimationFrame(animationId);
-            animationId = null;
-            
-            // Cacher tous les containers
-            binaryDisplay.style.display = 'none';
-            waterfallContainer.classList.remove('active');
-            sonogram3dContainer.classList.remove('active');
-            
-            // Afficher le container approprié
-            switch(currentMode) {
-                case 0:
-                    binaryDisplay.style.display = 'flex';
-                    modeBtn.textContent = 'MODE WATERFALL';
-                    break;
-                case 1:
-                    waterfallContainer.classList.add('active');
-                    initWaterfall();
-                    modeBtn.textContent = 'MODE SONOGRAMME 3D';
-                    break;
-                case 2:
-                    sonogram3dContainer.classList.add('active');
-                    initSonogram3D();
-                    modeBtn.textContent = 'MODE BINAIRE';
-                    break;
-            }
-            
-            if (!audio.paused) {
-                startCurrentMode();
-            }
-        });
-
-        function animateBinary() {
+        // Animation loop
+        function animate() {
             if (!analyser) return;
 
             analyser.getByteFrequencyData(dataArray);
 
-            // Générer de nouveaux bits binaires basés sur les fréquences
-            let newBits = '';
-            const step = Math.floor(bufferLength / 8);
-            
-            for (let i = 0; i < 8; i++) {
-                const value = dataArray[i * step];
-                const binary = value > 128 ? '1' : '0';
-                const weight = Math.floor((value / 255) * 800) + 100;
-                const opacity = (value / 255) * 0.4 + 0.6;
-                
-                newBits += `<span style="font-weight: ${weight}; opacity: ${opacity};">${binary}</span>`;
+            // Calculate average frequency
+            let sum = 0;
+            for (let i = 0; i < bufferLength; i++) {
+                sum += dataArray[i];
             }
+            const avgFrequency = sum / bufferLength;
 
-            // Ajouter les nouveaux bits au flux
-            binaryStream += newBits;
+            // Update frequency bar
+            frequencyBar.style.transform = `scaleX(${avgFrequency / 255})`;
 
-            // Limiter la longueur pour éviter les problèmes de performance
-            if (binaryStream.length > maxBinaryLength * 100) {
-                binaryStream = binaryStream.slice(-maxBinaryLength * 50);
-            }
+            // Update time based on speed
+            time += generationSpeed;
 
-            binaryContent.innerHTML = binaryStream;
+            // Draw waterfall
+            drawWaterfall();
 
-            // Auto-scroll vers le bas
-            binaryDisplay.scrollTop = binaryDisplay.scrollHeight;
+            // Draw generative typography
+            generativeCtx.clearRect(0, 0, generativeCanvas.width, generativeCanvas.height);
 
-            animationId = requestAnimationFrame(animateBinary);
+            particles.forEach(particle => {
+                particle.update(avgFrequency, currentMode);
+                particle.draw(generativeCtx);
+            });
+
+            animationId = requestAnimationFrame(animate);
         }
 
-        function initWaterfall() {
-            waterfallCanvas.width = waterfallContainer.clientWidth;
-            waterfallCanvas.height = waterfallContainer.clientHeight;
-            waterfallHeight = waterfallCanvas.height;
-            waterfallCtx = waterfallCanvas.getContext('2d');
-            waterfallImageData = waterfallCtx.createImageData(waterfallCanvas.width, waterfallCanvas.height);
-        }
-
-        function animateWaterfall() {
-            if (!analyser) return;
-
-            analyser.getByteFrequencyData(dataArray);
-
+        // Waterfall visualization
+        function drawWaterfall() {
             const imageData = waterfallCtx.getImageData(0, 0, waterfallCanvas.width, waterfallCanvas.height - 1);
             waterfallCtx.putImageData(imageData, 0, 1);
 
             const step = bufferLength / waterfallCanvas.width;
-            
+
             for (let i = 0; i < waterfallCanvas.width; i++) {
                 const value = dataArray[Math.floor(i * step)];
-                
+
                 let r, g, b;
                 if (value < 64) {
-                    r = 0; 
-                    g = 0; 
-                    b = value * 4;
+                    r = 255; g = 0; b = 51;
                 } else if (value < 128) {
-                    r = (value - 64) * 2; 
-                    g = (value - 64) * 3; 
-                    b = 255 - (value - 64) * 2;
+                    r = 255; g = (value - 64) * 2; b = 51 + (value - 64);
                 } else if (value < 192) {
-                    r = 128 + (value - 128) * 2; 
-                    g = 192 + (value - 128); 
-                    b = (192 - value) * 2;
+                    r = 255 - (value - 128) * 2; g = 128 + (value - 128) * 2; b = 100 + (value - 128);
                 } else {
-                    r = 255; 
-                    g = 255 - (value - 192) * 3; 
-                    b = 0;
+                    r = 0; g = 255; b = 136;
                 }
 
-                waterfallCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                waterfallCtx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.8)`;
                 waterfallCtx.fillRect(i, 0, 1, 1);
             }
-
-            animationId = requestAnimationFrame(animateWaterfall);
         }
 
-        // Mode Sonogramme 3D
-        function initSonogram3D() {
-            sonogram3dCanvas.width = sonogram3dContainer.clientWidth;
-            sonogram3dCanvas.height = sonogram3dContainer.clientHeight;
-            sonogram3dCtx = sonogram3dCanvas.getContext('2d');
-            sonogram3dHistory = [];
-        }
-
-        function animateSonogram3D() {
-            if (!analyser) return;
-
-            analyser.getByteFrequencyData(dataArray);
-
-            sonogram3dCtx.fillStyle = '#000';
-            sonogram3dCtx.fillRect(0, 0, sonogram3dCanvas.width, sonogram3dCanvas.height);
-
-            // Ajouter la nouvelle ligne de fréquences
-            const newLine = Array.from(dataArray);
-            sonogram3dHistory.push(newLine);
-
-            // Garder seulement les 100 dernières lignes
-            if (sonogram3dHistory.length > 100) {
-                sonogram3dHistory.shift();
-            }
-
-            const width = sonogram3dCanvas.width;
-            const height = sonogram3dCanvas.height;
-            const depth = sonogram3dHistory.length;
-
-            // Dessiner en perspective 3D
-            for (let z = 0; z < depth; z++) {
-                const perspective = 1 - (z / depth) * 0.7;
-                const yOffset = (z / depth) * height * 0.5;
-                const lineWidth = width * perspective;
-                const xOffset = (width - lineWidth) / 2;
-
-                const line = sonogram3dHistory[z];
-                const step = lineWidth / bufferLength;
-
-                for (let i = 0; i < bufferLength; i++) {
-                    const value = line[i];
-                    const x = xOffset + i * step;
-                    const barHeight = (value / 255) * height * 0.3 * perspective;
-                    const y = height - yOffset - barHeight;
-
-                    // Couleur basée sur la fréquence et la profondeur
-                    let r, g, b;
-                    if (value < 64) {
-                        r = 0; g = 0; b = value * 4;
-                    } else if (value < 128) {
-                        r = (value - 64) * 2; g = (value - 64) * 3; b = 255 - (value - 64) * 2;
-                    } else if (value < 192) {
-                        r = 128 + (value - 128) * 2; g = 192 + (value - 128); b = (192 - value) * 2;
-                    } else {
-                        r = 255; g = 255 - (value - 192) * 3; b = 0;
-                    }
-
-                    const alpha = perspective * 0.8;
-                    sonogram3dCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
-                    sonogram3dCtx.fillRect(x, y, step + 1, barHeight);
-                }
-            }
-
-            animationId = requestAnimationFrame(animateSonogram3D);
-        }
-
+        // Resize handler
         window.addEventListener('resize', () => {
-            if (waterfallCtx && currentMode === 1) {
-                initWaterfall();
-            }
-            if (sonogram3dCtx && currentMode === 2) {
-                initSonogram3D();
-            }
+            initCanvases();
+            initParticles();
         });
     </script>
 </body>
