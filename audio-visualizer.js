@@ -1,6 +1,7 @@
 /**
  * AUDIO VISUALIZER - GENERATIVE TYPOGRAPHY ENGINE
  * Architecture modulaire avec effets génératifs avancés
+ * Style: After Effects fluid typography animations
  * Fichier: audio-visualizer.js
  */
 
@@ -14,10 +15,19 @@ const CONFIG = {
     minDecibels: -90,
     maxDecibels: -10,
     
-    grid: {
-        charWidth: 12,  // Largeur monospace
-        charHeight: 20, // Hauteur monospace
-        fontSize: 16
+    typography: {
+        fontSize: 18,
+        fontFamily: "'JetBrains Mono', monospace",
+        baseSpacing: 8,      // Espacement de base entre lettres
+        maxSpacing: 120,     // Espacement maximum (interlettrage immense)
+        wordSpacing: 40      // Espacement entre mots
+    },
+    
+    animation: {
+        smoothness: 0.15,    // Lissage des animations (plus c'est bas, plus c'est fluide)
+        waveSpeed: 0.02,
+        pulseSpeed: 0.03,
+        vortexSpeed: 0.015
     },
     
     colors: {
@@ -81,16 +91,14 @@ const STATE = {
     waterfallCanvas: null,
     generativeCanvas: null,
     
-    // Grid
-    gridCols: 0,
-    gridRows: 0,
-    grid: [],
+    // Typography
+    words: [],
+    characters: 'GO',
     
     // Settings
     currentMode: 1,
     generationSpeed: 1,
     sensitivity: 1,
-    characters: 'GO',
     isPlaying: false,
     showStats: false,
     showWaterfall: true,
@@ -114,30 +122,18 @@ const STATE = {
 // ============================================================================
 
 const Utils = {
-    /**
-     * Map a value from one range to another
-     */
     map(value, start1, stop1, start2, stop2) {
         return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
     },
     
-    /**
-     * Constrain value between min and max
-     */
     constrain(value, min, max) {
         return Math.min(Math.max(value, min), max);
     },
     
-    /**
-     * Linear interpolation
-     */
     lerp(start, end, amt) {
         return start + (end - start) * amt;
     },
     
-    /**
-     * Convert hex color to RGB
-     */
     hexToRgb(hex) {
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? {
@@ -147,205 +143,299 @@ const Utils = {
         } : null;
     },
     
-    /**
-     * Generate random value between min and max
-     */
     random(min, max) {
         return Math.random() * (max - min) + min;
+    },
+    
+    easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    },
+    
+    easeOutElastic(t) {
+        const c4 = (2 * Math.PI) / 3;
+        return t === 0 ? 0 : t === 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
     }
 };
 
 // ============================================================================
-// GRID SYSTEM - Monospace Typography Grid
+// CHARACTER CLASS - Individual letter with smooth animations
 // ============================================================================
 
-const GridSystem = {
-    /**
-     * Initialize grid system
-     */
-    init() {
-        const canvas = STATE.generativeCanvas;
-        STATE.gridCols = Math.floor(canvas.width / CONFIG.grid.charWidth);
-        STATE.gridRows = Math.floor(canvas.height / CONFIG.grid.charHeight);
+class Character {
+    constructor(char, wordIndex, charIndex) {
+        this.char = char;
+        this.wordIndex = wordIndex;
+        this.charIndex = charIndex;
         
-        // Create empty grid
-        STATE.grid = [];
-        for (let y = 0; y < STATE.gridRows; y++) {
-            STATE.grid[y] = [];
-            for (let x = 0; x < STATE.gridCols; x++) {
-                STATE.grid[y][x] = ' ';
-            }
-        }
+        // Position
+        this.x = 0;
+        this.y = 0;
+        this.targetX = 0;
+        this.targetY = 0;
         
-        console.log(`Grid initialized: ${STATE.gridCols}x${STATE.gridRows}`);
-    },
+        // Spacing
+        this.spacing = CONFIG.typography.baseSpacing;
+        this.targetSpacing = CONFIG.typography.baseSpacing;
+        
+        // Visual
+        this.opacity = 1.0;
+        this.scale = 1.0;
+        this.targetScale = 1.0;
+        
+        // Animation phase
+        this.phase = Utils.random(0, Math.PI * 2);
+    }
     
-    /**
-     * Clear grid
-     */
-    clear() {
-        for (let y = 0; y < STATE.gridRows; y++) {
-            for (let x = 0; x < STATE.gridCols; x++) {
-                STATE.grid[y][x] = ' ';
-            }
-        }
-    },
+    update() {
+        // Smooth interpolation vers les positions cibles
+        this.x = Utils.lerp(this.x, this.targetX, CONFIG.animation.smoothness);
+        this.y = Utils.lerp(this.y, this.targetY, CONFIG.animation.smoothness);
+        this.spacing = Utils.lerp(this.spacing, this.targetSpacing, CONFIG.animation.smoothness);
+        this.scale = Utils.lerp(this.scale, this.targetScale, CONFIG.animation.smoothness);
+    }
     
-    /**
-     * Set character at grid position
-     */
-    setChar(x, y, char) {
-        x = Math.floor(x);
-        y = Math.floor(y);
-        if (x >= 0 && x < STATE.gridCols && y >= 0 && y < STATE.gridRows) {
-            STATE.grid[y][x] = char;
-        }
-    },
-    
-    /**
-     * Render grid to canvas
-     */
-    render(ctx) {
-        ctx.font = `${CONFIG.grid.fontSize}px 'JetBrains Mono', monospace`;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
+    draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.scale(this.scale, this.scale);
         
         const color = STATE.isDarkMode ? '#ffffff' : '#0a0a0a';
         ctx.fillStyle = color;
+        ctx.globalAlpha = this.opacity;
         
-        for (let y = 0; y < STATE.gridRows; y++) {
-            for (let x = 0; x < STATE.gridCols; x++) {
-                const char = STATE.grid[y][x];
-                if (char !== ' ') {
-                    ctx.fillText(
-                        char,
-                        x * CONFIG.grid.charWidth,
-                        y * CONFIG.grid.charHeight
-                    );
-                }
-            }
+        ctx.font = `${CONFIG.typography.fontSize}px ${CONFIG.typography.fontFamily}`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.char, 0, 0);
+        
+        ctx.restore();
+    }
+}
+
+// ============================================================================
+// WORD CLASS - Complete word unit
+// ============================================================================
+
+class Word {
+    constructor(text, index) {
+        this.text = text;
+        this.index = index;
+        this.characters = [];
+        
+        // Create character objects
+        for (let i = 0; i < text.length; i++) {
+            this.characters.push(new Character(text[i], index, i));
         }
+        
+        // Base position
+        this.baseX = 0;
+        this.baseY = 0;
+    }
+    
+    update() {
+        this.characters.forEach(char => char.update());
+    }
+    
+    draw(ctx) {
+        this.characters.forEach(char => char.draw(ctx));
+    }
+    
+    getWidth() {
+        let width = 0;
+        this.characters.forEach(char => {
+            width += char.spacing;
+        });
+        return width;
+    }
+}
+
+// ============================================================================
+// TYPOGRAPHY SYSTEM
+// ============================================================================
+
+const TypographySystem = {
+    init() {
+        this.createWords();
+        console.log(`Typography system initialized with word: "${STATE.characters}"`);
+    },
+    
+    createWords() {
+        STATE.words = [];
+        const text = STATE.characters;
+        
+        // Créer plusieurs instances du mot pour remplir l'écran
+        const estimatedWordWidth = text.length * (CONFIG.typography.baseSpacing + CONFIG.typography.fontSize);
+        const wordsNeeded = Math.ceil((STATE.generativeCanvas.width * 3) / estimatedWordWidth);
+        
+        for (let i = 0; i < wordsNeeded; i++) {
+            STATE.words.push(new Word(text, i));
+        }
+    },
+    
+    updateText(newText) {
+        STATE.characters = newText || 'GO';
+        this.createWords();
+    },
+    
+    update() {
+        STATE.words.forEach(word => word.update());
+    },
+    
+    draw(ctx) {
+        STATE.words.forEach(word => word.draw(ctx));
     }
 };
 
 // ============================================================================
-// GENERATIVE PATTERNS - Mathematical Curves
+// GENERATIVE PATTERNS - Fluid Typography Animations
 // ============================================================================
 
 const GenerativePatterns = {
     /**
-     * Mode 1: Liquid - Flowing wave patterns
+     * Mode 1: Liquid Wave - Onde fluide de gauche à droite avec espacement dynamique
      */
     liquid(audioData) {
-        GridSystem.clear();
-        
-        const word = STATE.characters;
+        const centerY = STATE.generativeCanvas.height / 2;
         const intensity = audioData.avgFrequency * STATE.sensitivity * 0.01;
-        const bassImpact = audioData.bassLevel * 0.005;
+        const bassImpact = audioData.bassLevel * 0.01;
         
-        let charIndex = 0;
+        let currentX = 50;
+        let rowIndex = 0;
+        const rowSpacing = 80;
+        const numRows = Math.ceil(STATE.generativeCanvas.height / rowSpacing);
         
-        // Create multiple horizontal waves
-        const numWaves = 5;
-        for (let waveNum = 0; waveNum < numWaves; waveNum++) {
-            const baseY = (STATE.gridRows / (numWaves + 1)) * (waveNum + 1);
+        STATE.words.forEach((word, wordIndex) => {
+            const row = Math.floor(wordIndex / 3);
+            const col = wordIndex % 3;
             
-            for (let x = 0; x < STATE.gridCols; x++) {
-                // Multi-layered sine waves for organic movement
-                const wave1 = Math.sin((x * 0.1) + (STATE.time * 0.02)) * intensity * 3;
-                const wave2 = Math.sin((x * 0.05) + (STATE.time * 0.015) + waveNum) * intensity * 2;
-                const wave3 = Math.sin((x * 0.15) + (STATE.time * 0.025) + waveNum * 2) * bassImpact * 5;
+            word.baseY = centerY - (numRows * rowSpacing / 2) + (row * rowSpacing);
+            
+            let wordX = col * 400 + 100;
+            
+            word.characters.forEach((char, charIndex) => {
+                // Onde fluide qui se propage
+                const wavePhase = (STATE.time * CONFIG.animation.waveSpeed) - (wordX * 0.003) - (charIndex * 0.1);
+                const wave1 = Math.sin(wavePhase) * intensity * 60;
+                const wave2 = Math.sin(wavePhase * 2 + char.phase) * intensity * 30;
                 
-                const y = baseY + wave1 + wave2 + wave3;
+                // Variation d'espacement - crée l'effet d'interlettrage dynamique
+                const spacingWave = Math.sin(wavePhase * 0.5) * 0.5 + 0.5; // 0 to 1
+                const beatMultiplier = audioData.beatDetected ? 1.5 : 1.0;
+                char.targetSpacing = Utils.lerp(
+                    CONFIG.typography.baseSpacing,
+                    CONFIG.typography.maxSpacing,
+                    spacingWave * intensity * 0.02 * beatMultiplier
+                );
                 
-                // Place character
-                const char = word[charIndex % word.length];
-                GridSystem.setChar(x, y, char);
-                charIndex++;
-            }
-        }
+                // Position Y avec onde
+                char.targetY = word.baseY + wave1 + wave2;
+                
+                // Position X accumulative avec espacement
+                char.targetX = wordX;
+                wordX += char.spacing;
+                
+                // Scale subtil pour accentuer le mouvement
+                char.targetScale = 1.0 + Math.sin(wavePhase) * 0.1 * intensity * 0.01;
+            });
+        });
     },
     
     /**
-     * Mode 2: Pulse - Circular/radial patterns
+     * Mode 2: Pulse - Expansion/contraction radiale avec espacement explosif
      */
     pulse(audioData) {
-        GridSystem.clear();
-        
-        const word = STATE.characters;
-        const centerX = STATE.gridCols / 2;
-        const centerY = STATE.gridRows / 2;
+        const centerX = STATE.generativeCanvas.width / 2;
+        const centerY = STATE.generativeCanvas.height / 2;
         const intensity = audioData.avgFrequency * STATE.sensitivity * 0.01;
         const beatPulse = audioData.beatDetected ? 1.5 : 1.0;
         
-        let charIndex = 0;
-        
-        // Create concentric circles
-        const numCircles = 8;
-        for (let circleNum = 1; circleNum <= numCircles; circleNum++) {
-            const baseRadius = (circleNum / numCircles) * Math.min(centerX, centerY) * 0.8;
-            const radiusVariation = Math.sin(STATE.time * 0.03 + circleNum) * intensity * 2;
-            const radius = (baseRadius + radiusVariation) * beatPulse;
+        STATE.words.forEach((word, wordIndex) => {
+            const angle = (wordIndex / STATE.words.length) * Math.PI * 2;
+            const baseRadius = 200 + (wordIndex % 3) * 100;
             
-            // Number of points on circle based on circumference
-            const circumference = 2 * Math.PI * radius;
-            const numPoints = Math.floor(circumference / 2);
+            // Pulse radial
+            const pulsePhase = STATE.time * CONFIG.animation.pulseSpeed;
+            const radiusModulation = Math.sin(pulsePhase + wordIndex * 0.5) * intensity * 50 * beatPulse;
+            const radius = baseRadius + radiusModulation;
             
-            for (let i = 0; i < numPoints; i++) {
-                const angle = (i / numPoints) * Math.PI * 2;
-                const x = centerX + Math.cos(angle) * radius;
-                const y = centerY + Math.sin(angle) * radius;
+            word.baseX = centerX + Math.cos(angle) * radius;
+            word.baseY = centerY + Math.sin(angle) * radius;
+            
+            let charX = 0;
+            
+            word.characters.forEach((char, charIndex) => {
+                // Espacement qui pulse
+                const spacingPhase = pulsePhase + charIndex * 0.3;
+                const spacingPulse = (Math.sin(spacingPhase) * 0.5 + 0.5); // 0 to 1
                 
-                const char = word[charIndex % word.length];
-                GridSystem.setChar(x, y, char);
-                charIndex++;
-            }
-        }
+                char.targetSpacing = Utils.lerp(
+                    CONFIG.typography.baseSpacing,
+                    CONFIG.typography.maxSpacing * 0.8,
+                    spacingPulse * intensity * 0.03 * beatPulse
+                );
+                
+                // Position
+                char.targetX = word.baseX + charX;
+                char.targetY = word.baseY;
+                
+                charX += char.spacing;
+                
+                // Scale pulse
+                char.targetScale = 1.0 + spacingPulse * 0.3 * intensity * 0.01;
+            });
+        });
     },
     
     /**
-     * Mode 3: Vortex - Spiral patterns
+     * Mode 3: Vortex - Spirale avec compression/expansion de l'espacement
      */
     vortex(audioData) {
-        GridSystem.clear();
-        
-        const word = STATE.characters;
-        const centerX = STATE.gridCols / 2;
-        const centerY = STATE.gridRows / 2;
+        const centerX = STATE.generativeCanvas.width / 2;
+        const centerY = STATE.generativeCanvas.height / 2;
         const intensity = audioData.avgFrequency * STATE.sensitivity * 0.01;
         const midImpact = audioData.midLevel * 0.01;
         
-        let charIndex = 0;
-        
-        // Create multiple spirals
-        const numSpirals = 3;
-        for (let spiralNum = 0; spiralNum < numSpirals; spiralNum++) {
-            const angleOffset = (spiralNum / numSpirals) * Math.PI * 2;
-            const maxRadius = Math.min(centerX, centerY) * 0.9;
-            const numPoints = 200;
+        STATE.words.forEach((word, wordIndex) => {
+            const spiralPhase = (STATE.time * CONFIG.animation.vortexSpeed) + (wordIndex * 0.5);
+            const t = (wordIndex / STATE.words.length);
             
-            for (let i = 0; i < numPoints; i++) {
-                const t = i / numPoints;
+            // Spirale d'Archimède
+            const angle = t * Math.PI * 6 + spiralPhase;
+            const radius = t * 300 + Math.sin(spiralPhase * 2) * intensity * 30;
+            
+            word.baseX = centerX + Math.cos(angle) * radius;
+            word.baseY = centerY + Math.sin(angle) * radius;
+            
+            let charX = 0;
+            
+            word.characters.forEach((char, charIndex) => {
+                // Espacement en vortex - compression au centre, expansion à l'extérieur
+                const distanceFromCenter = radius / 300; // 0 to 1
+                const vortexSpacing = Utils.lerp(
+                    CONFIG.typography.baseSpacing * 0.5,
+                    CONFIG.typography.maxSpacing * 0.6,
+                    distanceFromCenter * intensity * 0.02
+                );
                 
-                // Archimedean spiral with audio modulation
-                const angle = t * Math.PI * 8 + (STATE.time * 0.02) + angleOffset;
-                const radiusBase = t * maxRadius;
-                const radiusWave = Math.sin(angle * 2 + STATE.time * 0.03) * intensity * 3;
-                const radius = radiusBase + radiusWave + (midImpact * 10);
+                // Modulation par la musique
+                const musicModulation = Math.sin(spiralPhase + charIndex * 0.2) * midImpact * 20;
+                char.targetSpacing = vortexSpacing + musicModulation;
                 
-                const x = centerX + Math.cos(angle) * radius;
-                const y = centerY + Math.sin(angle) * radius;
+                // Position
+                const charAngle = angle + (charX * 0.001); // Suit la courbe
+                const charRadius = radius;
                 
-                const char = word[charIndex % word.length];
-                GridSystem.setChar(x, y, char);
-                charIndex++;
-            }
-        }
+                char.targetX = centerX + Math.cos(charAngle) * charRadius + charX * Math.cos(angle);
+                char.targetY = centerY + Math.sin(charAngle) * charRadius + charX * Math.sin(angle);
+                
+                charX += char.spacing;
+                
+                // Scale basé sur la distance
+                char.targetScale = 1.0 + distanceFromCenter * 0.2;
+            });
+        });
     },
     
-    /**
-     * Update pattern based on current mode
-     */
     update(audioData) {
         switch(STATE.currentMode) {
             case 1:
@@ -366,9 +456,6 @@ const GenerativePatterns = {
 // ============================================================================
 
 const AudioEngine = {
-    /**
-     * Initialize audio context and analyser
-     */
     init() {
         STATE.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         STATE.analyser = STATE.audioContext.createAnalyser();
@@ -383,9 +470,6 @@ const AudioEngine = {
         console.log('Audio Engine initialized');
     },
     
-    /**
-     * Connect audio source
-     */
     connectSource(audioElement) {
         if (!STATE.source) {
             STATE.source = STATE.audioContext.createMediaElementSource(audioElement);
@@ -395,13 +479,9 @@ const AudioEngine = {
         }
     },
     
-    /**
-     * Analyze audio and extract features
-     */
     analyze() {
         STATE.analyser.getByteFrequencyData(STATE.dataArray);
         
-        // Calculate average frequency
         let sum = 0;
         let peak = 0;
         for (let i = 0; i < STATE.bufferLength; i++) {
@@ -411,32 +491,27 @@ const AudioEngine = {
         STATE.avgFrequency = sum / STATE.bufferLength;
         STATE.peakFrequency = peak;
         
-        // Frequency bands
         const bassRange = Math.floor(STATE.bufferLength * 0.1);
         const midRange = Math.floor(STATE.bufferLength * 0.5);
         
-        // Bass (0-10%)
         let bassSum = 0;
         for (let i = 0; i < bassRange; i++) {
             bassSum += STATE.dataArray[i];
         }
         STATE.bassLevel = bassSum / bassRange;
         
-        // Mid (10-50%)
         let midSum = 0;
         for (let i = bassRange; i < midRange; i++) {
             midSum += STATE.dataArray[i];
         }
         STATE.midLevel = midSum / (midRange - bassRange);
         
-        // Treble (50-100%)
         let trebleSum = 0;
         for (let i = midRange; i < STATE.bufferLength; i++) {
             trebleSum += STATE.dataArray[i];
         }
         STATE.trebleLevel = trebleSum / (STATE.bufferLength - midRange);
         
-        // Simple beat detection
         STATE.beatDetected = STATE.bassLevel > 180;
         
         return {
@@ -455,9 +530,6 @@ const AudioEngine = {
 // ============================================================================
 
 const WaterfallViz = {
-    /**
-     * Initialize waterfall canvas
-     */
     init() {
         STATE.waterfallCanvas.width = window.innerWidth;
         STATE.waterfallCanvas.height = window.innerHeight - 70;
@@ -465,24 +537,18 @@ const WaterfallViz = {
         console.log('Waterfall visualization initialized');
     },
     
-    /**
-     * Render waterfall effect
-     */
     render() {
         const ctx = STATE.waterfallCtx;
         const canvas = STATE.waterfallCanvas;
         
-        // Scroll previous frame down
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height - 1);
         ctx.putImageData(imageData, 0, 1);
         
-        // Draw new line at top
         const step = STATE.bufferLength / canvas.width;
         
         for (let i = 0; i < canvas.width; i++) {
             const value = STATE.dataArray[Math.floor(i * step)];
             
-            // Color mapping
             let r, g, b;
             const rgb = Utils.hexToRgb(CONFIG.colors.accent);
             const rgb2 = Utils.hexToRgb(CONFIG.colors.secondary);
@@ -514,20 +580,15 @@ const WaterfallViz = {
 // ============================================================================
 
 const AnimationEngine = {
-    /**
-     * Main animation loop
-     */
     animate(currentTime) {
         STATE.animationId = requestAnimationFrame(AnimationEngine.animate);
         
-        // Calculate delta time
         if (STATE.lastFrameTime === 0) {
             STATE.lastFrameTime = currentTime;
         }
         STATE.deltaTime = (currentTime - STATE.lastFrameTime) / 1000;
         STATE.lastFrameTime = currentTime;
         
-        // Update FPS
         STATE.frameCount++;
         if (currentTime - STATE.lastFpsUpdate > 1000) {
             STATE.fps = STATE.frameCount;
@@ -536,36 +597,27 @@ const AnimationEngine = {
             UI.updateStats();
         }
         
-        // Analyze audio
         const audioData = AudioEngine.analyze();
         
-        // Update time based on speed
         STATE.time += STATE.generationSpeed;
         
-        // Update frequency bar
         UI.updateFrequencyBar(audioData.avgFrequency);
         
-        // Render waterfall only if enabled
         if (STATE.showWaterfall) {
             WaterfallViz.render();
         }
         
-        // Render generative only if enabled
         if (STATE.showGenerative) {
-            // Clear canvas
             const bgColor = STATE.isDarkMode ? '#0a0a0a' : '#f5f5f0';
             STATE.generativeCtx.fillStyle = bgColor;
             STATE.generativeCtx.fillRect(0, 0, STATE.generativeCanvas.width, STATE.generativeCanvas.height);
             
-            // Update and render pattern
             GenerativePatterns.update(audioData);
-            GridSystem.render(STATE.generativeCtx);
+            TypographySystem.update();
+            TypographySystem.draw(STATE.generativeCtx);
         }
     },
     
-    /**
-     * Start animation
-     */
     start() {
         if (!STATE.animationId) {
             STATE.lastFrameTime = 0;
@@ -574,9 +626,6 @@ const AnimationEngine = {
         }
     },
     
-    /**
-     * Stop animation
-     */
     stop() {
         if (STATE.animationId) {
             cancelAnimationFrame(STATE.animationId);
@@ -592,24 +641,17 @@ const AnimationEngine = {
 // ============================================================================
 
 const UI = {
-    /**
-     * Initialize UI elements
-     */
     init() {
-        // Get canvas elements
         STATE.waterfallCanvas = document.getElementById('waterfallCanvas');
         STATE.generativeCanvas = document.getElementById('generativeCanvas');
         STATE.generativeCtx = STATE.generativeCanvas.getContext('2d');
         
-        // Initialize canvases
         this.resizeCanvases();
         WaterfallViz.init();
-        GridSystem.init();
+        TypographySystem.init();
         
-        // Setup event listeners
         this.setupEventListeners();
         
-        // Hide loading screen
         setTimeout(() => {
             document.getElementById('loading').classList.add('hidden');
         }, 500);
@@ -617,9 +659,6 @@ const UI = {
         console.log('UI initialized');
     },
     
-    /**
-     * Resize canvas elements
-     */
     resizeCanvases() {
         STATE.waterfallCanvas.width = window.innerWidth;
         STATE.waterfallCanvas.height = window.innerHeight - 70;
@@ -627,15 +666,11 @@ const UI = {
         STATE.generativeCanvas.height = window.innerHeight - 70;
     },
     
-    /**
-     * Setup all event listeners
-     */
     setupEventListeners() {
         const audio = document.getElementById('audio');
         const uploadZone = document.getElementById('uploadZone');
         const fileInput = document.getElementById('fileInput');
         
-        // Upload handlers
         uploadZone.addEventListener('click', () => fileInput.click());
         
         uploadZone.addEventListener('dragover', (e) => {
@@ -661,7 +696,6 @@ const UI = {
             if (file) this.loadAudio(file);
         });
         
-        // Playback controls
         document.getElementById('playBtn').addEventListener('click', () => {
             audio.play();
             STATE.isPlaying = true;
@@ -680,7 +714,6 @@ const UI = {
             AnimationEngine.stop();
         });
         
-        // Theme controls
         document.getElementById('darkBtn').addEventListener('click', () => {
             document.body.classList.remove('light-mode');
             STATE.isDarkMode = true;
@@ -693,7 +726,6 @@ const UI = {
             this.setActiveButton('lightBtn', 'darkBtn');
         });
 
-        // Display toggles
         document.getElementById('generativeToggle').addEventListener('click', () => {
             STATE.showGenerative = !STATE.showGenerative;
             STATE.generativeCanvas.classList.toggle('hidden', !STATE.showGenerative);
@@ -711,7 +743,6 @@ const UI = {
             document.getElementById('motionBlurToggle').classList.toggle('active', STATE.motionBlur);
         });
         
-        // Mode controls - FIX: Un seul mode actif à la fois
         for (let i = 1; i <= 3; i++) {
             document.getElementById(`mode${i}`).addEventListener('click', () => {
                 STATE.currentMode = i;
@@ -719,31 +750,26 @@ const UI = {
             });
         }
         
-        // Custom text
         document.getElementById('customText').addEventListener('input', (e) => {
-            STATE.characters = e.target.value || 'GO';
+            TypographySystem.updateText(e.target.value);
         });
         
-        // Speed control
         document.getElementById('speedSlider').addEventListener('input', (e) => {
             STATE.generationSpeed = parseFloat(e.target.value);
             document.getElementById('speedValue').textContent = STATE.generationSpeed.toFixed(1) + 'x';
         });
         
-        // Sensitivity control
         document.getElementById('sensitivitySlider').addEventListener('input', (e) => {
             STATE.sensitivity = parseFloat(e.target.value);
             document.getElementById('sensitivityValue').textContent = STATE.sensitivity.toFixed(1) + 'x';
         });
         
-        // Density control - Removed as no longer needed with grid system
         document.getElementById('densitySlider').addEventListener('input', (e) => {
             const value = parseInt(e.target.value);
             const labels = ['Very Low', 'Low', 'Medium', 'High', 'Very High'];
             document.getElementById('densityValue').textContent = labels[value - 1];
         });
         
-        // Color controls
         document.getElementById('accentColor').addEventListener('input', (e) => {
             CONFIG.colors.accent = e.target.value;
             document.documentElement.style.setProperty('--accent-color', e.target.value);
@@ -754,19 +780,16 @@ const UI = {
             document.documentElement.style.setProperty('--secondary-accent', e.target.value);
         });
         
-        // Preset controls
         document.getElementById('preset1').addEventListener('click', () => this.applyPreset('cyber'));
         document.getElementById('preset2').addEventListener('click', () => this.applyPreset('retro'));
         document.getElementById('preset3').addEventListener('click', () => this.applyPreset('minimal'));
         document.getElementById('preset4').addEventListener('click', () => this.applyPreset('psyche'));
         
-        // Stats toggle
         document.getElementById('statsBtn').addEventListener('click', () => {
             STATE.showStats = !STATE.showStats;
             document.getElementById('stats').classList.toggle('visible', STATE.showStats);
         });
         
-        // Fullscreen
         document.getElementById('fullscreenBtn').addEventListener('click', () => {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen();
@@ -777,7 +800,6 @@ const UI = {
             }
         });
         
-        // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && !document.getElementById('playBtn').disabled) {
                 e.preventDefault();
@@ -792,17 +814,13 @@ const UI = {
             }
         });
         
-        // Window resize
         window.addEventListener('resize', () => {
             this.resizeCanvases();
             WaterfallViz.init();
-            GridSystem.init();
+            TypographySystem.createWords();
         });
     },
     
-    /**
-     * Load audio file
-     */
     loadAudio(file) {
         const audio = document.getElementById('audio');
         const url = URL.createObjectURL(file);
@@ -810,21 +828,16 @@ const UI = {
         
         document.getElementById('info').textContent = `Chargé: ${file.name}`;
         
-        // Enable controls
         document.getElementById('playBtn').disabled = false;
         document.getElementById('pauseBtn').disabled = false;
         document.getElementById('stopBtn').disabled = false;
         
-        // Initialize audio context if needed
         if (!STATE.audioContext) {
             AudioEngine.init();
             AudioEngine.connectSource(audio);
         }
     },
     
-    /**
-     * Apply preset configuration
-     */
     applyPreset(presetName) {
         const preset = CONFIG.presets[presetName];
         if (preset) {
@@ -833,7 +846,6 @@ const UI = {
             STATE.sensitivity = preset.sensitivity;
             STATE.generationSpeed = preset.speed;
             
-            // Update UI
             document.documentElement.style.setProperty('--accent-color', preset.accent);
             document.documentElement.style.setProperty('--secondary-accent', preset.secondary);
             document.getElementById('accentColor').value = preset.accent;
@@ -847,36 +859,24 @@ const UI = {
         }
     },
     
-    /**
-     * Update frequency bar
-     */
     updateFrequencyBar(avgFrequency) {
         const bar = document.getElementById('frequencyBar');
         bar.style.transform = `scaleX(${avgFrequency / 255})`;
     },
     
-    /**
-     * Update performance stats
-     */
     updateStats() {
         if (STATE.showStats) {
             document.getElementById('fps').textContent = STATE.fps;
-            document.getElementById('particleCount').textContent = STATE.gridCols * STATE.gridRows;
+            document.getElementById('particleCount').textContent = STATE.words.length;
             document.getElementById('avgFreq').textContent = Math.round(STATE.avgFrequency);
         }
     },
     
-    /**
-     * Set active button helper
-     */
     setActiveButton(activeId, inactiveId) {
         document.getElementById(activeId).classList.add('active');
         document.getElementById(inactiveId).classList.remove('active');
     },
     
-    /**
-     * Set active mode button - FIX: Désactive tous les autres
-     */
     setActiveModeButton(modeNumber) {
         for (let i = 1; i <= 3; i++) {
             const btn = document.getElementById(`mode${i}`);
@@ -894,7 +894,7 @@ const UI = {
 // ============================================================================
 
 window.addEventListener('DOMContentLoaded', () => {
-    console.log('🎵 Audio Visualizer - Generative Typography Engine');
+    console.log('🎵 Audio Visualizer - Fluid Typography Engine');
     console.log('Initializing...');
     
     UI.init();
