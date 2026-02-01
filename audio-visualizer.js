@@ -14,19 +14,10 @@ const CONFIG = {
     minDecibels: -90,
     maxDecibels: -10,
     
-    particles: {
-        densityLevels: [50, 100, 200, 400, 600],
-        baseSize: 20,
-        maxSize: 80,
-        minOpacity: 0.1,
-        maxOpacity: 1
-    },
-    
-    physics: {
-        friction: 0.95,
-        attraction: 0.001,
-        repulsion: 0.05,
-        gravity: 0.1
+    grid: {
+        charWidth: 12,  // Largeur monospace
+        charHeight: 20, // Hauteur monospace
+        fontSize: 16
     },
     
     colors: {
@@ -90,9 +81,10 @@ const STATE = {
     waterfallCanvas: null,
     generativeCanvas: null,
     
-    // Particles
-    particles: [],
-    particleDensity: 3,
+    // Grid
+    gridCols: 0,
+    gridRows: 0,
+    grid: [],
     
     // Settings
     currentMode: 1,
@@ -144,13 +136,6 @@ const Utils = {
     },
     
     /**
-     * Calculate distance between two points
-     */
-    distance(x1, y1, x2, y2) {
-        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-    },
-    
-    /**
      * Convert hex color to RGB
      */
     hexToRgb(hex) {
@@ -171,221 +156,210 @@ const Utils = {
 };
 
 // ============================================================================
-// PARTICLE CLASS - Advanced Typography Particle System
+// GRID SYSTEM - Monospace Typography Grid
 // ============================================================================
 
-class TypoParticle {
-    constructor(x, y, char, index) {
-        this.x = x;
-        this.y = y;
-        this.baseX = x;
-        this.baseY = y;
-        this.char = char;
-        this.index = index;
-        
-        // Physics
-        this.vx = 0;
-        this.vy = 0;
-        this.ax = 0;
-        this.ay = 0;
-        
-        // Visual properties
-        this.size = CONFIG.particles.baseSize;
-        this.baseSize = CONFIG.particles.baseSize;
-        this.opacity = Utils.random(0.3, 0.8);
-        this.rotation = Utils.random(0, Math.PI * 2);
-        this.rotationSpeed = Utils.random(-0.02, 0.02);
-        
-        // Animation
-        this.phase = Utils.random(0, Math.PI * 2);
-        this.frequency = Utils.random(0.01, 0.05);
-        
-        // Color
-        this.hue = Utils.random(0, 360);
-        this.saturation = 80;
-        this.lightness = 50;
-        
-        // Beat response
-        this.beatScale = 1;
-        this.beatDecay = 0.95;
-        
-        // Trail system for motion blur
-        this.trail = [];
-        this.maxTrailLength = 8;
-    }
-    
+const GridSystem = {
     /**
-     * Update particle based on audio analysis and mode
+     * Initialize grid system
      */
-    update(audioData, mode, deltaTime) {
-        const { avgFrequency, bassLevel, midLevel, trebleLevel, beatDetected } = audioData;
-        const intensity = avgFrequency * STATE.sensitivity * 0.01;
+    init() {
+        const canvas = STATE.generativeCanvas;
+        STATE.gridCols = Math.floor(canvas.width / CONFIG.grid.charWidth);
+        STATE.gridRows = Math.floor(canvas.height / CONFIG.grid.charHeight);
         
-        // Beat detection response
-        if (beatDetected) {
-            this.beatScale = 2.0;
-        }
-        this.beatScale *= this.beatDecay;
-        
-        // Update trail history for motion blur
-        if (this.vx !== 0 || this.vy !== 0) {
-            this.trail.push({
-                x: this.x,
-                y: this.y,
-                rotation: this.rotation
-            });
-            
-            if (this.trail.length > this.maxTrailLength) {
-                this.trail.shift();
+        // Create empty grid
+        STATE.grid = [];
+        for (let y = 0; y < STATE.gridRows; y++) {
+            STATE.grid[y] = [];
+            for (let x = 0; x < STATE.gridCols; x++) {
+                STATE.grid[y][x] = ' ';
             }
-        } else {
-            this.trail = [];
         }
         
-        // Mode-specific behaviors
-        switch(mode) {
-            case 1: // Liquid mode - fluid organic movement
-                this.updateLiquidMode(intensity, bassLevel, avgFrequency);
-                break;
-            case 2: // Pulse mode - rhythmic size changes
-                this.updatePulseMode(intensity, bassLevel, beatDetected);
-                break;
-            case 3: // Vortex mode - swirling motion
-                this.updateVortexMode(intensity, midLevel, avgFrequency);
-                break;
+        console.log(`Grid initialized: ${STATE.gridCols}x${STATE.gridRows}`);
+    },
+    
+    /**
+     * Clear grid
+     */
+    clear() {
+        for (let y = 0; y < STATE.gridRows; y++) {
+            for (let x = 0; x < STATE.gridCols; x++) {
+                STATE.grid[y][x] = ' ';
+            }
         }
-        
-        // Update rotation
-        this.rotation += this.rotationSpeed * STATE.generationSpeed;
-        
-        // Update phase
-        this.phase += this.frequency * STATE.generationSpeed;
-        
-        // Update size based on audio with smoother interpolation
-        const targetSize = this.baseSize + avgFrequency * 0.5 * this.beatScale;
-        this.size = Utils.lerp(this.size, targetSize, 0.15);
-        
-        // Update opacity with audio reactivity
-        const targetOpacity = Utils.constrain(
-            CONFIG.particles.minOpacity + avgFrequency * 0.006,
-            CONFIG.particles.minOpacity,
-            CONFIG.particles.maxOpacity
-        );
-        this.opacity = Utils.lerp(this.opacity, targetOpacity, 0.1);
-    }
+    },
     
     /**
-     * Liquid mode - organic fluid movement like water
+     * Set character at grid position
      */
-    updateLiquidMode(intensity, bassLevel, avgFrequency) {
-        // Multiple sine waves create liquid-like motion
-        const wave1 = Math.sin(STATE.time * 0.02 + this.index * 0.1) * intensity * 60;
-        const wave2 = Math.cos(STATE.time * 0.03 + this.index * 0.15) * intensity * 40;
-        const wave3 = Math.sin(STATE.time * 0.015 + this.phase) * intensity * 30;
-        
-        // Perlin-like noise simulation
-        const noiseX = Math.sin(this.baseX * 0.01 + STATE.time * 0.01) * 
-                       Math.cos(this.baseY * 0.01 + STATE.time * 0.015);
-        const noiseY = Math.cos(this.baseX * 0.01 + STATE.time * 0.015) * 
-                       Math.sin(this.baseY * 0.01 + STATE.time * 0.01);
-        
-        // Combine waves for liquid effect
-        this.x = this.baseX + wave1 + noiseX * intensity * 40 * (1 + bassLevel * 0.02);
-        this.y = this.baseY + wave2 + wave3 + noiseY * intensity * 40 * (1 + bassLevel * 0.02);
-        
-        // Smooth rotation following movement direction
-        const dx = this.x - this.baseX;
-        const dy = this.y - this.baseY;
-        const targetRotation = Math.atan2(dy, dx);
-        this.rotation = Utils.lerp(this.rotation, targetRotation, 0.1);
-        
-        // Add slight scale variation
-        this.baseSize = CONFIG.particles.baseSize + Math.sin(STATE.time * 0.05 + this.phase) * 5;
-    }
-    
-    /**
-     * Vortex mode - swirling spiral motion
-     */
-    updateVortexMode(intensity, midLevel, avgFrequency) {
-        const centerX = STATE.generativeCanvas.width / 2;
-        const centerY = STATE.generativeCanvas.height / 2;
-        
-        // Get polar coordinates
-        const dx = this.baseX - centerX;
-        const dy = this.baseY - centerY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        let angle = Math.atan2(dy, dx);
-        
-        // Spiral effect
-        const spiralSpeed = STATE.time * 0.02;
-        const spiralTightness = dist * 0.003;
-        angle += spiralSpeed + spiralTightness;
-        
-        // Audio-reactive radius
-        const radiusVariation = Math.sin(STATE.time * 0.05 + this.phase) * intensity * 40;
-        const audioRadius = intensity * 20 * (1 + midLevel * 0.01);
-        const newDist = dist + radiusVariation + audioRadius;
-        
-        // Convert back to cartesian
-        this.x = centerX + Math.cos(angle) * newDist;
-        this.y = centerY + Math.sin(angle) * newDist;
-        
-        // Rotation follows spiral
-        this.rotation = angle + Math.PI / 2;
-    }
-    
-    /**
-     * Render particle to canvas
-     */
-    draw(ctx) {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.rotation);
-        
-        // Apply color based on mode or theme
-        const baseColor = STATE.isDarkMode ? 
-            { r: 255, g: 255, b: 255 } :
-            { r: 10, g: 10, b: 10 };
-        
-        // Audio-reactive color blending
-        const accentRgb = Utils.hexToRgb(CONFIG.colors.accent);
-        const secondaryRgb = Utils.hexToRgb(CONFIG.colors.secondary);
-        
-        // Mix colors based on audio frequency
-        const frequencyMix = STATE.avgFrequency / 255;
-        const r = Utils.lerp(baseColor.r, accentRgb.r, frequencyMix * 0.5);
-        const g = Utils.lerp(baseColor.g, accentRgb.g, frequencyMix * 0.5);
-        const b = Utils.lerp(baseColor.b, accentRgb.b, frequencyMix * 0.5);
-        
-        const color = `rgba(${r}, ${g}, ${b}, ${this.opacity})`;
-        
-        // Add glow effect based on audio intensity and beat
-        if (this.beatScale > 1.2 || STATE.avgFrequency > 100) {
-            const glowIntensity = Math.min(30, (STATE.avgFrequency / 255) * 40);
-            ctx.shadowBlur = glowIntensity * this.beatScale;
-            ctx.shadowColor = CONFIG.colors.accent;
+    setChar(x, y, char) {
+        x = Math.floor(x);
+        y = Math.floor(y);
+        if (x >= 0 && x < STATE.gridCols && y >= 0 && y < STATE.gridRows) {
+            STATE.grid[y][x] = char;
         }
+    },
+    
+    /**
+     * Render grid to canvas
+     */
+    render(ctx) {
+        ctx.font = `${CONFIG.grid.fontSize}px 'JetBrains Mono', monospace`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
         
-        // Draw character with effects
-        ctx.font = `bold ${this.size}px 'Archivo Black', sans-serif`;
+        const color = STATE.isDarkMode ? '#ffffff' : '#0a0a0a';
         ctx.fillStyle = color;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
         
-        // Multiple passes for stronger glow on beats
-        if (STATE.beatDetected && this.beatScale > 1.5) {
-            ctx.globalAlpha = 0.3;
-            ctx.fillText(this.char, 0, 0);
-            ctx.globalAlpha = 0.5;
-            ctx.fillText(this.char, 0, 0);
+        for (let y = 0; y < STATE.gridRows; y++) {
+            for (let x = 0; x < STATE.gridCols; x++) {
+                const char = STATE.grid[y][x];
+                if (char !== ' ') {
+                    ctx.fillText(
+                        char,
+                        x * CONFIG.grid.charWidth,
+                        y * CONFIG.grid.charHeight
+                    );
+                }
+            }
         }
-        
-        ctx.globalAlpha = this.opacity;
-        ctx.fillText(this.char, 0, 0);
-        
-        ctx.restore();
     }
-}
+};
+
+// ============================================================================
+// GENERATIVE PATTERNS - Mathematical Curves
+// ============================================================================
+
+const GenerativePatterns = {
+    /**
+     * Mode 1: Liquid - Flowing wave patterns
+     */
+    liquid(audioData) {
+        GridSystem.clear();
+        
+        const word = STATE.characters;
+        const intensity = audioData.avgFrequency * STATE.sensitivity * 0.01;
+        const bassImpact = audioData.bassLevel * 0.005;
+        
+        let charIndex = 0;
+        
+        // Create multiple horizontal waves
+        const numWaves = 5;
+        for (let waveNum = 0; waveNum < numWaves; waveNum++) {
+            const baseY = (STATE.gridRows / (numWaves + 1)) * (waveNum + 1);
+            
+            for (let x = 0; x < STATE.gridCols; x++) {
+                // Multi-layered sine waves for organic movement
+                const wave1 = Math.sin((x * 0.1) + (STATE.time * 0.02)) * intensity * 3;
+                const wave2 = Math.sin((x * 0.05) + (STATE.time * 0.015) + waveNum) * intensity * 2;
+                const wave3 = Math.sin((x * 0.15) + (STATE.time * 0.025) + waveNum * 2) * bassImpact * 5;
+                
+                const y = baseY + wave1 + wave2 + wave3;
+                
+                // Place character
+                const char = word[charIndex % word.length];
+                GridSystem.setChar(x, y, char);
+                charIndex++;
+            }
+        }
+    },
+    
+    /**
+     * Mode 2: Pulse - Circular/radial patterns
+     */
+    pulse(audioData) {
+        GridSystem.clear();
+        
+        const word = STATE.characters;
+        const centerX = STATE.gridCols / 2;
+        const centerY = STATE.gridRows / 2;
+        const intensity = audioData.avgFrequency * STATE.sensitivity * 0.01;
+        const beatPulse = audioData.beatDetected ? 1.5 : 1.0;
+        
+        let charIndex = 0;
+        
+        // Create concentric circles
+        const numCircles = 8;
+        for (let circleNum = 1; circleNum <= numCircles; circleNum++) {
+            const baseRadius = (circleNum / numCircles) * Math.min(centerX, centerY) * 0.8;
+            const radiusVariation = Math.sin(STATE.time * 0.03 + circleNum) * intensity * 2;
+            const radius = (baseRadius + radiusVariation) * beatPulse;
+            
+            // Number of points on circle based on circumference
+            const circumference = 2 * Math.PI * radius;
+            const numPoints = Math.floor(circumference / 2);
+            
+            for (let i = 0; i < numPoints; i++) {
+                const angle = (i / numPoints) * Math.PI * 2;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                
+                const char = word[charIndex % word.length];
+                GridSystem.setChar(x, y, char);
+                charIndex++;
+            }
+        }
+    },
+    
+    /**
+     * Mode 3: Vortex - Spiral patterns
+     */
+    vortex(audioData) {
+        GridSystem.clear();
+        
+        const word = STATE.characters;
+        const centerX = STATE.gridCols / 2;
+        const centerY = STATE.gridRows / 2;
+        const intensity = audioData.avgFrequency * STATE.sensitivity * 0.01;
+        const midImpact = audioData.midLevel * 0.01;
+        
+        let charIndex = 0;
+        
+        // Create multiple spirals
+        const numSpirals = 3;
+        for (let spiralNum = 0; spiralNum < numSpirals; spiralNum++) {
+            const angleOffset = (spiralNum / numSpirals) * Math.PI * 2;
+            const maxRadius = Math.min(centerX, centerY) * 0.9;
+            const numPoints = 200;
+            
+            for (let i = 0; i < numPoints; i++) {
+                const t = i / numPoints;
+                
+                // Archimedean spiral with audio modulation
+                const angle = t * Math.PI * 8 + (STATE.time * 0.02) + angleOffset;
+                const radiusBase = t * maxRadius;
+                const radiusWave = Math.sin(angle * 2 + STATE.time * 0.03) * intensity * 3;
+                const radius = radiusBase + radiusWave + (midImpact * 10);
+                
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                
+                const char = word[charIndex % word.length];
+                GridSystem.setChar(x, y, char);
+                charIndex++;
+            }
+        }
+    },
+    
+    /**
+     * Update pattern based on current mode
+     */
+    update(audioData) {
+        switch(STATE.currentMode) {
+            case 1:
+                this.liquid(audioData);
+                break;
+            case 2:
+                this.pulse(audioData);
+                break;
+            case 3:
+                this.vortex(audioData);
+                break;
+        }
+    }
+};
 
 // ============================================================================
 // AUDIO ANALYSIS ENGINE
@@ -473,71 +447,6 @@ const AudioEngine = {
             trebleLevel: STATE.trebleLevel,
             beatDetected: STATE.beatDetected
         };
-    }
-};
-
-// ============================================================================
-// PARTICLE SYSTEM MANAGER
-// ============================================================================
-
-const ParticleSystem = {
-    /**
-     * Initialize particle system
-     */
-    init() {
-        this.createParticles();
-        console.log(`Particle System initialized with ${STATE.particles.length} particles`);
-    },
-    
-    /**
-     * Create particles based on density setting
-     */
-    createParticles() {
-        STATE.particles = [];
-        const density = CONFIG.particles.densityLevels[STATE.particleDensity - 1];
-        const cols = Math.ceil(Math.sqrt(density * (STATE.generativeCanvas.width / STATE.generativeCanvas.height)));
-        const rows = Math.ceil(density / cols);
-        
-        const cellWidth = STATE.generativeCanvas.width / cols;
-        const cellHeight = STATE.generativeCanvas.height / rows;
-        
-        let index = 0;
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                const x = (col + 0.5) * cellWidth;
-                const y = (row + 0.5) * cellHeight + 70;
-                const char = STATE.characters[Math.floor(Math.random() * STATE.characters.length)];
-                
-                STATE.particles.push(new TypoParticle(x, y, char, index++));
-            }
-        }
-    },
-    
-    /**
-     * Update all particles
-     */
-    update(audioData, deltaTime) {
-        STATE.particles.forEach(particle => {
-            particle.update(audioData, STATE.currentMode, deltaTime);
-        });
-    },
-    
-    /**
-     * Render all particles
-     */
-    render(ctx) {
-        STATE.particles.forEach(particle => {
-            particle.draw(ctx);
-        });
-    },
-    
-    /**
-     * Update character set
-     */
-    updateCharacters(newChars) {
-        STATE.particles.forEach(particle => {
-            particle.char = newChars[Math.floor(Math.random() * newChars.length)];
-        });
     }
 };
 
@@ -643,20 +552,14 @@ const AnimationEngine = {
         
         // Render generative only if enabled
         if (STATE.showGenerative) {
-            // Apply motion blur by not fully clearing canvas
-            if (STATE.motionBlur) {
-                STATE.generativeCtx.fillStyle = STATE.isDarkMode ? 
-                    'rgba(10, 10, 10, 0.15)' : 
-                    'rgba(245, 245, 240, 0.15)';
-                STATE.generativeCtx.fillRect(0, 0, STATE.generativeCanvas.width, STATE.generativeCanvas.height);
-            } else {
-                // Clear canvas completely
-                STATE.generativeCtx.clearRect(0, 0, STATE.generativeCanvas.width, STATE.generativeCanvas.height);
-            }
+            // Clear canvas
+            const bgColor = STATE.isDarkMode ? '#0a0a0a' : '#f5f5f0';
+            STATE.generativeCtx.fillStyle = bgColor;
+            STATE.generativeCtx.fillRect(0, 0, STATE.generativeCanvas.width, STATE.generativeCanvas.height);
             
-            // Update and render particles
-            ParticleSystem.update(audioData, STATE.deltaTime);
-            ParticleSystem.render(STATE.generativeCtx);
+            // Update and render pattern
+            GenerativePatterns.update(audioData);
+            GridSystem.render(STATE.generativeCtx);
         }
     },
     
@@ -701,6 +604,7 @@ const UI = {
         // Initialize canvases
         this.resizeCanvases();
         WaterfallViz.init();
+        GridSystem.init();
         
         // Setup event listeners
         this.setupEventListeners();
@@ -807,7 +711,7 @@ const UI = {
             document.getElementById('motionBlurToggle').classList.toggle('active', STATE.motionBlur);
         });
         
-        // Mode controls
+        // Mode controls - FIX: Un seul mode actif à la fois
         for (let i = 1; i <= 3; i++) {
             document.getElementById(`mode${i}`).addEventListener('click', () => {
                 STATE.currentMode = i;
@@ -818,7 +722,6 @@ const UI = {
         // Custom text
         document.getElementById('customText').addEventListener('input', (e) => {
             STATE.characters = e.target.value || 'GO';
-            ParticleSystem.updateCharacters(STATE.characters);
         });
         
         // Speed control
@@ -833,12 +736,11 @@ const UI = {
             document.getElementById('sensitivityValue').textContent = STATE.sensitivity.toFixed(1) + 'x';
         });
         
-        // Density control
+        // Density control - Removed as no longer needed with grid system
         document.getElementById('densitySlider').addEventListener('input', (e) => {
-            STATE.particleDensity = parseInt(e.target.value);
+            const value = parseInt(e.target.value);
             const labels = ['Very Low', 'Low', 'Medium', 'High', 'Very High'];
-            document.getElementById('densityValue').textContent = labels[STATE.particleDensity - 1];
-            ParticleSystem.createParticles();
+            document.getElementById('densityValue').textContent = labels[value - 1];
         });
         
         // Color controls
@@ -894,7 +796,7 @@ const UI = {
         window.addEventListener('resize', () => {
             this.resizeCanvases();
             WaterfallViz.init();
-            ParticleSystem.createParticles();
+            GridSystem.init();
         });
     },
     
@@ -917,7 +819,6 @@ const UI = {
         if (!STATE.audioContext) {
             AudioEngine.init();
             AudioEngine.connectSource(audio);
-            ParticleSystem.init();
         }
     },
     
@@ -960,7 +861,7 @@ const UI = {
     updateStats() {
         if (STATE.showStats) {
             document.getElementById('fps').textContent = STATE.fps;
-            document.getElementById('particleCount').textContent = STATE.particles.length;
+            document.getElementById('particleCount').textContent = STATE.gridCols * STATE.gridRows;
             document.getElementById('avgFreq').textContent = Math.round(STATE.avgFrequency);
         }
     },
@@ -974,14 +875,15 @@ const UI = {
     },
     
     /**
-     * Set active mode button
+     * Set active mode button - FIX: Désactive tous les autres
      */
     setActiveModeButton(modeNumber) {
         for (let i = 1; i <= 3; i++) {
+            const btn = document.getElementById(`mode${i}`);
             if (i === modeNumber) {
-                document.getElementById(`mode${i}`).classList.add('active');
+                btn.classList.add('active');
             } else {
-                document.getElementById(`mode${i}`).classList.remove('active');
+                btn.classList.remove('active');
             }
         }
     }
