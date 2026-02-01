@@ -368,7 +368,7 @@
         }
 
         #waterfallCanvas {
-            opacity: 0.3;
+            opacity: 1;
             z-index: 1;
             transition: opacity 0.3s ease;
         }
@@ -381,6 +381,7 @@
         #generativeCanvas {
             z-index: 2;
             transition: opacity 0.3s ease;
+            background: var(--bg-color);
         }
 
         #generativeCanvas.hidden {
@@ -633,18 +634,18 @@
                     <button id="generativeToggle" class="active">Génératif</button>
                     <button id="waterfallToggle" class="active">Waterfall</button>
                 </div>
+                <div class="theme-toggle" style="margin-top: 10px;">
+                    <button id="motionBlurToggle">Motion Blur</button>
+                </div>
             </div>
 
             <!-- Generation Mode Section -->
             <div class="control-section">
                 <h3>Mode de génération</h3>
                 <div class="mode-buttons">
-                    <button id="mode1" class="active">Onde</button>
-                    <button id="mode2">Spirale</button>
-                    <button id="mode3">Chaos</button>
-                    <button id="mode4">Fractale</button>
-                    <button id="mode5">Flux</button>
-                    <button id="mode6">Glitch</button>
+                    <button id="mode1" class="active">Liquide</button>
+                    <button id="mode2">Pulse</button>
+                    <button id="mode3">Vortex</button>
                 </div>
             </div>
 
