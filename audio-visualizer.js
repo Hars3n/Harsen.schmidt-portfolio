@@ -103,6 +103,7 @@ const STATE = {
     showStats: false,
     showWaterfall: true,
     showGenerative: true,
+    motionBlur: false,
     
     // Audio analysis
     avgFrequency: 0,
@@ -207,6 +208,10 @@ class TypoParticle {
         // Beat response
         this.beatScale = 1;
         this.beatDecay = 0.95;
+        
+        // Trail system for motion blur
+        this.trail = [];
+        this.maxTrailLength = 8;
     }
     
     /**
@@ -218,29 +223,35 @@ class TypoParticle {
         
         // Beat detection response
         if (beatDetected) {
-            this.beatScale = 1.5;
+            this.beatScale = 2.0;
         }
         this.beatScale *= this.beatDecay;
         
+        // Update trail history for motion blur
+        if (this.vx !== 0 || this.vy !== 0) {
+            this.trail.push({
+                x: this.x,
+                y: this.y,
+                rotation: this.rotation
+            });
+            
+            if (this.trail.length > this.maxTrailLength) {
+                this.trail.shift();
+            }
+        } else {
+            this.trail = [];
+        }
+        
         // Mode-specific behaviors
         switch(mode) {
-            case 1: // Wave mode
-                this.updateWaveMode(intensity, bassLevel);
+            case 1: // Liquid mode - fluid organic movement
+                this.updateLiquidMode(intensity, bassLevel, avgFrequency);
                 break;
-            case 2: // Spiral mode
-                this.updateSpiralMode(intensity, midLevel);
+            case 2: // Pulse mode - rhythmic size changes
+                this.updatePulseMode(intensity, bassLevel, beatDetected);
                 break;
-            case 3: // Chaos mode
-                this.updateChaosMode(intensity, trebleLevel);
-                break;
-            case 4: // Fractal mode
-                this.updateFractalMode(intensity, avgFrequency);
-                break;
-            case 5: // Flow field mode
-                this.updateFlowFieldMode(intensity, bassLevel);
-                break;
-            case 6: // Glitch mode
-                this.updateGlitchMode(intensity, beatDetected);
+            case 3: // Vortex mode - swirling motion
+                this.updateVortexMode(intensity, midLevel, avgFrequency);
                 break;
         }
         
@@ -250,139 +261,77 @@ class TypoParticle {
         // Update phase
         this.phase += this.frequency * STATE.generationSpeed;
         
-        // Update size based on audio
-        const targetSize = this.baseSize + avgFrequency * 0.3 * this.beatScale;
-        this.size = Utils.lerp(this.size, targetSize, 0.1);
+        // Update size based on audio with smoother interpolation
+        const targetSize = this.baseSize + avgFrequency * 0.5 * this.beatScale;
+        this.size = Utils.lerp(this.size, targetSize, 0.15);
         
-        // Update opacity
-        this.opacity = Utils.constrain(
-            CONFIG.particles.minOpacity + avgFrequency * 0.005,
+        // Update opacity with audio reactivity
+        const targetOpacity = Utils.constrain(
+            CONFIG.particles.minOpacity + avgFrequency * 0.006,
             CONFIG.particles.minOpacity,
             CONFIG.particles.maxOpacity
         );
+        this.opacity = Utils.lerp(this.opacity, targetOpacity, 0.1);
     }
     
     /**
-     * Wave motion - sinusoidal movement
+     * Liquid mode - organic fluid movement like water
      */
-    updateWaveMode(intensity, bassLevel) {
-        const waveX = Math.sin(STATE.time * 0.05 + this.baseY * 0.01 + this.phase) * intensity * 50;
-        const waveY = Math.cos(STATE.time * 0.03 + this.baseX * 0.01 + this.phase) * intensity * 30;
+    updateLiquidMode(intensity, bassLevel, avgFrequency) {
+        // Multiple sine waves create liquid-like motion
+        const wave1 = Math.sin(STATE.time * 0.02 + this.index * 0.1) * intensity * 60;
+        const wave2 = Math.cos(STATE.time * 0.03 + this.index * 0.15) * intensity * 40;
+        const wave3 = Math.sin(STATE.time * 0.015 + this.phase) * intensity * 30;
         
-        this.x = this.baseX + waveX * (1 + bassLevel * 0.01);
-        this.y = this.baseY + waveY * (1 + bassLevel * 0.01);
+        // Perlin-like noise simulation
+        const noiseX = Math.sin(this.baseX * 0.01 + STATE.time * 0.01) * 
+                       Math.cos(this.baseY * 0.01 + STATE.time * 0.015);
+        const noiseY = Math.cos(this.baseX * 0.01 + STATE.time * 0.015) * 
+                       Math.sin(this.baseY * 0.01 + STATE.time * 0.01);
         
-        this.rotationSpeed = Math.sin(STATE.time * 0.1) * intensity * 0.1;
+        // Combine waves for liquid effect
+        this.x = this.baseX + wave1 + noiseX * intensity * 40 * (1 + bassLevel * 0.02);
+        this.y = this.baseY + wave2 + wave3 + noiseY * intensity * 40 * (1 + bassLevel * 0.02);
+        
+        // Smooth rotation following movement direction
+        const dx = this.x - this.baseX;
+        const dy = this.y - this.baseY;
+        const targetRotation = Math.atan2(dy, dx);
+        this.rotation = Utils.lerp(this.rotation, targetRotation, 0.1);
+        
+        // Add slight scale variation
+        this.baseSize = CONFIG.particles.baseSize + Math.sin(STATE.time * 0.05 + this.phase) * 5;
     }
     
     /**
-     * Spiral motion - rotating around center
+     * Vortex mode - swirling spiral motion
      */
-    updateSpiralMode(intensity, midLevel) {
+    updateVortexMode(intensity, midLevel, avgFrequency) {
         const centerX = STATE.generativeCanvas.width / 2;
         const centerY = STATE.generativeCanvas.height / 2;
         
-        const angle = Math.atan2(this.baseY - centerY, this.baseX - centerX);
-        const dist = Utils.distance(this.baseX, this.baseY, centerX, centerY);
+        // Get polar coordinates
+        const dx = this.baseX - centerX;
+        const dy = this.baseY - centerY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        let angle = Math.atan2(dy, dx);
         
-        const spiral = STATE.time * 0.02 + dist * 0.005;
-        const radius = intensity * 30 * (1 + midLevel * 0.01);
+        // Spiral effect
+        const spiralSpeed = STATE.time * 0.02;
+        const spiralTightness = dist * 0.003;
+        angle += spiralSpeed + spiralTightness;
         
-        this.x = this.baseX + Math.cos(angle + spiral) * radius;
-        this.y = this.baseY + Math.sin(angle + spiral) * radius;
+        // Audio-reactive radius
+        const radiusVariation = Math.sin(STATE.time * 0.05 + this.phase) * intensity * 40;
+        const audioRadius = intensity * 20 * (1 + midLevel * 0.01);
+        const newDist = dist + radiusVariation + audioRadius;
         
-        this.rotation = angle + spiral;
-    }
-    
-    /**
-     * Chaos mode - particle physics with random forces
-     */
-    updateChaosMode(intensity, trebleLevel) {
-        // Random forces
-        this.ax += (Math.random() - 0.5) * intensity * 0.5 * (1 + trebleLevel * 0.01);
-        this.ay += (Math.random() - 0.5) * intensity * 0.5 * (1 + trebleLevel * 0.01);
+        // Convert back to cartesian
+        this.x = centerX + Math.cos(angle) * newDist;
+        this.y = centerY + Math.sin(angle) * newDist;
         
-        // Apply acceleration
-        this.vx += this.ax;
-        this.vy += this.ay;
-        
-        // Apply friction
-        this.vx *= CONFIG.physics.friction;
-        this.vy *= CONFIG.physics.friction;
-        
-        // Update position
-        this.x = this.baseX + this.vx;
-        this.y = this.baseY + this.vy;
-        
-        // Reset acceleration
-        this.ax = 0;
-        this.ay = 0;
-        
-        // Add rotation chaos
-        this.rotation += intensity * 0.1 * (Math.random() - 0.5);
-    }
-    
-    /**
-     * Fractal mode - recursive pattern generation
-     */
-    updateFractalMode(intensity, avgFrequency) {
-        const iterations = 3;
-        let offsetX = 0;
-        let offsetY = 0;
-        
-        for (let i = 0; i < iterations; i++) {
-            const scale = Math.pow(0.5, i);
-            const freq = STATE.time * (0.02 + i * 0.01);
-            
-            offsetX += Math.sin(freq + this.phase) * intensity * 30 * scale;
-            offsetY += Math.cos(freq * 1.3 + this.phase) * intensity * 30 * scale;
-        }
-        
-        this.x = this.baseX + offsetX * (1 + avgFrequency * 0.005);
-        this.y = this.baseY + offsetY * (1 + avgFrequency * 0.005);
-        
-        this.rotation = STATE.time * 0.05 + Math.sin(STATE.time * 0.1) * Math.PI;
-    }
-    
-    /**
-     * Flow field mode - Perlin noise-like movement
-     */
-    updateFlowFieldMode(intensity, bassLevel) {
-        // Simulate flow field with sine waves
-        const fieldX = Math.sin(this.baseX * 0.005 + STATE.time * 0.01);
-        const fieldY = Math.cos(this.baseY * 0.005 + STATE.time * 0.01);
-        
-        this.vx += fieldX * intensity * 0.5;
-        this.vy += fieldY * intensity * 0.5;
-        
-        // Apply friction
-        this.vx *= 0.92;
-        this.vy *= 0.92;
-        
-        // Update position
-        this.x = this.baseX + this.vx * (1 + bassLevel * 0.01);
-        this.y = this.baseY + this.vy * (1 + bassLevel * 0.01);
-    }
-    
-    /**
-     * Glitch mode - digital distortion effects
-     */
-    updateGlitchMode(intensity, beatDetected) {
-        if (beatDetected && Math.random() > 0.7) {
-            // Random displacement on beat
-            this.x = this.baseX + Utils.random(-100, 100) * intensity;
-            this.y = this.baseY + Utils.random(-100, 100) * intensity;
-            this.rotation = Utils.random(0, Math.PI * 2);
-        } else {
-            // Snap back to base position
-            this.x = Utils.lerp(this.x, this.baseX, 0.1);
-            this.y = Utils.lerp(this.y, this.baseY, 0.1);
-        }
-        
-        // Glitch rotation
-        if (Math.random() > 0.95) {
-            this.rotation += Utils.random(-Math.PI, Math.PI);
-        }
+        // Rotation follows spiral
+        this.rotation = angle + Math.PI / 2;
     }
     
     /**
@@ -394,22 +343,45 @@ class TypoParticle {
         ctx.rotate(this.rotation);
         
         // Apply color based on mode or theme
-        const color = STATE.isDarkMode ? 
-            `rgba(255, 255, 255, ${this.opacity})` :
-            `rgba(10, 10, 10, ${this.opacity})`;
+        const baseColor = STATE.isDarkMode ? 
+            { r: 255, g: 255, b: 255 } :
+            { r: 10, g: 10, b: 10 };
         
-        // Draw character
+        // Audio-reactive color blending
+        const accentRgb = Utils.hexToRgb(CONFIG.colors.accent);
+        const secondaryRgb = Utils.hexToRgb(CONFIG.colors.secondary);
+        
+        // Mix colors based on audio frequency
+        const frequencyMix = STATE.avgFrequency / 255;
+        const r = Utils.lerp(baseColor.r, accentRgb.r, frequencyMix * 0.5);
+        const g = Utils.lerp(baseColor.g, accentRgb.g, frequencyMix * 0.5);
+        const b = Utils.lerp(baseColor.b, accentRgb.b, frequencyMix * 0.5);
+        
+        const color = `rgba(${r}, ${g}, ${b}, ${this.opacity})`;
+        
+        // Add glow effect based on audio intensity and beat
+        if (this.beatScale > 1.2 || STATE.avgFrequency > 100) {
+            const glowIntensity = Math.min(30, (STATE.avgFrequency / 255) * 40);
+            ctx.shadowBlur = glowIntensity * this.beatScale;
+            ctx.shadowColor = CONFIG.colors.accent;
+        }
+        
+        // Draw character with effects
         ctx.font = `bold ${this.size}px 'Archivo Black', sans-serif`;
         ctx.fillStyle = color;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(this.char, 0, 0);
         
-        // Optional: Add glow effect based on audio
-        if (this.beatScale > 1.1) {
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = CONFIG.colors.accent;
+        // Multiple passes for stronger glow on beats
+        if (STATE.beatDetected && this.beatScale > 1.5) {
+            ctx.globalAlpha = 0.3;
+            ctx.fillText(this.char, 0, 0);
+            ctx.globalAlpha = 0.5;
+            ctx.fillText(this.char, 0, 0);
         }
+        
+        ctx.globalAlpha = this.opacity;
+        ctx.fillText(this.char, 0, 0);
         
         ctx.restore();
     }
@@ -671,8 +643,16 @@ const AnimationEngine = {
         
         // Render generative only if enabled
         if (STATE.showGenerative) {
-            // Clear and render generative canvas
-            STATE.generativeCtx.clearRect(0, 0, STATE.generativeCanvas.width, STATE.generativeCanvas.height);
+            // Apply motion blur by not fully clearing canvas
+            if (STATE.motionBlur) {
+                STATE.generativeCtx.fillStyle = STATE.isDarkMode ? 
+                    'rgba(10, 10, 10, 0.15)' : 
+                    'rgba(245, 245, 240, 0.15)';
+                STATE.generativeCtx.fillRect(0, 0, STATE.generativeCanvas.width, STATE.generativeCanvas.height);
+            } else {
+                // Clear canvas completely
+                STATE.generativeCtx.clearRect(0, 0, STATE.generativeCanvas.width, STATE.generativeCanvas.height);
+            }
             
             // Update and render particles
             ParticleSystem.update(audioData, STATE.deltaTime);
@@ -814,26 +794,21 @@ const UI = {
             STATE.showGenerative = !STATE.showGenerative;
             STATE.generativeCanvas.classList.toggle('hidden', !STATE.showGenerative);
             document.getElementById('generativeToggle').classList.toggle('active', STATE.showGenerative);
-            
-            // Adjust waterfall opacity when generative is toggled
-            if (STATE.showWaterfall) {
-                STATE.waterfallCanvas.style.opacity = STATE.showGenerative ? '0.3' : '1.0';
-            }
         });
 
         document.getElementById('waterfallToggle').addEventListener('click', () => {
             STATE.showWaterfall = !STATE.showWaterfall;
             STATE.waterfallCanvas.classList.toggle('hidden', !STATE.showWaterfall);
             document.getElementById('waterfallToggle').classList.toggle('active', STATE.showWaterfall);
-            
-            // Adjust waterfall opacity based on generative state
-            if (STATE.showWaterfall) {
-                STATE.waterfallCanvas.style.opacity = STATE.showGenerative ? '0.3' : '1.0';
-            }
+        });
+
+        document.getElementById('motionBlurToggle').addEventListener('click', () => {
+            STATE.motionBlur = !STATE.motionBlur;
+            document.getElementById('motionBlurToggle').classList.toggle('active', STATE.motionBlur);
         });
         
         // Mode controls
-        for (let i = 1; i <= 6; i++) {
+        for (let i = 1; i <= 3; i++) {
             document.getElementById(`mode${i}`).addEventListener('click', () => {
                 STATE.currentMode = i;
                 this.setActiveModeButton(i);
@@ -1002,7 +977,7 @@ const UI = {
      * Set active mode button
      */
     setActiveModeButton(modeNumber) {
-        for (let i = 1; i <= 6; i++) {
+        for (let i = 1; i <= 3; i++) {
             if (i === modeNumber) {
                 document.getElementById(`mode${i}`).classList.add('active');
             } else {
